@@ -1,0 +1,45 @@
+name: Collect daily digest
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect-digest
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r agent/requirements.txt
+
+      - name: Collect and summarize
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python agent/run.py
+
+      - name: Commit day JSON
+        run: |
+          git config user.name "ones-news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/days data/index.json
+          if git diff --cached --quiet; then
+            echo "No digest changes"
+            exit 0
+          fi
+          git commit -m "Add digest for yesterday"
+          git push

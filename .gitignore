@@ -1,0 +1,17 @@
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# env / scratch
+.env
+.env.*
+!.env.example
+!agent/.env.example
+agent/.env
+agent/tmp/
+agent/__pycache__/
+**/__pycache__/
+*.pyc
+1.md
+_site/

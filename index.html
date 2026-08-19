@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>OneS News</title>
+		<meta
+			name="description"
+			content="Ежедневный дайджест новостей вокруг мира 1С — в первую очередь для разработчиков."
+		/>
+		<link rel="stylesheet" href="css/styles.css" />
+	</head>
+	<body>
+		<a class="skip-link" href="#main">К содержанию</a>
+
+		<header class="top">
+			<div class="shell top-inner">
+				<a class="brand" href="index.html">
+					<span class="brand-mark" aria-hidden="true">ON</span>
+					<span class="brand-text">
+						<span class="brand-name">OneS News</span>
+						<span class="brand-sub">enterprisehub.dev</span>
+					</span>
+				</a>
+				<nav class="top-nav" aria-label="Навигация">
+					<a href="about.html">О проекте</a>
+				</nav>
+			</div>
+		</header>
+
+		<div class="filters-bar">
+			<div class="shell filters-grid">
+				<label class="field">
+					<span>Дата</span>
+					<select id="date-select"></select>
+				</label>
+				<label class="field">
+					<span>Направление</span>
+					<select id="direction-select"></select>
+				</label>
+				<label class="field">
+					<span>Язык</span>
+					<select id="language-select"></select>
+				</label>
+			</div>
+		</div>
+
+		<main id="main" class="shell">
+			<p id="status" class="status" hidden></p>
+			<header class="day-hero">
+				<h1 id="day-title">Загрузка…</h1>
+			</header>
+			<div id="feed" class="feed"></div>
+		</main>
+
+		<footer class="footer">
+			<div class="shell footer-inner">
+				<p>
+					OneS News — независимый дайджест. Сайт не принадлежит фирме «1С» и не является её
+					официальным ресурсом.
+				</p>
+			</div>
+		</footer>
+
+		<script src="js/config.js"></script>
+		<script src="js/app.js"></script>
+	</body>
+</html>

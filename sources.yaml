@@ -1,0 +1,34 @@
+# Источники для сборщика (браузер этот файл не читает).
+# Секции совпадают с блоками на сайте: site / telegram / video.
+#
+# direction: development | analytics | management | releases | devops | community
+# language: ru | en
+# fetch: rss | telegram_web | youtube_rss
+# summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
+
+site:
+  - name: "Habr 1C"
+    url: "https://habr.com/ru/rss/hub/1c/all/?fl=ru"
+    fetch: rss
+    direction: development
+    language: ru
+    enabled: true
+    summarize: false
+
+telegram:
+  - name: "example_dev1c"
+    url: "https://t.me/s/example_dev1c"
+    fetch: telegram_web
+    direction: development
+    language: ru
+    enabled: false
+    summarize: true
+
+video:
+  - name: "Example YouTube"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID"
+    fetch: youtube_rss
+    direction: community
+    language: ru
+    enabled: false
+    summarize: true

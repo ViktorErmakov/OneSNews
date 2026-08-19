@@ -1,0 +1,61 @@
+{
+  "date": "2026-08-16",
+  "title": "Дайджест за 16 августа 2026",
+  "items": [
+    {
+      "id": "2026-08-16-001",
+      "title": "Вышла тестовая сборка платформы 8.3.27",
+      "summary": "В сборке улучшена диагностика фоновых заданий и стабильность тонкого клиента. Стоит проверить свои расширения на копии базы перед обновлением рабочего контура.",
+      "url": "https://example.com/news/platform-8-3-27",
+      "author": "Редакция релизов",
+      "source_name": "Dev Notes Hub",
+      "source_type": "site",
+      "direction": "releases",
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-16-002",
+      "title": "Как ускорить отчёт с RLS без отключения прав",
+      "summary": "Автор показывает приём с временными таблицами и переносом фильтра на этап подготовки данных. На тестовом контуре время формирования отчёта сократилось примерно втрое.",
+      "url": "https://example.com/articles/rls-temp-tables",
+      "author": "Анна К.",
+      "source_name": "Habr-like Blog",
+      "source_type": "site",
+      "direction": "development",
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-16-003",
+      "title": "CI for EDT projects: practical checklist",
+      "summary": "A short English checklist covering export, smoke tests, and artifact storage for EDT pipelines. Useful if your team mixes Russian docs with English DevOps notes.",
+      "url": "https://example.com/en/edt-ci-checklist",
+      "author": "Alex M.",
+      "source_name": "Cloud Build Notes",
+      "source_type": "site",
+      "direction": "devops",
+      "language": "en"
+    },
+    {
+      "id": "2026-08-16-004",
+      "title": "Тред: конфликты при merge расширений в Git",
+      "summary": "Участники сравнивают стратегии веток и порядок выгрузки объектов. Много практических ссылок на чужие пайплайны и типичные ошибки при параллельной работе.",
+      "url": "https://t.me/example_dev1c/1204",
+      "author": "чат @example_dev1c",
+      "source_name": "Telegram: example_dev1c",
+      "source_type": "telegram",
+      "direction": "development",
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-16-005",
+      "title": "Видео: разбор плана запроса за 15 минут",
+      "summary": "Автор на живом примере показывает, где временная таблица выигрывает у вложенного подзапроса. Удобно как быстрый повтор перед ревью тяжёлых отчётов.",
+      "url": "https://www.youtube.com/watch?v=example1601",
+      "author": "Query Lab",
+      "source_name": "YouTube: Query Lab",
+      "source_type": "video",
+      "direction": "analytics",
+      "language": "ru"
+    }
+  ]
+}
