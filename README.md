@@ -23,12 +23,22 @@ npx --yes serve .
 
 1. Ключ: [Google AI Studio](https://aistudio.google.com/apikey) → скопировать `agent/.env.example` в `agent/.env` и вставить `GEMINI_API_KEY`.
 2. Источники: [`sources.yaml`](sources.yaml). Дата: [`agent/config.yaml`](agent/config.yaml) (`date_mode: yesterday` по умолчанию).
-3. Установить зависимости и запустить:
+3. Установить зависимости:
 
 ```powershell
 pip install -r agent/requirements.txt
+```
+
+4. Собрать день:
+
+```powershell
+# вчера (по agent/config.yaml, date_mode: yesterday)
 python agent/run.py
+
+# конкретный день
 python agent/run.py --date 2026-08-17
+
+# только сбор без записи day JSON
 python agent/run.py --collect-only
 ```
 
