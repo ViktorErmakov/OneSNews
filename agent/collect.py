@@ -12,6 +12,7 @@ from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
 from common import TMP, clip, load_config, load_sources, resolve_date, strip_html
+from tags import source_tags
 
 logger = logging.getLogger(__name__)
 
@@ -57,14 +58,27 @@ def local_name(el) -> str:
 	return el.tag.split("}", 1)[-1] if "}" in el.tag else el.tag
 
 
-def source_meta(source: dict) -> dict:
+def source_meta(source: dict, raw_labels: list[str] | None = None) -> dict:
 	return {
 		"source_name": source.get("name") or "",
 		"source_type": source["source_type"],
-		"direction": source.get("direction") or "community",
+		"tags": source_tags(source, raw_labels),
 		"language": source.get("language") or "ru",
 		"summarize": bool(source.get("summarize", True)),
 	}
+
+
+def read_categories(parent) -> list[str]:
+	labels: list[str] = []
+	for child in list(parent):
+		if local_name(child) != "category":
+			continue
+		text = "".join(child.itertext()).strip()
+		term = (child.attrib.get("term") or "").strip()
+		label = text or term
+		if label:
+			labels.append(label)
+	return labels
 
 
 def collect_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
@@ -82,7 +96,15 @@ def collect_rss_range(
 	root = ET.fromstring(xml_bytes)
 	buckets: dict[date, list[dict]] = {}
 
-	def add_item(title: str, url: str, author: str, published: datetime | None, snippet: str, meta_source: dict) -> None:
+	def add_item(
+		title: str,
+		url: str,
+		author: str,
+		published: datetime | None,
+		snippet: str,
+		meta_source: dict,
+		categories: list[str] | None = None,
+	) -> None:
 		day = local_date(published, tz)
 		if day is None or day < start or day > end:
 			return
@@ -93,7 +115,7 @@ def collect_rss_range(
 				"author": strip_html(author) or "Не указан",
 				"published_at": published.isoformat() if published else None,
 				"snippet": clip(strip_html(snippet), snippet_chars),
-				**source_meta(meta_source),
+				**source_meta(meta_source, categories),
 			}
 		)
 
@@ -113,7 +135,7 @@ def collect_rss_range(
 			published = parse_datetime(
 				item.findtext("pubDate") or item.findtext("published") or item.findtext("updated")
 			)
-			add_item(title, link or guid, author, published, desc, source)
+			add_item(title, link or guid, author, published, desc, source, read_categories(item))
 		return buckets
 
 	for entry in root.findall(f"{ATOM}entry") or root.findall("entry"):
@@ -141,7 +163,15 @@ def collect_rss_range(
 				author = ((name_el.text if name_el is not None else child.text) or author).strip()
 			elif tag in ("published", "updated") and published is None:
 				published = parse_datetime(child.text)
-		add_item(title, link, author, published, summary, {**source, "name": source.get("name") or "Atom"})
+		add_item(
+			title,
+			link,
+			author,
+			published,
+			summary,
+			{**source, "name": source.get("name") or "Atom"},
+			read_categories(entry),
+		)
 	return buckets
 
 

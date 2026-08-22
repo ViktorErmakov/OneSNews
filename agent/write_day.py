@@ -13,6 +13,29 @@ DAY_FILE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.json$")
 logger = logging.getLogger(__name__)
 
 
+def day_tags(raw: dict) -> list[str]:
+	tags = raw.get("tags")
+	if isinstance(tags, list):
+		out: list[str] = []
+		seen: set[str] = set()
+		for value in tags:
+			label = str(value).strip()
+			if not label:
+				continue
+			key = label.casefold()
+			if key in seen:
+				continue
+			seen.add(key)
+			out.append(label)
+		if out:
+			return out
+	direction = str(raw.get("direction") or "").strip()
+	if direction:
+		return [direction]
+	name = str(raw.get("source_name") or "").strip()
+	return [name] if name else []
+
+
 def to_day_item(raw: dict, item_id: str) -> dict:
 	return {
 		"id": item_id,
@@ -22,7 +45,7 @@ def to_day_item(raw: dict, item_id: str) -> dict:
 		"author": raw.get("author") or "Не указан",
 		"source_name": raw.get("source_name") or "",
 		"source_type": raw.get("source_type") or "other",
-		"direction": raw.get("direction") or "community",
+		"tags": day_tags(raw),
 		"language": raw.get("language") or "ru",
 	}
 

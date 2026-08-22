@@ -10,7 +10,10 @@
       "author": "RainyDay",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: Hermes Agent",
+        "Habr: mcp"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +24,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: Codex для 1С",
+        "Habr: искусственный интеллект",
+        "Habr: ИИ-помощник",
+        "Habr: информационные базы 1С",
+        "Habr: анализ данных в 1С",
+        "Habr: поиск данных в 1С",
+        "Habr: журнал регистрации 1С",
+        "Habr: права пользователей 1С",
+        "Habr: MCPBridge"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +45,9 @@
       "author": "malikov_pro",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +58,9 @@
       "author": "war41k",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +71,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +84,9 @@
       "author": "andrey7617",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

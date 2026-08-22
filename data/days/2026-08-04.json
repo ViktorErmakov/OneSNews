@@ -10,7 +10,16 @@
       "author": "strannik96",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: аис налог-3",
+        "Habr: фнс",
+        "Habr: налоговый контроль",
+        "Habr: налоговое администрирование",
+        "Habr: нк рф",
+        "Habr: нейросети",
+        "Habr: будущее",
+        "Habr: налоги"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +30,9 @@
       "author": "Tarlich",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +43,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +56,9 @@
       "author": "DontsovMA",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +69,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +82,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +95,9 @@
       "author": "svcoopers",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +108,9 @@
       "author": "Nikola23",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -98,7 +121,9 @@
       "author": "Nortronic",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -109,7 +134,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -120,7 +147,9 @@
       "author": "Dolzhenko3107",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -131,7 +160,9 @@
       "author": "fan_club_chelsea",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -142,7 +173,9 @@
       "author": "user2210970",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -153,7 +186,9 @@
       "author": "RKE_OBN",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -164,7 +199,9 @@
       "author": "SuvorovS",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -175,7 +212,9 @@
       "author": "nikitinav",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -186,7 +225,9 @@
       "author": "Asyst-pro",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -197,7 +238,9 @@
       "author": "Subar_ist",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -208,7 +251,9 @@
       "author": "vovan_matveev",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

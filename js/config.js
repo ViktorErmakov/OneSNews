@@ -6,14 +6,6 @@ window.ONES_CONFIG = {
 		{ code: 'video', label: 'Видеохостинги' },
 		{ code: 'other', label: 'Другое' },
 	],
-	DIRECTIONS: [
-		{ code: 'development', label: 'Разработка' },
-		{ code: 'analytics', label: 'Аналитика' },
-		{ code: 'management', label: 'Управление' },
-		{ code: 'releases', label: 'Релизы' },
-		{ code: 'devops', label: 'DevOps' },
-		{ code: 'community', label: 'Сообщество' },
-	],
 	LANGUAGES: [
 		{ code: 'ru', label: 'Русский', country: 'ru' },
 		{ code: 'en', label: 'English', country: 'gb' },

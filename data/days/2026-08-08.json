@@ -10,7 +10,10 @@
       "author": "ZEEGIN",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: стандарты",
+        "Habr: mcp"
+      ],
       "language": "ru"
     }
   ]

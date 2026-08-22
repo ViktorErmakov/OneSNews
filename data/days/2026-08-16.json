@@ -10,7 +10,9 @@
       "author": "AlexSvoykin",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

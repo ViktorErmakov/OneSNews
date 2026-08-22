@@ -10,7 +10,17 @@
       "author": "Alex-sulimov",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: ИИ",
+        "Habr: генеративный ИИ",
+        "Habr: нейросети",
+        "Habr: аудитория",
+        "Habr: конференции",
+        "Habr: event-маркетинг",
+        "Habr: креатив",
+        "Habr: контекст",
+        "Habr: Инфостарт"
+      ],
       "language": "ru"
     }
   ]

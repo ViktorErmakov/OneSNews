@@ -10,7 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: INFOSTART A PM EVENT 2026",
+        "Habr: бизнес-анализ",
+        "Habr: системный анализ",
+        "Habr: управление проектами",
+        "Habr: управление продуктом",
+        "Habr: аналитики",
+        "Habr: руководители проектов",
+        "Habr: продуктовые команды",
+        "Habr: IT-конференции"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +31,9 @@
       "author": "IBS_habrablog (IBS)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +44,17 @@
       "author": "MrSotnik",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: программирование",
+        "Habr: мобильное приложение",
+        "Habr: элемент",
+        "Habr: python",
+        "Habr: swift",
+        "Habr: kotlin",
+        "Habr: разработка",
+        "Habr: логистика",
+        "Habr: архитектура приложений"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +65,9 @@
       "author": "jf2000",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +78,9 @@
       "author": "vladismi",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +91,9 @@
       "author": "FB_AIK",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +104,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +117,9 @@
       "author": "postgres_professional",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -98,7 +130,9 @@
       "author": "zap_zap",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -109,7 +143,9 @@
       "author": "G_100802897175107255412",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -120,7 +156,9 @@
       "author": "user2211076",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -131,7 +169,9 @@
       "author": "MaryRF",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -142,7 +182,9 @@
       "author": "war41k",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -153,7 +195,9 @@
       "author": "ksnik",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

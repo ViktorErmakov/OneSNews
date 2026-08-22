@@ -10,7 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: INFOSTART TECH EVENT 2026",
+        "Habr: конференция 1С",
+        "Habr: разработка 1С",
+        "Habr: искусственный интеллект",
+        "Habr: тестирование 1С",
+        "Habr: производительность 1С",
+        "Habr: системное администрирование",
+        "Habr: событийная архитектура",
+        "Habr: инструменты разработчика"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +31,18 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: системный анализ",
+        "Habr: бизнес-анализ",
+        "Habr: системный аналитик",
+        "Habr: бизнес-аналитик",
+        "Habr: требования",
+        "Habr: проектирование систем",
+        "Habr: управление требованиями",
+        "Habr: интеграции",
+        "Habr: аналитик 1С",
+        "Habr: реверс-инжиниринг"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +53,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,18 +66,22 @@
       "author": "iD1n",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
       "id": "2026-08-17-005",
       "title": "Пентест без катастроф: миссия выполнима?",
-      "summary": "РџРµРЅС‚РµСЃС‚ вЂ“ СЌС‚Рѕ РЅРµ С‚РѕР»СЊРєРѕ РїРѕРёСЃРє СѓСЏР·РІРёРјРѕСЃС‚РµР№, РЅРѕ Рё СЃР»РѕР¶РЅС‹Р№ РїСЂРѕРµРєС‚, РІ РєРѕС‚РѕСЂРѕРј РѕС€РёР±РєР° РјРѕР¶РµС‚ РїСЂРёРІРµСЃС‚Рё Рє РїСЂРѕСЃС‚РѕСЋ, РёРЅС†РёРґРµРЅС‚Сѓ Рё РїРѕС‚РµСЂРµ РґРѕРІРµСЂРёСЏ Р·Р°РєР°Р·С‡РёРєР°. Р Р°СЃСЃРєР°Р·С‹РІР°РµРј, РєР°Рє РїСЂР°РІРёР»СЊРЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ С†РµР»Рё Рё РіСЂР°РЅРёС†С‹ СЂР°Р±РѕС‚, СЂР°СЃРїСЂРµРґРµР»РёС‚СЊ РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕСЃС‚СЊ, РІС‹СЃС‚СЂРѕРёС‚СЊ РєРѕРјРјСѓРЅРёРєР°С†РёРё Рё СЃРґРµР»Р°С‚СЊ РЅРµРёР·Р±РµР¶РЅС‹Рµ СЂРёСЃРєРё Рё РёР·РјРµРЅРµРЅРёСЏ РєРѕРЅС‚СЂРѕР»РёСЂСѓРµРјС‹РјРё. РќР° СЂРµР°Р»СЊРЅС…",
+      "summary": "Пентест – это не только поиск уязвимостей, но и сложный проект, РІ РєРѕС‚РѕСЂРѕРј РѕС€РёР±РєР° РјРѕР¶РµС‚ РїСЂРёРІРµСЃС‚Рё Рє РїСЂРѕСЃС‚РѕСЋ, РёРЅС†РёРґРµРЅС‚Сѓ Рё РїРѕС‚РµСЂРµ РґРѕРІРµСЂРёСЏ Р·Р°РєР°Р·С‡РёРєР°. Р Р°СЃСЃРєР°Р·С‹РІР°РµРј, РєР°Рє РїСЂР°РІРёР»СЊРЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ С†РµР»Рё Рё РіСЂР°РЅРёС†С‹ СЂР°Р±РѕС‚, СЂР°СЃРїСЂРµРґРµР»РёС‚СЊ РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕСЃС‚СЊ, РІС‹СЃС‚СЂРѕРёС‚СЊ РєРѕРјРјСѓРЅРёРєР°С†РёРё Рё СЃРґРµР»Р°С‚СЊ РЅРµРёР·Р±РµР¶РЅС‹Рµ СЂРёСЃРєРё Рё РёР·РјРµРЅРµРЅРёСЏ РєРѕРЅС‚СЂРѕР»РёСЂСѓРµРјС‹РјРё. РќР° СЂРµР°Р»СЊРЅС‹С… РєРµР№СЃР°С… СЂР°Р·Р±РёСЂР°РµРј, РїРѕС‡РµРјСѓ Р·…",
       "url": "https://infostart.ru/1c/articles/2765139/",
       "author": "user2181343",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +92,9 @@
       "author": "van_za",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +105,9 @@
       "author": "sivatorov",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +118,9 @@
       "author": "MaxxiMiliSan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -98,7 +131,9 @@
       "author": "AleksandrEvplov",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -109,7 +144,9 @@
       "author": "zhuravl",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -120,7 +157,9 @@
       "author": "LamerSoft",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -131,7 +170,9 @@
       "author": "boba13",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

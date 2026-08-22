@@ -10,7 +10,17 @@
       "author": "Vika_tretya (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: B2B",
+        "Habr: B2B-маркетинг",
+        "Habr: продуктовый маркетинг",
+        "Habr: IT-продукты",
+        "Habr: корпоративные продажи",
+        "Habr: вебинары",
+        "Habr: видеодемонстрация",
+        "Habr: маркетплейсы",
+        "Habr: клиентский путь"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +31,9 @@
       "author": "onyx",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +44,9 @@
       "author": "zhuravl",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +57,9 @@
       "author": "user2211858",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

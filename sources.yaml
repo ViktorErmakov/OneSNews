@@ -1,9 +1,9 @@
 # Источники для сборщика (браузер этот файл не читает).
 # Секции совпадают с блоками на сайте: site / telegram / video.
 #
-# direction: development | analytics | management | releases | devops | community
 # language: ru | en
 # fetch: rss | telegram_web | youtube_rss | infostart
+# tag_prefix: если задан — метки из RSS пишутся как «Prefix: метка»; иначе тег = name
 # url: адрес для сборщика (RSS / t.me/s / …)
 # home: публичная страница источника для about.html
 # summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
@@ -13,7 +13,7 @@ site:
     url: "https://habr.com/ru/rss/hub/1c/all/?fl=ru"
     home: "https://habr.com/ru/hubs/1c/"
     fetch: rss
-    direction: development
+    tag_prefix: "Habr"
     language: ru
     enabled: true
     summarize: false
@@ -21,7 +21,6 @@ site:
     url: "https://infostart.ru/public/rss/"
     home: "https://infostart.ru/"
     fetch: infostart
-    direction: development
     language: ru
     enabled: true
     summarize: false
@@ -31,7 +30,6 @@ telegram:
     url: "https://t.me/s/example_dev1c"
     home: "https://t.me/example_dev1c"
     fetch: telegram_web
-    direction: development
     language: ru
     enabled: false
     summarize: true
@@ -41,7 +39,6 @@ video:
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID"
     home: "https://www.youtube.com/channel/CHANNEL_ID"
     fetch: youtube_rss
-    direction: community
     language: ru
     enabled: false
     summarize: true

@@ -10,7 +10,18 @@
       "author": "Sofya_Sukur (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: разработка 1С",
+        "Habr: программирование 1С",
+        "Habr: 1С Предприятие",
+        "Habr: инструменты для разработчика 1С",
+        "Habr: полезные инструменты 1С",
+        "Habr: БСП",
+        "Habr: управляемые формы 1С",
+        "Habr: Бухгалтерия 3.0",
+        "Habr: Excel и 1С",
+        "Habr: hex редактор"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +32,9 @@
       "author": "Ninel_S",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +45,9 @@
       "author": "d_shaymardanov",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +58,9 @@
       "author": "ScaNNer",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +71,9 @@
       "author": "kraspila",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +84,9 @@
       "author": "ArtVadan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +97,9 @@
       "author": "EKATYA",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +110,9 @@
       "author": "ramis333",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -98,7 +123,9 @@
       "author": "user213093test",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

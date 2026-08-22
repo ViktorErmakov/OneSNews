@@ -39,7 +39,7 @@
 		dateSet: new Set(),
 		date: null,
 		calendar: { year: 2026, month: 0 },
-		direction: '',
+		tag: '',
 		language: '',
 		query: '',
 		searchHistory: [],
@@ -87,6 +87,7 @@
 		'<path d="M3.5 10.5h17M8 3.5v4M16 3.5v4"/>' +
 		'</svg>';
 
+	const CARD_TAG_LIMIT = 3;
 	const TAG_SVG =
 		'<svg class="picker-icon" viewBox="0 0 24 24" aria-hidden="true">' +
 		'<path d="M20.5 13.2 L11 3.7H4.8v6.2l9.5 9.5 6.2-6.2z"/>' +
@@ -136,15 +137,33 @@
 		return cfg.LANGUAGES.filter((lang) => present.has(lang.code));
 	}
 
-	function itemsForDirections() {
+	function itemTags(item) {
+		if (Array.isArray(item.tags) && item.tags.length) {
+			return item.tags.map((tag) => String(tag || '').trim()).filter(Boolean);
+		}
+		if (item.direction) return [String(item.direction)];
+		return [];
+	}
+
+	function itemsForTags() {
 		const items = dayItems();
 		if (!state.language) return items;
 		return items.filter((item) => item.language === state.language);
 	}
 
-	function availableDirections() {
-		const present = new Set(itemsForDirections().map((item) => item.direction));
-		return cfg.DIRECTIONS.filter((d) => present.has(d.code));
+	function availableTags() {
+		const present = [];
+		const seen = new Set();
+		for (const item of itemsForTags()) {
+			for (const tag of itemTags(item)) {
+				const key = tag.toLocaleLowerCase('ru');
+				if (seen.has(key)) continue;
+				seen.add(key);
+				present.push(tag);
+			}
+		}
+		present.sort((a, b) => a.localeCompare(b, 'ru', { sensitivity: 'base' }));
+		return present.map((tag) => ({ code: tag, label: tag }));
 	}
 
 	function languagePickerOptions() {
@@ -161,7 +180,7 @@
 	}
 
 	function directionPickerOptions() {
-		const available = availableDirections();
+		const available = availableTags();
 		if (available.length > 1) {
 			return [{ code: '', label: 'Все' }].concat(available);
 		}
@@ -170,7 +189,7 @@
 
 	function currentDirectionOption() {
 		const options = directionPickerOptions();
-		return options.find((opt) => opt.code === state.direction) || options[0] || { code: '', label: 'Все' };
+		return options.find((opt) => opt.code === state.tag) || options[0] || { code: '', label: 'Все' };
 	}
 
 	function syncLanguageToAvailable() {
@@ -185,13 +204,13 @@
 	}
 
 	function syncDirectionToAvailable() {
-		const available = availableDirections();
+		const available = availableTags();
 		if (available.length === 1) {
-			state.direction = available[0].code;
+			state.tag = available[0].code;
 			return;
 		}
-		if (state.direction && !available.some((d) => d.code === state.direction)) {
-			state.direction = '';
+		if (state.tag && !available.some((d) => d.code === state.tag)) {
+			state.tag = '';
 		}
 	}
 
@@ -462,7 +481,7 @@
 	function itemsAfterFilters() {
 		const items = state.currentDay?.items || [];
 		return items.filter((item) => {
-			if (state.direction && item.direction !== state.direction) return false;
+			if (state.tag && !itemTags(item).includes(state.tag)) return false;
 			if (state.language && item.language !== state.language) return false;
 			return true;
 		});
@@ -636,9 +655,9 @@
 
 		els.dirPicker.hidden = false;
 		const current = currentDirectionOption();
-		renderPickerButton(els.dirBtn, 'Направление', TAG_SVG, current.label, current.label);
+		renderPickerButton(els.dirBtn, 'Тема', TAG_SVG, current.label, current.label);
 		els.dirList.innerHTML = options
-			.map((opt) => optionMarkup(opt.code, '', opt.label, opt.code === state.direction))
+			.map((opt) => optionMarkup(opt.code, '', opt.label, opt.code === state.tag))
 			.join('');
 	}
 
@@ -649,11 +668,11 @@
 	}
 
 	function setDirection(code) {
-		const available = availableDirections();
+		const available = availableTags();
 		if (available.length === 1) {
-			state.direction = available[0].code;
+			state.tag = available[0].code;
 		} else {
-			state.direction = code;
+			state.tag = code;
 		}
 		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
 		renderDirectionPicker();
@@ -675,13 +694,13 @@
 	}
 
 	function toggleFilter(kind, code) {
-		if (kind === 'direction') {
-			const available = availableDirections();
+		if (kind === 'tag' || kind === 'direction') {
+			const available = availableTags();
 			if (available.length === 1) {
 				setDirection(available[0].code);
 				return;
 			}
-			setDirection(state.direction === code ? '' : code);
+			setDirection(state.tag === code ? '' : code);
 			return;
 		}
 		if (kind === 'language') {
@@ -695,9 +714,7 @@
 	}
 
 	function renderCard(item) {
-		const direction = labelOf(cfg.DIRECTIONS, item.direction);
 		const language = labelOf(cfg.LANGUAGES, item.language);
-		const dirActive = state.direction === item.direction;
 		const showLangChip = !state.language && availableLanguages().length > 1;
 		const read = isRead(item.id);
 		const terms = searchTerms();
@@ -710,6 +727,18 @@
 				`title="Фильтр по языку: ${escapeHtml(language)}" ` +
 				`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>`
 			: '';
+		const tagChips = itemTags(item)
+			.slice(0, CARD_TAG_LIMIT)
+			.map((tag) => {
+				const active = state.tag === tag;
+				return (
+					`<button type="button" class="chip${active ? ' is-active' : ''}" data-filter="tag" ` +
+					`data-value="${escapeHtml(tag)}" aria-pressed="${active}" ` +
+					`title="Фильтр по теме: ${escapeHtml(tag)}" ` +
+					`aria-label="Фильтр по теме: ${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
+				);
+			})
+			.join('');
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
@@ -718,10 +747,7 @@
 			`<div class="card-meta">` +
 			`<span>${escapeHtml(item.source_name)}</span>` +
 			`<span>${escapeHtml(item.author || 'Не указан')}</span>` +
-			`<button type="button" class="chip${dirActive ? ' is-active' : ''}" data-filter="direction" ` +
-			`data-value="${escapeHtml(item.direction)}" aria-pressed="${dirActive}" ` +
-			`title="Фильтр по направлению: ${escapeHtml(direction)}" ` +
-			`aria-label="Фильтр по направлению: ${escapeHtml(direction)}">${escapeHtml(direction)}</button>` +
+			tagChips +
 			langChip +
 			`<span class="read-badge">Прочитано</span>` +
 			`</div>` +

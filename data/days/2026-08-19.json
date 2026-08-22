@@ -10,7 +10,12 @@
       "author": "EIB",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: wms",
+        "Habr: erp",
+        "Habr: адресное хранение",
+        "Habr: складская логистика"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +26,17 @@
       "author": "Vika_tretya (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: персональные данные",
+        "Habr: псевдонимизация",
+        "Habr: обезличивание данных",
+        "Habr: информационная безопасность",
+        "Habr: защита данных",
+        "Habr: база 1С",
+        "Habr: тестирование 1С",
+        "Habr: разработка 1С",
+        "Habr: подрядчики"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +47,16 @@
       "author": "TantorLabs (Тантор Лабс)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: субд",
+        "Habr: postgresql",
+        "Habr: postgres",
+        "Habr: tantor",
+        "Habr: tantor postgres",
+        "Habr: тантор",
+        "Habr: компрессия",
+        "Habr: компрессия данных"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +67,17 @@
       "author": "Sofya_Sukur (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: 1с разработка",
+        "Habr: 1с предприятие",
+        "Habr: безопасность 1с",
+        "Habr: конфигуратор",
+        "Habr: управляемые формы 1с",
+        "Habr: искусственный интеллект",
+        "Habr: разработка с ии",
+        "Habr: ai в программировании",
+        "Habr: sql"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +88,9 @@
       "author": "VlaMax",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +101,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +114,9 @@
       "author": "folon",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +127,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -98,7 +140,9 @@
       "author": "user2208348",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -109,7 +153,9 @@
       "author": "AlexSvoykin",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -120,7 +166,9 @@
       "author": "YA_322248568",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -131,7 +179,9 @@
       "author": "aximo",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -142,7 +192,9 @@
       "author": "Alexey_Dev",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -153,7 +205,9 @@
       "author": "zhuravl",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]

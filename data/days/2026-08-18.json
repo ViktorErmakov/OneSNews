@@ -10,7 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Habr: CIO CAMP 2026",
+        "Habr: искусственный интеллект",
+        "Habr: ИТ-директора",
+        "Habr: ИИ-агенты",
+        "Habr: автоматизация",
+        "Habr: цифровая трансформация",
+        "Habr: корпоративный ИИ",
+        "Habr: Инфостарт",
+        "Habr: ИТ-конференции"
+      ],
       "language": "ru"
     },
     {
@@ -21,7 +31,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -32,7 +44,9 @@
       "author": "markbraer",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -43,7 +57,9 @@
       "author": "nastos",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -54,7 +70,9 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -65,7 +83,9 @@
       "author": "ranis888",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -76,7 +96,9 @@
       "author": "Alexey_Dev",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     },
     {
@@ -87,7 +109,9 @@
       "author": "AlexSvoykin",
       "source_name": "Infostart",
       "source_type": "site",
-      "direction": "development",
+      "tags": [
+        "Infostart"
+      ],
       "language": "ru"
     }
   ]
