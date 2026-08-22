@@ -42,6 +42,39 @@ def write_day(day: date, items: list[dict]) -> Path:
 	return path
 
 
+def merge_sources_into_day(day: date, items: list[dict]) -> Path | None:
+	incoming_names = {item.get("source_name") for item in items if item.get("source_name")}
+	path = DAYS / f"{day.isoformat()}.json"
+	kept: list[dict] = []
+	if path.exists():
+		loaded = json.loads(path.read_text(encoding="utf-8"))
+		for item in loaded.get("items") or []:
+			if not isinstance(item, dict):
+				continue
+			if item.get("source_name") in incoming_names:
+				continue
+			kept.append(item)
+	combined = kept + [to_day_item(item, "") for item in items]
+	if not combined:
+		return None
+	return write_day(day, combined)
+
+
+def merge_into_day(day: date, items: list[dict], replace_source_name: str) -> Path:
+	path = DAYS / f"{day.isoformat()}.json"
+	kept: list[dict] = []
+	if path.exists():
+		loaded = json.loads(path.read_text(encoding="utf-8"))
+		for item in loaded.get("items") or []:
+			if not isinstance(item, dict):
+				continue
+			if item.get("source_name") == replace_source_name:
+				continue
+			kept.append(item)
+	combined = kept + [to_day_item(item, "") for item in items]
+	return write_day(day, combined)
+
+
 def dates_from_day_files() -> list[str]:
 	DAYS.mkdir(parents=True, exist_ok=True)
 	dates = [path.stem for path in DAYS.glob("*.json") if DAY_FILE_RE.match(path.name)]

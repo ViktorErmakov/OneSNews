@@ -59,7 +59,7 @@ def load_config() -> dict:
 	return data
 
 
-def load_sources() -> list[dict]:
+def load_sources(*, include_disabled: bool = False) -> list[dict]:
 	raw = yaml.safe_load(SOURCES.read_text(encoding="utf-8")) or {}
 	if not isinstance(raw, dict):
 		raise ValueError("sources.yaml must be a mapping of sections")
@@ -68,7 +68,7 @@ def load_sources() -> list[dict]:
 		for src in raw.get(section) or []:
 			if not isinstance(src, dict):
 				continue
-			if not src.get("enabled", True):
+			if not include_disabled and not src.get("enabled", True):
 				continue
 			entry = dict(src)
 			entry["source_type"] = source_type

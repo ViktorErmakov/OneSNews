@@ -38,6 +38,9 @@ python agent/run.py
 # конкретный день
 python agent/run.py --date 2026-08-17
 
+# диапазон (все включённые источники)
+python agent/run.py --from-date 2026-08-01 --to-date 2026-08-21
+
 # только сбор без записи day JSON
 python agent/run.py --collect-only
 ```

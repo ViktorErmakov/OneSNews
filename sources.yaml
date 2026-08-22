@@ -3,13 +3,20 @@
 #
 # direction: development | analytics | management | releases | devops | community
 # language: ru | en
-# fetch: rss | telegram_web | youtube_rss
+# fetch: rss | telegram_web | youtube_rss | infostart
 # summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
 
 site:
   - name: "Habr 1C"
     url: "https://habr.com/ru/rss/hub/1c/all/?fl=ru"
     fetch: rss
+    direction: development
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Infostart"
+    url: "https://infostart.ru/public/rss/"
+    fetch: infostart
     direction: development
     language: ru
     enabled: true

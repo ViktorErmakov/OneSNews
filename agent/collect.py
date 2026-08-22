@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -68,9 +68,34 @@ def source_meta(source: dict) -> dict:
 
 
 def collect_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
+	return collect_rss_range(source, target, target, tz, snippet_chars).get(target, [])
+
+
+def collect_rss_range(
+	source: dict,
+	start: date,
+	end: date,
+	tz: ZoneInfo,
+	snippet_chars: int,
+) -> dict[date, list[dict]]:
 	xml_bytes = http_get(source["url"])
 	root = ET.fromstring(xml_bytes)
-	items: list[dict] = []
+	buckets: dict[date, list[dict]] = {}
+
+	def add_item(title: str, url: str, author: str, published: datetime | None, snippet: str, meta_source: dict) -> None:
+		day = local_date(published, tz)
+		if day is None or day < start or day > end:
+			return
+		buckets.setdefault(day, []).append(
+			{
+				"title": title or "Без названия",
+				"url": url,
+				"author": strip_html(author) or "Не указан",
+				"published_at": published.isoformat() if published else None,
+				"snippet": clip(strip_html(snippet), snippet_chars),
+				**source_meta(meta_source),
+			}
+		)
 
 	rss_items = root.findall("./channel/item")
 	if rss_items:
@@ -88,19 +113,8 @@ def collect_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) ->
 			published = parse_datetime(
 				item.findtext("pubDate") or item.findtext("published") or item.findtext("updated")
 			)
-			if local_date(published, tz) != target:
-				continue
-			items.append(
-				{
-					"title": title or "Без названия",
-					"url": link or guid,
-					"author": strip_html(author) or "Не указан",
-					"published_at": published.isoformat() if published else None,
-					"snippet": clip(strip_html(desc), snippet_chars),
-					**source_meta(source),
-				}
-			)
-		return items
+			add_item(title, link or guid, author, published, desc, source)
+		return buckets
 
 	for entry in root.findall(f"{ATOM}entry") or root.findall("entry"):
 		title = ""
@@ -127,20 +141,8 @@ def collect_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) ->
 				author = ((name_el.text if name_el is not None else child.text) or author).strip()
 			elif tag in ("published", "updated") and published is None:
 				published = parse_datetime(child.text)
-
-		if local_date(published, tz) != target:
-			continue
-		items.append(
-			{
-				"title": title or "Без названия",
-				"url": link,
-				"author": strip_html(author) or "Не указан",
-				"published_at": published.isoformat() if published else None,
-				"snippet": clip(strip_html(summary), snippet_chars),
-				**source_meta({**source, "name": source.get("name") or "Atom"}),
-			}
-		)
-	return items
+		add_item(title, link, author, published, summary, {**source, "name": source.get("name") or "Atom"})
+	return buckets
 
 
 def telegram_s_url(url: str) -> str:
@@ -207,6 +209,10 @@ def collect_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int)
 		return collect_rss(source, target, tz, snippet_chars)
 	if fetch == "telegram_web":
 		return collect_telegram_web(source, target, tz, snippet_chars)
+	if fetch == "infostart":
+		from collect_infostart import collect_infostart_source
+
+		return collect_infostart_source(source, target, tz, snippet_chars)
 	raise ValueError(f"Unknown fetch type: {fetch}")
 
 
@@ -222,19 +228,71 @@ def collect(target: date | None = None, cli_date: str | None = None) -> tuple[da
 		name = source.get("name") or source.get("url")
 		try:
 			batch = collect_source(source, day, tz, snippet_chars)
+			batch = batch[:max_items]
 			logger.info("Collected %s items from %s", len(batch), name)
 			collected.extend(batch)
 		except (HTTPError, URLError, ET.ParseError, ValueError) as exc:
 			logger.warning("Skip %s: %s", name, exc)
-		except Exception:  # noqa: BLE001
+		except Exception as exc:  # noqa: BLE001
+			if exc.__class__.__name__ == "InfostartContractError":
+				logger.error("Skip %s: %s", name, exc)
+				continue
 			logger.exception("Failed %s", name)
-
-	collected = collected[:max_items]
 	TMP.mkdir(parents=True, exist_ok=True)
 	out = TMP / f"raw-{day.isoformat()}.json"
 	out.write_text(json.dumps(collected, ensure_ascii=False, indent=2), encoding="utf-8")
 	logger.info("Wrote %s raw items to %s", len(collected), out)
 	return day, collected
+
+
+def collect_range(start: date, end: date) -> dict[date, list[dict]]:
+	if end < start:
+		raise ValueError("end date must be on or after start date")
+	config = load_config()
+	tz = ZoneInfo(config.get("timezone") or "Europe/Moscow")
+	snippet_chars = int(config.get("snippet_chars") or 600)
+	max_items = int(config.get("max_items") or 40)
+	by_day: dict[date, list[dict]] = {}
+
+	for source in load_sources():
+		name = source.get("name") or source.get("url")
+		fetch = source.get("fetch") or "rss"
+		try:
+			if fetch == "infostart":
+				from collect_infostart import collect_infostart_range
+
+				buckets = collect_infostart_range(source, start, end, tz, snippet_chars)
+			elif fetch in {"rss", "youtube_rss"}:
+				buckets = collect_rss_range(source, start, end, tz, snippet_chars)
+			elif fetch == "telegram_web":
+				buckets = {}
+				cursor = start
+				while cursor <= end:
+					batch = collect_telegram_web(source, cursor, tz, snippet_chars)
+					if batch:
+						buckets[cursor] = batch
+					cursor += timedelta(days=1)
+			else:
+				logger.warning("Skip %s: unknown fetch type %s", name, fetch)
+				continue
+			for day, batch in buckets.items():
+				capped = batch[:max_items]
+				logger.info("Collected %s items from %s for %s", len(capped), name, day.isoformat())
+				by_day.setdefault(day, []).extend(capped)
+		except (HTTPError, URLError, ET.ParseError, ValueError) as exc:
+			logger.warning("Skip %s: %s", name, exc)
+		except Exception as exc:  # noqa: BLE001
+			if exc.__class__.__name__ == "InfostartContractError":
+				logger.error("Skip %s: %s", name, exc)
+				continue
+			logger.exception("Failed %s", name)
+
+	TMP.mkdir(parents=True, exist_ok=True)
+	payload = {day.isoformat(): items for day, items in sorted(by_day.items())}
+	out = TMP / f"raw-{start.isoformat()}_{end.isoformat()}.json"
+	out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+	logger.info("Wrote range raw items to %s (%s days)", out, len(by_day))
+	return by_day
 
 
 if __name__ == "__main__":
