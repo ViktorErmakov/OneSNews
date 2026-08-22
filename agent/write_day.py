@@ -6,7 +6,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from common import DAYS, INDEX, ROOT, russian_day_title, slug_id
+from common import DAYS, INDEX, ROOT, SOURCES_JSON, load_sources, russian_day_title, slug_id
 
 DAY_FILE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.json$")
 
@@ -80,6 +80,29 @@ def dates_from_day_files() -> list[str]:
 	dates = [path.stem for path in DAYS.glob("*.json") if DAY_FILE_RE.match(path.name)]
 	dates.sort(reverse=True)
 	return dates
+
+
+def write_sources_catalog() -> Path:
+	catalog: list[dict] = []
+	for src in load_sources():
+		home = str(src.get("home") or "").strip()
+		name = src.get("name") or src.get("url") or ""
+		if not home:
+			logger.warning("Skip catalog source %s: no home URL", name)
+			continue
+		catalog.append(
+			{
+				"name": src.get("name") or "",
+				"home": home,
+				"source_type": src.get("source_type") or "other",
+				"language": src.get("language") or "ru",
+			}
+		)
+	SOURCES_JSON.parent.mkdir(parents=True, exist_ok=True)
+	payload = {"sources": catalog}
+	SOURCES_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+	logger.info("Wrote %s (%s sources)", SOURCES_JSON.relative_to(ROOT), len(catalog))
+	return SOURCES_JSON
 
 
 def write_index() -> None:

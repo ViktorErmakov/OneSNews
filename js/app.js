@@ -41,12 +41,16 @@
 		calendar: { year: 2026, month: 0 },
 		direction: '',
 		language: '',
+		query: '',
+		searchHistory: [],
 		readMap: {},
 	};
 
 	const READ_KEY = 'ones-read';
 	const READ_MAX = 500;
 	const READ_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+	const SEARCH_HISTORY_KEY = 'ones-search-history';
+	const SEARCH_HISTORY_MAX = 8;
 
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
@@ -64,6 +68,10 @@
 		feed: document.querySelector('#feed'),
 		status: document.querySelector('#status'),
 		chrome: document.querySelector('.chrome'),
+		searchBox: document.querySelector('#search-box'),
+		searchInput: document.querySelector('#feed-search'),
+		searchClear: document.querySelector('#search-clear'),
+		searchHistory: document.querySelector('#search-history'),
 	};
 
 	const GLOBE_SVG =
@@ -195,11 +203,18 @@
 	function emptyFeedMessage() {
 		const items = dayItems();
 		if (!items.length) return 'Нет новостей за этот день.';
-		if (state.language) {
-			const inLanguage = items.filter((item) => item.language === state.language);
-			if (!inLanguage.length) {
-				return `Нет новостей на языке «${labelOf(cfg.LANGUAGES, state.language)}» за этот день.`;
+		const afterFilters = itemsAfterFilters();
+		if (!afterFilters.length) {
+			if (state.language) {
+				const inLanguage = items.filter((item) => item.language === state.language);
+				if (!inLanguage.length) {
+					return `Нет новостей на языке «${labelOf(cfg.LANGUAGES, state.language)}» за этот день.`;
+				}
 			}
+			return 'Нет новостей по выбранным фильтрам.';
+		}
+		if (state.query.trim()) {
+			return `Ничего не найдено по запросу «${state.query.trim()}».`;
 		}
 		return 'Нет новостей по выбранным фильтрам.';
 	}
@@ -207,10 +222,15 @@
 	function emptyFeedHint() {
 		const items = dayItems();
 		if (!items.length) return 'Выберите другую дату в календаре.';
-		if (state.language) {
-			const inLanguage = items.filter((item) => item.language === state.language);
-			if (!inLanguage.length) return 'Смените язык или дату.';
+		const afterFilters = itemsAfterFilters();
+		if (!afterFilters.length) {
+			if (state.language) {
+				const inLanguage = items.filter((item) => item.language === state.language);
+				if (!inLanguage.length) return 'Смените язык или дату.';
+			}
+			return 'Снимите фильтр направления или языка либо выберите другую дату.';
 		}
+		if (state.query.trim()) return 'Измените слова или сбросьте поиск.';
 		return 'Снимите фильтр направления или языка либо выберите другую дату.';
 	}
 
@@ -439,13 +459,48 @@
 		if (nav) nav.focus();
 	}
 
-	function filteredItems() {
+	function itemsAfterFilters() {
 		const items = state.currentDay?.items || [];
 		return items.filter((item) => {
 			if (state.direction && item.direction !== state.direction) return false;
 			if (state.language && item.language !== state.language) return false;
 			return true;
 		});
+	}
+
+	function searchTerms() {
+		return String(state.query || '')
+			.trim()
+			.toLowerCase()
+			.split(/\s+/)
+			.filter(Boolean);
+	}
+
+	function itemMatchesQuery(item, terms) {
+		if (!terms.length) return true;
+		const hay = `${item.title || ''} ${item.summary || ''}`.toLowerCase();
+		return terms.every((term) => hay.includes(term));
+	}
+
+	function filteredItems() {
+		const terms = searchTerms();
+		return itemsAfterFilters().filter((item) => itemMatchesQuery(item, terms));
+	}
+
+	function escapeRegExp(value) {
+		return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	}
+
+	function highlightText(text, terms) {
+		const escaped = escapeHtml(text);
+		if (!terms.length) return escaped;
+		const pattern = terms.map(escapeRegExp).join('|');
+		if (!pattern) return escaped;
+		try {
+			return escaped.replace(new RegExp(`(${pattern})`, 'gi'), '<mark>$1</mark>');
+		} catch (err) {
+			return escaped;
+		}
 	}
 
 	function optionMarkup(value, iconHtml, label, selected) {
@@ -477,6 +532,14 @@
 	}
 
 	function closeAllPickers() {
+		closePicker(els.dateBtn, els.datePanel);
+		closePicker(els.langBtn, els.langList);
+		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
+		rememberSearch(state.query);
+		closeSearchHistory();
+	}
+
+	function closeFilterPickers() {
 		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
 		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
@@ -635,14 +698,23 @@
 		const direction = labelOf(cfg.DIRECTIONS, item.direction);
 		const language = labelOf(cfg.LANGUAGES, item.language);
 		const dirActive = state.direction === item.direction;
-		const langActive = state.language === item.language;
+		const showLangChip = !state.language && availableLanguages().length > 1;
 		const read = isRead(item.id);
-		const title = escapeHtml(item.title);
+		const terms = searchTerms();
+		const titlePlain = escapeHtml(item.title);
+		const titleHtml = highlightText(item.title, terms);
+		const summaryHtml = highlightText(item.summary, terms);
+		const langChip = showLangChip
+			? `<button type="button" class="chip" data-filter="language" ` +
+				`data-value="${escapeHtml(item.language)}" aria-pressed="false" ` +
+				`title="Фильтр по языку: ${escapeHtml(language)}" ` +
+				`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>`
+			: '';
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
-			`aria-label="${title} (откроется в новой вкладке)">${title}${EXTERNAL_SVG}</a></h3>` +
-			`<p class="card-summary">${escapeHtml(item.summary)}</p>` +
+			`aria-label="${titlePlain} (откроется в новой вкладке)">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
+			`<p class="card-summary">${summaryHtml}</p>` +
 			`<div class="card-meta">` +
 			`<span>${escapeHtml(item.source_name)}</span>` +
 			`<span>${escapeHtml(item.author || 'Не указан')}</span>` +
@@ -650,10 +722,7 @@
 			`data-value="${escapeHtml(item.direction)}" aria-pressed="${dirActive}" ` +
 			`title="Фильтр по направлению: ${escapeHtml(direction)}" ` +
 			`aria-label="Фильтр по направлению: ${escapeHtml(direction)}">${escapeHtml(direction)}</button>` +
-			`<button type="button" class="chip${langActive ? ' is-active' : ''}" data-filter="language" ` +
-			`data-value="${escapeHtml(item.language)}" aria-pressed="${langActive}" ` +
-			`title="Фильтр по языку: ${escapeHtml(language)}" ` +
-			`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>` +
+			langChip +
 			`<span class="read-badge">Прочитано</span>` +
 			`</div>` +
 			`</article>`
@@ -755,6 +824,9 @@
 		const day = await res.json();
 		state.currentDay = day;
 		state.date = date;
+		state.query = '';
+		syncSearchInput();
+		closeSearchHistory();
 		setCalendarToDate(date);
 		setUrlDate(date);
 		syncFiltersToDay();
@@ -834,6 +906,262 @@
 		});
 	}
 
+	function loadSearchHistory() {
+		try {
+			const parsed = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
+			if (Array.isArray(parsed)) {
+				state.searchHistory = parsed
+					.filter((item) => typeof item === 'string' && item.trim())
+					.map((item) => item.trim())
+					.slice(0, SEARCH_HISTORY_MAX);
+				return;
+			}
+		} catch (err) {
+			/* ignore quota / private mode */
+		}
+		state.searchHistory = [];
+	}
+
+	function saveSearchHistory() {
+		try {
+			localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(state.searchHistory));
+		} catch (err) {
+			/* ignore quota / private mode */
+		}
+	}
+
+	function rememberSearch(query) {
+		const value = String(query || '').trim();
+		if (!value) return;
+		const lower = value.toLowerCase();
+		state.searchHistory = [value]
+			.concat(state.searchHistory.filter((item) => item.toLowerCase() !== lower))
+			.slice(0, SEARCH_HISTORY_MAX);
+		saveSearchHistory();
+	}
+
+	function removeSearchHistory(query) {
+		state.searchHistory = state.searchHistory.filter((item) => item !== query);
+		saveSearchHistory();
+		if (isSearchHistoryOpen()) renderSearchHistory();
+	}
+
+	function matchingHistory() {
+		const q = String(els.searchInput ? els.searchInput.value : state.query)
+			.trim()
+			.toLowerCase();
+		if (!q) return state.searchHistory.slice();
+		return state.searchHistory.filter((item) => item.toLowerCase().includes(q));
+	}
+
+	function isSearchHistoryOpen() {
+		return Boolean(els.searchHistory && !els.searchHistory.hidden);
+	}
+
+	function closeSearchHistory() {
+		if (!els.searchHistory) return;
+		els.searchHistory.hidden = true;
+		els.searchHistory.innerHTML = '';
+		if (els.searchInput) els.searchInput.setAttribute('aria-expanded', 'false');
+	}
+
+	function openSearchHistory() {
+		if (!els.searchHistory || !els.searchInput) return;
+		closeFilterPickers();
+		const items = matchingHistory();
+		if (!items.length) {
+			closeSearchHistory();
+			return;
+		}
+		els.searchHistory.hidden = false;
+		els.searchInput.setAttribute('aria-expanded', 'true');
+		renderSearchHistory();
+	}
+
+	function renderSearchHistory() {
+		if (!els.searchHistory || els.searchHistory.hidden) return;
+		const items = matchingHistory();
+		if (!items.length) {
+			closeSearchHistory();
+			return;
+		}
+		els.searchHistory.innerHTML = items
+			.map((query, index) => {
+				return (
+					`<li role="option" tabindex="-1" data-query="${escapeHtml(query)}" ` +
+					`class="search-history-item${index === 0 ? ' is-active' : ''}">` +
+					`<span class="search-history-query">${escapeHtml(query)}</span>` +
+					`<button type="button" class="search-history-remove" tabindex="-1" data-remove="${escapeHtml(query)}" ` +
+					`aria-label="Удалить запрос «${escapeHtml(query)}»">×</button>` +
+					`</li>`
+				);
+			})
+			.join('');
+	}
+
+	function syncSearchClear() {
+		if (!els.searchClear) return;
+		els.searchClear.hidden = !String(state.query || '').trim();
+	}
+
+	function syncSearchInput() {
+		if (els.searchInput && els.searchInput.value !== state.query) {
+			els.searchInput.value = state.query;
+		}
+		syncSearchClear();
+	}
+
+	function applyQuery(value, options) {
+		const next = String(value || '');
+		state.query = next;
+		syncSearchInput();
+		if (options && options.save) rememberSearch(next);
+		renderFeed();
+	}
+
+	function selectHistoryQuery(query) {
+		applyQuery(query, { save: true });
+		closeSearchHistory();
+		if (els.searchInput) els.searchInput.focus();
+	}
+
+	function clearSearch() {
+		applyQuery('');
+		closeSearchHistory();
+		if (els.searchInput) els.searchInput.focus();
+	}
+
+	function bindSearch() {
+		if (!els.searchInput || !els.searchBox) return;
+
+		els.searchInput.addEventListener('focus', () => {
+			openSearchHistory();
+		});
+
+		els.searchInput.addEventListener('input', () => {
+			state.query = els.searchInput.value;
+			syncSearchClear();
+			renderFeed();
+			openSearchHistory();
+		});
+
+		els.searchInput.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				if (isSearchHistoryOpen()) {
+					closeSearchHistory();
+					return;
+				}
+				if (state.query) clearSearch();
+				return;
+			}
+			if (event.key === 'ArrowDown') {
+				const options = matchingHistory();
+				if (!options.length) return;
+				event.preventDefault();
+				openSearchHistory();
+				const first = els.searchHistory.querySelector('[role="option"]');
+				if (first) first.focus();
+				return;
+			}
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				rememberSearch(state.query);
+				closeSearchHistory();
+				els.searchInput.blur();
+			}
+		});
+
+		els.searchInput.addEventListener('blur', () => {
+			window.setTimeout(() => {
+				if (!els.searchBox.contains(document.activeElement)) {
+					rememberSearch(state.query);
+					closeSearchHistory();
+				}
+			}, 0);
+		});
+
+		if (els.searchClear) {
+			els.searchClear.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				clearSearch();
+			});
+		}
+
+		const field = els.searchBox.querySelector('.search-field');
+		if (field) {
+			field.addEventListener('click', (event) => {
+				if (event.target.closest('button, input')) return;
+				els.searchInput.focus();
+			});
+		}
+
+		els.searchHistory.addEventListener('mousedown', (event) => {
+			event.preventDefault();
+		});
+
+		els.searchHistory.addEventListener('click', (event) => {
+			event.stopPropagation();
+			const remove = event.target.closest('[data-remove]');
+			if (remove) {
+				removeSearchHistory(remove.getAttribute('data-remove') || '');
+				if (els.searchInput) els.searchInput.focus();
+				return;
+			}
+			const option = optionFromTarget(event.target);
+			if (!option) return;
+			selectHistoryQuery(option.getAttribute('data-query') || '');
+		});
+
+		els.searchHistory.addEventListener('keydown', (event) => {
+			const options = Array.from(els.searchHistory.querySelectorAll('[role="option"]'));
+			const current = document.activeElement;
+			const index = options.indexOf(current);
+
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				closeSearchHistory();
+				els.searchInput.focus();
+				return;
+			}
+			if (event.key === 'ArrowDown') {
+				event.preventDefault();
+				(options[Math.min(index + 1, options.length - 1)] || options[0]).focus();
+				return;
+			}
+			if (event.key === 'ArrowUp') {
+				event.preventDefault();
+				if (index <= 0) {
+					els.searchInput.focus();
+					return;
+				}
+				options[index - 1].focus();
+				return;
+			}
+			if (event.key === 'Enter' || event.key === ' ') {
+				if (current && current.closest('[data-remove]')) return;
+				event.preventDefault();
+				const option = optionFromTarget(current);
+				if (option) selectHistoryQuery(option.getAttribute('data-query') || '');
+				return;
+			}
+			if (event.key === 'Delete' || event.key === 'Backspace') {
+				event.preventDefault();
+				const option = optionFromTarget(current);
+				if (!option) return;
+				removeSearchHistory(option.getAttribute('data-query') || '');
+				if (isSearchHistoryOpen()) {
+					const first = els.searchHistory.querySelector('[role="option"]');
+					if (first) first.focus();
+					else els.searchInput.focus();
+				} else {
+					els.searchInput.focus();
+				}
+			}
+		});
+	}
+
 	function bindDatePicker() {
 		els.dateBtn.addEventListener('click', (event) => {
 			event.stopPropagation();
@@ -878,8 +1206,10 @@
 
 	async function init() {
 		loadReadMap();
+		loadSearchHistory();
 		bindChromeHeight();
 		bindDatePicker();
+		bindSearch();
 		bindListPicker(els.langBtn, els.langList, setLanguage);
 		bindListPicker(els.dirBtn, els.dirList, setDirection);
 
@@ -889,6 +1219,10 @@
 			if (!els.datePicker.contains(target)) closePicker(els.dateBtn, els.datePanel);
 			if (!els.langPicker.contains(target)) closePicker(els.langBtn, els.langList);
 			if (els.dirPicker && !els.dirPicker.contains(target)) closePicker(els.dirBtn, els.dirList);
+			if (els.searchBox && !els.searchBox.contains(target)) {
+				rememberSearch(state.query);
+				closeSearchHistory();
+			}
 		});
 
 		els.feed.addEventListener('click', (event) => {

@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {
+      "name": "Habr 1C",
+      "home": "https://habr.com/ru/hubs/1c/",
+      "source_type": "site",
+      "language": "ru"
+    },
+    {
+      "name": "Infostart",
+      "home": "https://infostart.ru/",
+      "source_type": "site",
+      "language": "ru"
+    }
+  ]
+}

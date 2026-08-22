@@ -15,13 +15,15 @@
 sources.yaml + agent/config.yaml
     │
     ▼
-agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
+agent/run.py  (каталог источников → collect.py → raw JSON → Gemini Flash → write_day.py)
     │
+    ├─► data/sources.json
     ├─► data/days/YYYY-MM-DD.json
     └─► data/index.json
               │
               ▼
      index.html + js/app.js
+     about.html + js/about.js
               │
               ▼
         GitHub Pages
@@ -39,11 +41,13 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 | Путь | Назначение |
 |------|------------|
 | `index.html` | Единственная рабочая страница ленты |
-| `about.html` | О проекте и дисклеймер |
+| `about.html` | О проекте, дисклеймер и список источников |
 | `css/styles.css` | Mobile-first стили |
 | `js/config.js` | Словари: направления, языки, типы источников |
 | `js/app.js` | Загрузка дня, фильтры, рендер |
+| `js/about.js` | Список источников на «О проекте» |
 | `data/index.json` | Список доступных дат |
+| `data/sources.json` | Публичный каталог включённых источников |
 | `data/days/*.json` | Новости одного дня |
 | `sources.yaml` | Источники сборщика по секциям site / telegram / video |
 | `agent/config.yaml` | Часовой пояс, режим даты, лимиты, модель |
@@ -80,7 +84,35 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 
 ---
 
-## 4. Схема `data/days/YYYY-MM-DD.json`
+## 4. Схема `data/sources.json`
+
+Публичный список включённых источников для страницы «О проекте». Пишется в начале `agent/run.py`, независимо от того, нашлись ли новости за день.
+
+```json
+{
+  "sources": [
+    {
+      "name": "Habr 1C",
+      "home": "https://habr.com/ru/hubs/1c/",
+      "source_type": "site",
+      "language": "ru"
+    }
+  ]
+}
+```
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `name` | string | Имя источника |
+| `home` | string | Публичная страница (не RSS) |
+| `source_type` | enum | см. словари |
+| `language` | enum | см. словари |
+
+В каталог попадают только `enabled: true` с заполненным `home`. RSS-адрес (`url`) сюда не пишется.
+
+---
+
+## 5. Схема `data/days/YYYY-MM-DD.json`
 
 ```json
 {
@@ -118,7 +150,7 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 
 ---
 
-## 5. Словари
+## 6. Словари
 
 ### `source_type` (секции на странице, порядок фиксирован)
 
@@ -155,7 +187,7 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 
 ---
 
-## 6. Как работает UI
+## 7. Как работает UI
 
 1. `GET data/index.json` → заполнить select дат.
 2. Активная дата = `dates[0]` или `?date=YYYY-MM-DD`, если дата есть в `dates`.
@@ -164,16 +196,19 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 5. Фильтры «направление» и «язык» **не** делают новых запросов: фильтруют `currentDay.items` и перерисовывают.
 6. Смена даты → новый fetch day-файла; фильтры сбрасываются в «все».
 
+`about.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются.
+
 Ленту за месяц не делаем.
 
 ---
 
-## 7. Контракт для ИИ / робота
+## 8. Контракт для ИИ / робота
 
 **Можно / нужно:**
 
 - создавать/обновлять `data/days/YYYY-MM-DD.json`;
 - обновлять `data/index.json` (дата в начало `dates`);
+- обновлять `data/sources.json` из включённых записей `sources.yaml`;
 - править `sources.yaml` и `agent/config.yaml`.
 
 **Не трогать без явной просьбы человека:**
@@ -190,7 +225,7 @@ agent/run.py  (collect.py → raw JSON → Gemini Flash → write_day.py)
 
 ---
 
-## 8. Чеклист нового дня
+## 9. Чеклист нового дня
 
 Обычный путь — скрипт:
 
@@ -210,14 +245,14 @@ python agent/run.py --date 2026-08-17
 ### Чеклист нового источника
 
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`).
-2. Указать `url`, `fetch`, `direction`, `language`, `enabled: true`.
+2. Указать `url`, `home`, `fetch`, `direction`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS.
 3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
 4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web`. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
-5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`.
+5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
 
 ---
 
-## 9. Сбор дня (скрипт + дешёвая модель)
+## 10. Сбор дня (скрипт + дешёвая модель)
 
 ИИ **не** ходит по сайтам. Скрипт забирает заголовок, ссылку, автора и короткий snippet.
 
@@ -226,6 +261,8 @@ python agent/run.py --date 2026-08-17
 
 ```text
 sources.yaml + agent/config.yaml
+        ↓
+run.py сразу пишет data/sources.json (включённые источники с home)
         ↓
 collect.py  →  agent/tmp/raw-YYYY-MM-DD.json
         ↓
@@ -245,7 +282,7 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 ---
 
-## 10. Деплой
+## 11. Деплой
 
 - Хостинг: GitHub Pages из корня репозитория (workflow `.github/workflows/pages.yml`).
 - Домен: `enterprisehub.dev` (`CNAME` + DNS у регистратора на IP GitHub Pages).

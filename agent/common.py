@@ -15,6 +15,7 @@ TMP = AGENT / "tmp"
 DAYS = ROOT / "data" / "days"
 INDEX = ROOT / "data" / "index.json"
 SOURCES = ROOT / "sources.yaml"
+SOURCES_JSON = ROOT / "data" / "sources.json"
 CONFIG = AGENT / "config.yaml"
 PROMPT = AGENT / "prompts" / "summarize.md"
 

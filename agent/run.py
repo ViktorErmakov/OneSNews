@@ -16,7 +16,7 @@ if str(AGENT) not in sys.path:
 from collect import collect, collect_range  # noqa: E402
 from common import clean_snippet, load_dotenv, slug_id  # noqa: E402
 from summarize import summarize  # noqa: E402
-from write_day import merge_sources_into_day, write_day  # noqa: E402
+from write_day import merge_sources_into_day, write_day, write_sources_catalog  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -89,6 +89,7 @@ def main() -> int:
 	logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 	load_dotenv()
 	args = build_parser().parse_args()
+	write_sources_catalog()
 	if (args.from_date and not args.to_date) or (args.to_date and not args.from_date):
 		logging.error("Use both --from-date and --to-date")
 		return 2

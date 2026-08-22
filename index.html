@@ -71,6 +71,24 @@
 						</span>
 					</a>
 					<nav class="top-nav" aria-label="Оформление">
+						<div class="picker picker-compact" id="lang-picker">
+							<button
+								type="button"
+								class="picker-btn"
+								id="lang-picker-btn"
+								aria-haspopup="listbox"
+								aria-expanded="false"
+								aria-controls="lang-picker-list"
+								aria-label="Язык"
+							></button>
+							<ul
+								class="picker-list"
+								id="lang-picker-list"
+								role="listbox"
+								aria-label="Язык"
+								hidden
+							></ul>
+						</div>
 						<button
 							type="button"
 							class="theme-toggle"
@@ -134,24 +152,42 @@
 								hidden
 							></ul>
 						</div>
-						<div class="picker picker-compact" id="lang-picker">
+					</div>
+					<div class="search-row" id="search-box" role="search">
+						<div class="search-field">
+							<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+								<circle cx="10.5" cy="10.5" r="6.5" />
+								<path d="M15.5 15.5 L20 20" />
+							</svg>
+							<input
+								type="search"
+								id="feed-search"
+								name="q"
+								placeholder="Поиск по заголовкам и описаниям"
+								autocomplete="off"
+								enterkeyhint="search"
+								aria-label="Поиск по заголовкам и описаниям"
+								aria-autocomplete="list"
+								aria-controls="search-history"
+								aria-expanded="false"
+							/>
 							<button
 								type="button"
-								class="picker-btn"
-								id="lang-picker-btn"
-								aria-haspopup="listbox"
-								aria-expanded="false"
-								aria-controls="lang-picker-list"
-								aria-label="Язык"
-							></button>
-							<ul
-								class="picker-list"
-								id="lang-picker-list"
-								role="listbox"
-								aria-label="Язык"
+								class="search-clear"
+								id="search-clear"
 								hidden
-							></ul>
+								aria-label="Сбросить поиск"
+							>
+								×
+							</button>
 						</div>
+						<ul
+							class="search-history"
+							id="search-history"
+							role="listbox"
+							aria-label="Недавние запросы"
+							hidden
+						></ul>
 					</div>
 				</div>
 			</div>

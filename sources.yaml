@@ -4,11 +4,14 @@
 # direction: development | analytics | management | releases | devops | community
 # language: ru | en
 # fetch: rss | telegram_web | youtube_rss | infostart
+# url: адрес для сборщика (RSS / t.me/s / …)
+# home: публичная страница источника для about.html
 # summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
 
 site:
   - name: "Habr 1C"
     url: "https://habr.com/ru/rss/hub/1c/all/?fl=ru"
+    home: "https://habr.com/ru/hubs/1c/"
     fetch: rss
     direction: development
     language: ru
@@ -16,6 +19,7 @@ site:
     summarize: false
   - name: "Infostart"
     url: "https://infostart.ru/public/rss/"
+    home: "https://infostart.ru/"
     fetch: infostart
     direction: development
     language: ru
@@ -25,6 +29,7 @@ site:
 telegram:
   - name: "example_dev1c"
     url: "https://t.me/s/example_dev1c"
+    home: "https://t.me/example_dev1c"
     fetch: telegram_web
     direction: development
     language: ru
@@ -34,6 +39,7 @@ telegram:
 video:
   - name: "Example YouTube"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID"
+    home: "https://www.youtube.com/channel/CHANNEL_ID"
     fetch: youtube_rss
     direction: community
     language: ru
