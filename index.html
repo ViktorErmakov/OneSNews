@@ -8,6 +8,17 @@
 			name="description"
 			content="Ежедневный дайджест новостей вокруг мира 1С — в первую очередь для разработчиков."
 		/>
+		<script>
+			(function () {
+				try {
+					var t = localStorage.getItem('ones-theme');
+					if (t !== 'light' && t !== 'dark') {
+						t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+					}
+					document.documentElement.setAttribute('data-theme', t);
+				} catch (e) {}
+			})();
+		</script>
 		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
@@ -23,25 +34,72 @@
 					</span>
 				</a>
 				<nav class="top-nav" aria-label="Навигация">
+					<button
+						type="button"
+						class="theme-toggle"
+						id="theme-toggle"
+						aria-pressed="false"
+						aria-label="Включить тёмную тему"
+					>
+						<span class="theme-toggle-track" aria-hidden="true">
+							<svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
+								<circle cx="12" cy="12" r="4" />
+								<path
+									d="M12 3v1.5M12 19.5V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.5M19.5 12H21M4.9 19.1l1.1-1.1M18 6l1.1-1.1"
+								/>
+							</svg>
+							<svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
+								<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z" />
+							</svg>
+							<span class="theme-toggle-thumb"></span>
+						</span>
+					</button>
 					<a href="about.html">О проекте</a>
 				</nav>
 			</div>
 		</header>
 
 		<div class="filters-bar">
-			<div class="shell filters-grid">
-				<label class="field">
-					<span>Дата</span>
-					<select id="date-select"></select>
-				</label>
-				<label class="field">
-					<span>Направление</span>
-					<select id="direction-select"></select>
-				</label>
-				<label class="field">
-					<span>Язык</span>
-					<select id="language-select"></select>
-				</label>
+			<div class="shell filters-inner">
+				<div class="filters-row">
+					<div class="picker" id="date-picker">
+						<button
+							type="button"
+							class="picker-btn"
+							id="date-picker-btn"
+							aria-haspopup="listbox"
+							aria-expanded="false"
+							aria-controls="date-picker-list"
+							aria-label="Дата"
+						></button>
+						<ul
+							class="picker-list"
+							id="date-picker-list"
+							role="listbox"
+							aria-label="Дата"
+							hidden
+						></ul>
+					</div>
+					<div class="picker" id="lang-picker">
+						<button
+							type="button"
+							class="picker-btn"
+							id="lang-picker-btn"
+							aria-haspopup="listbox"
+							aria-expanded="false"
+							aria-controls="lang-picker-list"
+							aria-label="Язык"
+						></button>
+						<ul
+							class="picker-list"
+							id="lang-picker-list"
+							role="listbox"
+							aria-label="Язык"
+							hidden
+						></ul>
+					</div>
+				</div>
+				<div class="direction-pills" id="direction-pills" role="group" aria-label="Направление"></div>
 			</div>
 		</div>
 
@@ -62,6 +120,7 @@
 			</div>
 		</footer>
 
+		<script src="js/theme.js"></script>
 		<script src="js/config.js"></script>
 		<script src="js/app.js"></script>
 	</body>

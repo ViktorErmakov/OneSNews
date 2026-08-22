@@ -15,7 +15,7 @@ window.ONES_CONFIG = {
 		{ code: 'community', label: 'Сообщество' },
 	],
 	LANGUAGES: [
-		{ code: 'ru', label: 'Русский' },
-		{ code: 'en', label: 'English' },
+		{ code: 'ru', label: 'Русский', country: 'ru' },
+		{ code: 'en', label: 'English', country: 'gb' },
 	],
 };
