@@ -51,8 +51,6 @@
 	const READ_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 	const SEARCH_HISTORY_KEY = 'ones-search-history';
 	const SEARCH_HISTORY_MAX = 8;
-	const SEARCH_REMEMBER_MS = 400;
-	let searchRememberTimer = null;
 
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
@@ -537,7 +535,7 @@
 		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
 		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
-		flushRememberSearch();
+		rememberSearch(state.query);
 		closeSearchHistory();
 	}
 
@@ -826,7 +824,7 @@
 		const day = await res.json();
 		state.currentDay = day;
 		state.date = date;
-		flushRememberSearch();
+		rememberSearch(state.query);
 		state.query = '';
 		syncSearchInput();
 		closeSearchHistory();
@@ -943,22 +941,6 @@
 		saveSearchHistory();
 	}
 
-	function scheduleRememberSearch() {
-		if (searchRememberTimer) window.clearTimeout(searchRememberTimer);
-		searchRememberTimer = window.setTimeout(() => {
-			searchRememberTimer = null;
-			rememberSearch(state.query);
-		}, SEARCH_REMEMBER_MS);
-	}
-
-	function flushRememberSearch(query) {
-		if (searchRememberTimer) {
-			window.clearTimeout(searchRememberTimer);
-			searchRememberTimer = null;
-		}
-		rememberSearch(query === undefined ? state.query : query);
-	}
-
 	function removeSearchHistory(query) {
 		state.searchHistory = state.searchHistory.filter((item) => item !== query);
 		saveSearchHistory();
@@ -1045,7 +1027,7 @@
 	}
 
 	function clearSearch(reopen) {
-		flushRememberSearch();
+		rememberSearch(state.query);
 		applyQuery('');
 		if (els.searchInput) els.searchInput.focus();
 		if (reopen) openSearchHistory();
@@ -1063,7 +1045,6 @@
 			state.query = els.searchInput.value;
 			syncSearchClear();
 			renderFeed();
-			scheduleRememberSearch();
 			openSearchHistory();
 		});
 
@@ -1088,7 +1069,7 @@
 			}
 			if (event.key === 'Enter') {
 				event.preventDefault();
-				flushRememberSearch();
+				rememberSearch(state.query);
 				closeSearchHistory();
 				els.searchInput.blur();
 			}
@@ -1097,8 +1078,8 @@
 		els.searchInput.addEventListener('blur', () => {
 			const pending = state.query;
 			window.setTimeout(() => {
-				flushRememberSearch(pending);
 				if (!els.searchBox.contains(document.activeElement)) {
+					rememberSearch(pending);
 					closeSearchHistory();
 				}
 			}, 0);
@@ -1245,7 +1226,7 @@
 			if (!els.langPicker.contains(target)) closePicker(els.langBtn, els.langList);
 			if (els.dirPicker && !els.dirPicker.contains(target)) closePicker(els.dirBtn, els.dirList);
 			if (els.searchBox && !els.searchBox.contains(target)) {
-				flushRememberSearch();
+				rememberSearch(state.query);
 				closeSearchHistory();
 			}
 		});
