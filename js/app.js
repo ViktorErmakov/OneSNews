@@ -98,12 +98,76 @@
 		return GLOBE_SVG;
 	}
 
-	function languageOptions() {
-		return [{ code: '', label: 'Все языки' }].concat(cfg.LANGUAGES);
+	function dayItems() {
+		return state.currentDay?.items || [];
+	}
+
+	function availableLanguages() {
+		const present = new Set(dayItems().map((item) => item.language));
+		return cfg.LANGUAGES.filter((lang) => present.has(lang.code));
+	}
+
+	function itemsForDirections() {
+		const items = dayItems();
+		if (!state.language) return items;
+		return items.filter((item) => item.language === state.language);
+	}
+
+	function availableDirections() {
+		const present = new Set(itemsForDirections().map((item) => item.direction));
+		return cfg.DIRECTIONS.filter((d) => present.has(d.code));
+	}
+
+	function languagePickerOptions() {
+		const available = availableLanguages();
+		if (available.length > 1) {
+			return [{ code: '', label: 'Все языки' }].concat(available);
+		}
+		return available;
 	}
 
 	function currentLanguageOption() {
-		return languageOptions().find((opt) => opt.code === state.language) || languageOptions()[0];
+		const options = languagePickerOptions();
+		return options.find((opt) => opt.code === state.language) || options[0] || { code: '', label: 'Все языки' };
+	}
+
+	function syncLanguageToAvailable() {
+		const available = availableLanguages();
+		if (available.length === 1) {
+			state.language = available[0].code;
+			return;
+		}
+		if (state.language && !available.some((lang) => lang.code === state.language)) {
+			state.language = '';
+		}
+	}
+
+	function syncDirectionToAvailable() {
+		const available = availableDirections();
+		if (available.length === 1) {
+			state.direction = available[0].code;
+			return;
+		}
+		if (state.direction && !available.some((d) => d.code === state.direction)) {
+			state.direction = '';
+		}
+	}
+
+	function syncFiltersToDay() {
+		syncLanguageToAvailable();
+		syncDirectionToAvailable();
+	}
+
+	function emptyFeedMessage() {
+		const items = dayItems();
+		if (!items.length) return 'Нет новостей за этот день.';
+		if (state.language) {
+			const inLanguage = items.filter((item) => item.language === state.language);
+			if (!inLanguage.length) {
+				return `Нет новостей на языке «${labelOf(cfg.LANGUAGES, state.language)}» за этот день.`;
+			}
+		}
+		return 'Нет новостей по выбранным фильтрам.';
 	}
 
 	function labelOf(list, code) {
@@ -303,13 +367,21 @@
 	function renderLangPicker() {
 		const current = currentLanguageOption();
 		renderPickerButton(els.langBtn, 'Язык', flagSvg(current.code), current.label);
-		els.langList.innerHTML = languageOptions()
+		els.langList.innerHTML = languagePickerOptions()
 			.map((opt) => optionMarkup(opt.code, flagSvg(opt.code), opt.label, opt.code === state.language))
 			.join('');
 	}
 
 	function renderDirectionPills() {
-		const pills = [{ code: '', label: 'Все' }].concat(cfg.DIRECTIONS);
+		const available = availableDirections();
+		if (!available.length) {
+			els.directionPills.innerHTML = '';
+			els.directionPills.hidden = true;
+			return;
+		}
+
+		els.directionPills.hidden = false;
+		const pills = available.length > 1 ? [{ code: '', label: 'Все' }].concat(available) : available;
 		els.directionPills.innerHTML = pills
 			.map((pill) => {
 				const active = pill.code === state.direction;
@@ -330,24 +402,46 @@
 	}
 
 	function setDirection(code) {
-		state.direction = code;
+		const available = availableDirections();
+		if (available.length === 1) {
+			state.direction = available[0].code;
+		} else {
+			state.direction = code;
+		}
 		renderDirectionPills();
 		renderFeed();
 	}
 
 	function setLanguage(code) {
-		state.language = code;
+		const available = availableLanguages();
+		if (available.length === 1) {
+			state.language = available[0].code;
+		} else {
+			state.language = code;
+		}
 		closePicker(els.langBtn, els.langList);
+		syncDirectionToAvailable();
 		renderLangPicker();
+		renderDirectionPills();
 		renderFeed();
 	}
 
 	function toggleFilter(kind, code) {
 		if (kind === 'direction') {
+			const available = availableDirections();
+			if (available.length === 1) {
+				setDirection(available[0].code);
+				return;
+			}
 			setDirection(state.direction === code ? '' : code);
 			return;
 		}
 		if (kind === 'language') {
+			const available = availableLanguages();
+			if (available.length === 1) {
+				setLanguage(available[0].code);
+				return;
+			}
 			setLanguage(state.language === code ? '' : code);
 		}
 	}
@@ -381,7 +475,7 @@
 
 		const items = filteredItems();
 		if (!items.length) {
-			els.feed.innerHTML = `<p class="empty">Нет новостей по выбранным фильтрам.</p>`;
+			els.feed.innerHTML = `<p class="empty">${escapeHtml(emptyFeedMessage())}</p>`;
 			return;
 		}
 
@@ -395,7 +489,7 @@
 			parts.push(`</section>`);
 		});
 
-		els.feed.innerHTML = parts.join('') || `<p class="empty">Нет новостей по выбранным фильтрам.</p>`;
+		els.feed.innerHTML = parts.join('') || `<p class="empty">${escapeHtml(emptyFeedMessage())}</p>`;
 	}
 
 	async function dateFileExists(date) {
@@ -458,7 +552,10 @@
 		state.date = date;
 		setCalendarToDate(date);
 		setUrlDate(date);
+		syncFiltersToDay();
 		renderDatePicker();
+		renderLangPicker();
+		renderDirectionPills();
 		setStatus('');
 		renderFeed();
 	}
@@ -468,11 +565,7 @@
 			closePicker(els.dateBtn, els.datePanel);
 			return;
 		}
-		state.direction = '';
-		state.language = '';
 		closeAllPickers();
-		renderLangPicker();
-		renderDirectionPills();
 		try {
 			await loadDay(date);
 		} catch (err) {

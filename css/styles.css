@@ -519,6 +519,10 @@ a:hover {
 	-webkit-overflow-scrolling: touch;
 }
 
+.direction-pills[hidden] {
+	display: none;
+}
+
 .direction-pills::-webkit-scrollbar {
 	display: none;
 }
