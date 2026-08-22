@@ -24,6 +24,7 @@
 	--tap: 44px;
 	--max: 44rem;
 	--chrome-h: 7.5rem;
+	--logo: #c49212;
 	color-scheme: light;
 }
 
@@ -48,6 +49,7 @@
 	--glow: rgba(61, 186, 138, 0.12);
 	--thumb-on-accent: #102018;
 	--shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+	--logo: #f5c518;
 	color-scheme: dark;
 }
 
@@ -139,11 +141,11 @@ a:hover {
 
 .brand-mark {
 	display: block;
-	width: 2.35rem;
-	height: 2.35rem;
+	width: 2.45rem;
+	height: 2.45rem;
 	flex-shrink: 0;
-	border-radius: 0.58rem;
-	box-shadow: 0 0 0 1.5px #f5c518;
+	color: var(--logo);
+	overflow: visible;
 }
 
 .brand-text {
