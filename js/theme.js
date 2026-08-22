@@ -18,6 +18,8 @@
 
 	function setTheme(theme) {
 		document.documentElement.setAttribute('data-theme', theme);
+		const cs = document.querySelector('meta[name="color-scheme"]');
+		if (cs) cs.setAttribute('content', theme);
 		try {
 			localStorage.setItem(KEY, theme);
 		} catch (err) {

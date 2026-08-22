@@ -8,6 +8,7 @@
 			name="description"
 			content="Ежедневный дайджест новостей вокруг мира 1С — в первую очередь для разработчиков."
 		/>
+		<meta name="color-scheme" content="light dark" />
 		<script>
 			(function () {
 				try {
@@ -16,6 +17,8 @@
 						t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 					}
 					document.documentElement.setAttribute('data-theme', t);
+					var cs = document.querySelector('meta[name="color-scheme"]');
+					if (cs) cs.setAttribute('content', t);
 				} catch (e) {}
 			})();
 		</script>
@@ -41,17 +44,25 @@
 						>
 							<g
 								fill="none"
-								stroke="currentColor"
 								stroke-width="3.1"
 								stroke-linecap="round"
 								stroke-linejoin="round"
 							>
-								<rect x="2.4" y="2.4" width="59.2" height="59.2" rx="13" stroke-width="2.6" />
+								<rect
+									x="2.4"
+									y="2.4"
+									width="59.2"
+									height="59.2"
+									rx="13"
+									fill="none"
+									stroke-width="2.6"
+								/>
 								<path
+									fill="none"
 									d="M23.5 11.62h5.33a2.2 2.2 0 0 1 2.2 2.2v36.53a2.2 2.2 0 0 1-2.2 2.2h-5.33a2.2 2.2 0 0 1-2.2-2.2V24.45l-5.9-1.25q-2.07-.45-2.07-2.35v-1.3q0-1.7 1.45-2.8L21.3 12.2a2.2 2.2 0 0 1 2.2-.58z"
 								/>
-								<path d="M37.73 23.24A11.83 11.83 0 0 1 38.7 41.97" />
-								<path d="M39.84 13.88A21.26 21.26 0 0 1 43.81 50.3" />
+								<path fill="none" d="M37.73 23.24A11.83 11.83 0 0 1 38.7 41.97" />
+								<path fill="none" d="M39.84 13.88A21.26 21.26 0 0 1 43.81 50.3" />
 							</g>
 						</svg>
 						<span class="brand-text">

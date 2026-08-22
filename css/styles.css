@@ -144,8 +144,15 @@ a:hover {
 	width: 2.45rem;
 	height: 2.45rem;
 	flex-shrink: 0;
-	color: var(--logo);
 	overflow: visible;
+	forced-color-adjust: none;
+	-webkit-text-fill-color: unset;
+}
+
+.brand-mark rect,
+.brand-mark path {
+	fill: none;
+	stroke: var(--logo);
 }
 
 .brand-text {
