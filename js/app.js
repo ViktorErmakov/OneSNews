@@ -57,8 +57,11 @@
 		langList: document.querySelector('#lang-picker-list'),
 		directionPills: document.querySelector('#direction-pills'),
 		dayTitle: document.querySelector('#day-title'),
+		dayCount: document.querySelector('#day-count'),
+		sectionNav: document.querySelector('#section-nav'),
 		feed: document.querySelector('#feed'),
 		status: document.querySelector('#status'),
+		chrome: document.querySelector('.chrome'),
 	};
 
 	const GLOBE_SVG =
@@ -77,6 +80,11 @@
 	const CARET_SVG =
 		'<svg class="picker-caret" viewBox="0 0 12 12" aria-hidden="true">' +
 		'<path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+		'</svg>';
+
+	const EXTERNAL_SVG =
+		'<svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+		'<path d="M14 5h5v5M19 5l-9 9M11 6H6.5A1.5 1.5 0 0 0 5 7.5v10A1.5 1.5 0 0 0 6.5 19h10a1.5 1.5 0 0 0 1.5-1.5V13"/>' +
 		'</svg>';
 
 	function flagSvg(code) {
@@ -173,6 +181,105 @@
 			}
 		}
 		return 'Нет новостей по выбранным фильтрам.';
+	}
+
+	function emptyFeedHint() {
+		const items = dayItems();
+		if (!items.length) return 'Выберите другую дату в календаре.';
+		if (state.language) {
+			const inLanguage = items.filter((item) => item.language === state.language);
+			if (!inLanguage.length) return 'Смените язык или дату.';
+		}
+		return 'Снимите фильтр направления или языка либо выберите другую дату.';
+	}
+
+	function materialsLabel(count) {
+		const n = Number(count) || 0;
+		const mod10 = n % 10;
+		const mod100 = n % 100;
+		let word = 'материалов';
+		if (mod10 === 1 && mod100 !== 11) word = 'материал';
+		else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) word = 'материала';
+		return `${n} ${word}`;
+	}
+
+	function renderEmpty() {
+		return (
+			`<p class="empty">` +
+			`<span class="empty-lead">${escapeHtml(emptyFeedMessage())}</span>` +
+			`<span class="empty-hint">${escapeHtml(emptyFeedHint())}</span>` +
+			`</p>`
+		);
+	}
+
+	function visibleSections(items) {
+		return cfg.SOURCE_TYPES.filter((section) => items.some((item) => item.source_type === section.code));
+	}
+
+	function renderSectionNav(sections, counts) {
+		if (!els.sectionNav) return;
+		if (sections.length < 2) {
+			els.sectionNav.innerHTML = '';
+			els.sectionNav.hidden = true;
+			return;
+		}
+		els.sectionNav.hidden = false;
+		els.sectionNav.innerHTML = sections
+			.map((section) => {
+				const count = counts[section.code] || 0;
+				return (
+					`<a href="#section-${escapeHtml(section.code)}">` +
+					`${escapeHtml(section.label)} · ${count}` +
+					`</a>`
+				);
+			})
+			.join('');
+	}
+
+	function renderDayHero(itemCount, sections, counts) {
+		if (!els.dayTitle) return;
+		if (!state.currentDay) {
+			if (els.dayCount) els.dayCount.hidden = true;
+			if (els.sectionNav) {
+				els.sectionNav.innerHTML = '';
+				els.sectionNav.hidden = true;
+			}
+			return;
+		}
+		els.dayTitle.textContent = state.currentDay.title || state.currentDay.date;
+		if (els.dayCount) {
+			els.dayCount.hidden = false;
+			els.dayCount.textContent = materialsLabel(itemCount);
+		}
+		renderSectionNav(sections, counts);
+	}
+
+	function syncPillsOverflow() {
+		const el = els.directionPills;
+		if (!el) return;
+		if (el.hidden) {
+			el.classList.remove('is-overflowing', 'is-scrolled', 'is-at-end');
+			return;
+		}
+		const overflowing = el.scrollWidth > el.clientWidth + 2;
+		const atStart = el.scrollLeft <= 2;
+		const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+		el.classList.toggle('is-overflowing', overflowing);
+		el.classList.toggle('is-scrolled', overflowing && !atStart);
+		el.classList.toggle('is-at-end', overflowing && atEnd);
+	}
+
+	function bindChromeHeight() {
+		if (!els.chrome) return;
+		const apply = () => {
+			document.documentElement.style.setProperty('--chrome-h', `${els.chrome.offsetHeight}px`);
+		};
+		if (window.ResizeObserver) {
+			new ResizeObserver(apply).observe(els.chrome);
+		} else {
+			window.addEventListener('resize', apply);
+		}
+		apply();
 	}
 
 	function loadReadMap() {
@@ -435,6 +542,7 @@
 		if (!available.length) {
 			els.directionPills.innerHTML = '';
 			els.directionPills.hidden = true;
+			syncPillsOverflow();
 			return;
 		}
 
@@ -451,6 +559,8 @@
 				);
 			})
 			.join('');
+		syncPillsOverflow();
+		requestAnimationFrame(syncPillsOverflow);
 	}
 
 	function syncFilterUi() {
@@ -510,15 +620,24 @@
 		const dirActive = state.direction === item.direction;
 		const langActive = state.language === item.language;
 		const read = isRead(item.id);
+		const title = escapeHtml(item.title);
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
-			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a></h3>` +
+			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
+			`aria-label="${title} (откроется в новой вкладке)">${title}${EXTERNAL_SVG}</a></h3>` +
 			`<p class="card-summary">${escapeHtml(item.summary)}</p>` +
 			`<div class="card-meta">` +
 			`<span>${escapeHtml(item.source_name)}</span>` +
 			`<span>${escapeHtml(item.author || 'Не указан')}</span>` +
-			`<button type="button" class="chip${dirActive ? ' is-active' : ''}" data-filter="direction" data-value="${escapeHtml(item.direction)}">${escapeHtml(direction)}</button>` +
-			`<button type="button" class="chip${langActive ? ' is-active' : ''}" data-filter="language" data-value="${escapeHtml(item.language)}">${escapeHtml(language)}</button>` +
+			`<button type="button" class="chip${dirActive ? ' is-active' : ''}" data-filter="direction" ` +
+			`data-value="${escapeHtml(item.direction)}" aria-pressed="${dirActive}" ` +
+			`title="Фильтр по направлению: ${escapeHtml(direction)}" ` +
+			`aria-label="Фильтр по направлению: ${escapeHtml(direction)}">${escapeHtml(direction)}</button>` +
+			`<button type="button" class="chip${langActive ? ' is-active' : ''}" data-filter="language" ` +
+			`data-value="${escapeHtml(item.language)}" aria-pressed="${langActive}" ` +
+			`title="Фильтр по языку: ${escapeHtml(language)}" ` +
+			`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>` +
+			`<span class="read-badge">Прочитано</span>` +
 			`</div>` +
 			`</article>`
 		);
@@ -527,14 +646,20 @@
 	function renderFeed() {
 		if (!state.currentDay) {
 			els.feed.innerHTML = '';
+			renderDayHero(0, [], {});
 			return;
 		}
 
-		els.dayTitle.textContent = state.currentDay.title || state.currentDay.date;
-
 		const items = filteredItems();
+		const counts = {};
+		const sections = visibleSections(items);
+		sections.forEach((section) => {
+			counts[section.code] = items.filter((item) => item.source_type === section.code).length;
+		});
+		renderDayHero(items.length, sections, counts);
+
 		if (!items.length) {
-			els.feed.innerHTML = `<p class="empty">${escapeHtml(emptyFeedMessage())}</p>`;
+			els.feed.innerHTML = renderEmpty();
 			return;
 		}
 
@@ -542,13 +667,17 @@
 		cfg.SOURCE_TYPES.forEach((section) => {
 			const sectionItems = items.filter((item) => item.source_type === section.code);
 			if (!sectionItems.length) return;
-			parts.push(`<section class="section">`);
-			parts.push(`<h2 class="section-title">${escapeHtml(section.label)}</h2>`);
+			const count = sectionItems.length;
+			parts.push(`<section class="section" id="section-${escapeHtml(section.code)}">`);
+			parts.push(
+				`<h2 class="section-title">${escapeHtml(section.label)} ` +
+					`<span class="section-count">· ${count}</span></h2>`,
+			);
 			parts.push(`<div class="cards">${sectionItems.map(renderCard).join('')}</div>`);
 			parts.push(`</section>`);
 		});
 
-		els.feed.innerHTML = parts.join('') || `<p class="empty">${escapeHtml(emptyFeedMessage())}</p>`;
+		els.feed.innerHTML = parts.join('') || renderEmpty();
 	}
 
 	async function dateFileExists(date) {
@@ -730,6 +859,7 @@
 
 	async function init() {
 		loadReadMap();
+		bindChromeHeight();
 		bindDatePicker();
 		bindLangPicker();
 
@@ -745,6 +875,8 @@
 			if (!pill) return;
 			setDirection(pill.getAttribute('data-direction') || '');
 		});
+		els.directionPills.addEventListener('scroll', syncPillsOverflow, { passive: true });
+		window.addEventListener('resize', syncPillsOverflow);
 
 		els.feed.addEventListener('click', (event) => {
 			markCardReadFromEvent(event);

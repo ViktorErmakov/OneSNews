@@ -23,6 +23,7 @@
 	--font: 'Segoe UI', system-ui, sans-serif;
 	--tap: 44px;
 	--max: 44rem;
+	--chrome-h: 7.5rem;
 	color-scheme: light;
 }
 
@@ -56,6 +57,7 @@
 
 html {
 	-webkit-text-size-adjust: 100%;
+	scroll-padding-top: var(--chrome-h);
 }
 
 body {
@@ -97,6 +99,13 @@ a:hover {
 	top: 0.75rem;
 }
 
+.chrome {
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	overflow: visible;
+}
+
 .top {
 	position: sticky;
 	top: 0;
@@ -104,6 +113,11 @@ a:hover {
 	backdrop-filter: blur(10px);
 	background: var(--header-bg);
 	border-bottom: 1px solid var(--line);
+}
+
+.chrome .top {
+	position: relative;
+	z-index: auto;
 }
 
 .top-inner {
@@ -245,6 +259,7 @@ a:hover {
 .filters-bar {
 	border-bottom: 1px solid var(--line);
 	background: var(--filters-bg);
+	backdrop-filter: blur(10px);
 }
 
 .filters-inner {
@@ -527,12 +542,27 @@ a:hover {
 	display: none;
 }
 
+.direction-pills.is-overflowing {
+	-webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 1.5rem), transparent 100%);
+	mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 1.5rem), transparent 100%);
+}
+
+.direction-pills.is-overflowing.is-scrolled {
+	-webkit-mask-image: linear-gradient(to right, transparent 0, #000 1.25rem, #000 calc(100% - 1.5rem), transparent 100%);
+	mask-image: linear-gradient(to right, transparent 0, #000 1.25rem, #000 calc(100% - 1.5rem), transparent 100%);
+}
+
+.direction-pills.is-overflowing.is-at-end {
+	-webkit-mask-image: linear-gradient(to right, transparent 0, #000 1.25rem, #000 100%);
+	mask-image: linear-gradient(to right, transparent 0, #000 1.25rem, #000 100%);
+}
+
 .pill {
 	flex: 0 0 auto;
 	display: inline-flex;
 	align-items: center;
-	min-height: 2rem;
-	padding: 0.2rem 0.7rem;
+	min-height: var(--tap);
+	padding: 0.2rem 0.85rem;
 	border: 1px solid var(--line);
 	border-radius: 999px;
 	background: var(--surface);
@@ -559,10 +589,43 @@ a:hover {
 	padding: 1.1rem 0 0.75rem;
 }
 
+.day-hero-row {
+	display: grid;
+	gap: 0.35rem;
+}
+
 .day-hero h1 {
 	margin: 0;
 	font-size: clamp(1.45rem, 6vw, 2rem);
 	line-height: 1.2;
+}
+
+.day-count {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+
+.section-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 0.85rem;
+	margin-top: 0.7rem;
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.section-nav[hidden] {
+	display: none;
+}
+
+.section-nav a {
+	text-decoration: none;
+}
+
+.section {
+	scroll-margin-top: 0.75rem;
 }
 
 .muted {
@@ -594,6 +657,12 @@ a:hover {
 	font-size: 1.05rem;
 }
 
+.section-count {
+	color: var(--muted);
+	font-weight: 600;
+	font-size: 0.85em;
+}
+
 .cards {
 	display: grid;
 	gap: 0.75rem;
@@ -612,6 +681,7 @@ a:hover {
 .card.is-read {
 	border-left-color: var(--line);
 	box-shadow: none;
+	background: var(--empty-bg);
 }
 
 .card-title {
@@ -621,6 +691,7 @@ a:hover {
 }
 
 .card-title a {
+	display: inline;
 	color: inherit;
 	text-decoration: none;
 }
@@ -629,9 +700,27 @@ a:hover {
 	color: var(--accent);
 }
 
+.external-icon {
+	display: inline-block;
+	width: 0.78rem;
+	height: 0.78rem;
+	margin-left: 0.28rem;
+	vertical-align: -0.05rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	opacity: 0.55;
+}
+
+.card-title a:hover .external-icon {
+	opacity: 1;
+}
+
 .card.is-read .card-title a {
 	color: var(--muted);
-	font-weight: 600;
+	font-weight: 500;
 }
 
 .card.is-read .card-title a:hover {
@@ -644,7 +733,7 @@ a:hover {
 }
 
 .card.is-read .card-summary {
-	opacity: 0.72;
+	opacity: 0.58;
 }
 
 .card-meta {
@@ -659,8 +748,9 @@ a:hover {
 .chip {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.15rem 0.5rem;
-	border: 1px solid transparent;
+	min-height: 1.75rem;
+	padding: 0.15rem 0.55rem;
+	border: 1px solid var(--line);
 	border-radius: 999px;
 	background: var(--accent-soft);
 	color: var(--accent);
@@ -670,6 +760,10 @@ a:hover {
 	cursor: pointer;
 }
 
+.chip:hover {
+	border-color: var(--accent);
+}
+
 .chip:focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
@@ -677,15 +771,45 @@ a:hover {
 
 .chip.is-active {
 	background: var(--accent);
+	border-color: var(--accent);
 	color: var(--thumb-on-accent);
 }
 
+.read-badge {
+	display: none;
+	align-items: center;
+	padding: 0.1rem 0.45rem;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	background: var(--empty-bg);
+	color: var(--muted);
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.card.is-read .read-badge {
+	display: inline-flex;
+}
+
 .empty {
+	display: grid;
+	gap: 0.35rem;
 	padding: 1rem;
 	border: 1px dashed var(--line);
 	border-radius: var(--radius);
 	background: var(--empty-bg);
 	color: var(--muted);
+}
+
+.empty-lead {
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.empty-hint {
+	font-size: 0.92rem;
 }
 
 .footer {
@@ -697,6 +821,14 @@ a:hover {
 	padding: 1.1rem 0 1.5rem;
 	color: var(--muted);
 	font-size: 0.92rem;
+}
+
+.footer-inner p {
+	margin: 0 0 0.45rem;
+}
+
+.footer-inner p:last-child {
+	margin-bottom: 0;
 }
 
 .about {
@@ -726,6 +858,8 @@ a:hover {
 	.direction-pills {
 		flex-wrap: wrap;
 		overflow: visible;
+		-webkit-mask-image: none;
+		mask-image: none;
 	}
 
 	.card {
