@@ -603,8 +603,15 @@ a:hover {
 	padding: 1rem;
 	background: var(--surface);
 	border: 1px solid var(--line);
+	border-left-width: 3px;
+	border-left-color: var(--accent);
 	border-radius: var(--radius);
 	box-shadow: var(--shadow);
+}
+
+.card.is-read {
+	border-left-color: var(--line);
+	box-shadow: none;
 }
 
 .card-title {
@@ -622,9 +629,22 @@ a:hover {
 	color: var(--accent);
 }
 
+.card.is-read .card-title a {
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.card.is-read .card-title a:hover {
+	color: var(--accent);
+}
+
 .card-summary {
 	margin: 0 0 0.7rem;
 	color: var(--card-text);
+}
+
+.card.is-read .card-summary {
+	opacity: 0.72;
 }
 
 .card-meta {

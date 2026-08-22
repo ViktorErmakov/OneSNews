@@ -41,7 +41,12 @@
 		calendar: { year: 2026, month: 0 },
 		direction: '',
 		language: '',
+		readMap: {},
 	};
+
+	const READ_KEY = 'ones-read';
+	const READ_MAX = 500;
+	const READ_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
@@ -168,6 +173,59 @@
 			}
 		}
 		return 'Нет новостей по выбранным фильтрам.';
+	}
+
+	function loadReadMap() {
+		try {
+			const parsed = JSON.parse(localStorage.getItem(READ_KEY) || '{}');
+			if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+				state.readMap = parsed;
+			}
+		} catch (err) {
+			state.readMap = {};
+		}
+		const before = Object.keys(state.readMap).length;
+		pruneReadMap();
+		if (Object.keys(state.readMap).length !== before) saveReadMap();
+	}
+
+	function pruneReadMap() {
+		const now = Date.now();
+		const entries = Object.entries(state.readMap)
+			.filter(([, ts]) => typeof ts === 'number' && now - ts < READ_TTL_MS)
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, READ_MAX);
+		state.readMap = Object.fromEntries(entries);
+	}
+
+	function saveReadMap() {
+		pruneReadMap();
+		try {
+			localStorage.setItem(READ_KEY, JSON.stringify(state.readMap));
+		} catch (err) {
+			/* ignore quota / private mode */
+		}
+	}
+
+	function isRead(id) {
+		return Boolean(id && state.readMap[id]);
+	}
+
+	function markRead(id) {
+		if (!id || isRead(id)) return false;
+		state.readMap[id] = Date.now();
+		saveReadMap();
+		return true;
+	}
+
+	function markCardReadFromEvent(event) {
+		const link = event.target.closest && event.target.closest('.card-title a');
+		if (!link || !els.feed.contains(link)) return;
+		const card = link.closest('.card');
+		const id = card && card.getAttribute('data-id');
+		if (!id) return;
+		markRead(id);
+		if (card) card.classList.add('is-read');
 	}
 
 	function labelOf(list, code) {
@@ -451,8 +509,9 @@
 		const language = labelOf(cfg.LANGUAGES, item.language);
 		const dirActive = state.direction === item.direction;
 		const langActive = state.language === item.language;
+		const read = isRead(item.id);
 		return (
-			`<article class="card">` +
+			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a></h3>` +
 			`<p class="card-summary">${escapeHtml(item.summary)}</p>` +
 			`<div class="card-meta">` +
@@ -670,6 +729,7 @@
 	}
 
 	async function init() {
+		loadReadMap();
 		bindDatePicker();
 		bindLangPicker();
 
@@ -687,9 +747,14 @@
 		});
 
 		els.feed.addEventListener('click', (event) => {
+			markCardReadFromEvent(event);
 			const chip = event.target.closest('.chip[data-filter]');
 			if (!chip) return;
 			toggleFilter(chip.getAttribute('data-filter'), chip.getAttribute('data-value') || '');
+		});
+
+		els.feed.addEventListener('auxclick', (event) => {
+			if (event.button === 1) markCardReadFromEvent(event);
 		});
 
 		state.dates = await listAvailableDates();
