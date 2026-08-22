@@ -67,18 +67,18 @@
 							type="button"
 							class="picker-btn"
 							id="date-picker-btn"
-							aria-haspopup="listbox"
+							aria-haspopup="dialog"
 							aria-expanded="false"
-							aria-controls="date-picker-list"
+							aria-controls="date-picker-panel"
 							aria-label="Дата"
 						></button>
-						<ul
-							class="picker-list"
-							id="date-picker-list"
-							role="listbox"
-							aria-label="Дата"
+						<div
+							class="picker-panel calendar-panel"
+							id="date-picker-panel"
+							role="dialog"
+							aria-label="Календарь"
 							hidden
-						></ul>
+						></div>
 					</div>
 					<div class="picker" id="lang-picker">
 						<button

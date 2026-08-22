@@ -2,11 +2,43 @@
 	'use strict';
 
 	const cfg = window.ONES_CONFIG;
+	const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+	const MONTHS_GEN = [
+		'января',
+		'февраля',
+		'марта',
+		'апреля',
+		'мая',
+		'июня',
+		'июля',
+		'августа',
+		'сентября',
+		'октября',
+		'ноября',
+		'декабря',
+	];
+	const MONTHS_TITLE = [
+		'Январь',
+		'Февраль',
+		'Март',
+		'Апрель',
+		'Май',
+		'Июнь',
+		'Июль',
+		'Август',
+		'Сентябрь',
+		'Октябрь',
+		'Ноябрь',
+		'Декабрь',
+	];
+
 	const state = {
 		index: null,
 		currentDay: null,
 		dates: [],
+		dateSet: new Set(),
 		date: null,
+		calendar: { year: 2026, month: 0 },
 		direction: '',
 		language: '',
 	};
@@ -14,7 +46,7 @@
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
 		dateBtn: document.querySelector('#date-picker-btn'),
-		dateList: document.querySelector('#date-picker-list'),
+		datePanel: document.querySelector('#date-picker-panel'),
 		langPicker: document.querySelector('#lang-picker'),
 		langBtn: document.querySelector('#lang-picker-btn'),
 		langList: document.querySelector('#lang-picker-list'),
@@ -105,6 +137,65 @@
 		window.history.replaceState({}, '', url);
 	}
 
+	function parseIsoDate(iso) {
+		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+		if (!match) return null;
+		return { year: Number(match[1]), month: Number(match[2]) - 1, day: Number(match[3]) };
+	}
+
+	function formatDateLabel(iso) {
+		const parsed = parseIsoDate(iso);
+		if (!parsed) return iso || 'Дата';
+		return `${parsed.day} ${MONTHS_GEN[parsed.month]} ${parsed.year}`;
+	}
+
+	function monthIndex(year, month) {
+		return year * 12 + month;
+	}
+
+	function calendarBounds() {
+		if (!state.dates.length) return null;
+		const newest = parseIsoDate(state.dates[0]);
+		const oldest = parseIsoDate(state.dates[state.dates.length - 1]);
+		if (!newest || !oldest) return null;
+		return {
+			min: monthIndex(oldest.year, oldest.month),
+			max: monthIndex(newest.year, newest.month),
+		};
+	}
+
+	function setCalendarToDate(iso) {
+		const parsed = parseIsoDate(iso);
+		if (!parsed) return;
+		state.calendar = { year: parsed.year, month: parsed.month };
+	}
+
+	function shiftCalendar(dir) {
+		const next = { year: state.calendar.year, month: state.calendar.month };
+		if (dir === 'prev') {
+			next.month -= 1;
+			if (next.month < 0) {
+				next.month = 11;
+				next.year -= 1;
+			}
+		} else {
+			next.month += 1;
+			if (next.month > 11) {
+				next.month = 0;
+				next.year += 1;
+			}
+		}
+		const bounds = calendarBounds();
+		const idx = monthIndex(next.year, next.month);
+		if (bounds && (idx < bounds.min || idx > bounds.max)) return;
+		state.calendar = next;
+		renderDatePicker();
+		els.datePanel.hidden = false;
+		els.dateBtn.setAttribute('aria-expanded', 'true');
+		const nav = els.datePanel.querySelector(`[data-cal="${dir}"]`);
+		if (nav) nav.focus();
+	}
+
 	function filteredItems() {
 		const items = state.currentDay?.items || [];
 		return items.filter((item) => {
@@ -129,39 +220,84 @@
 		btn.setAttribute('aria-label', ariaPrefix + ': ' + label);
 	}
 
-	function isPickerOpen(list) {
-		return !list.hidden;
+	function isPickerOpen(panel) {
+		return !panel.hidden;
 	}
 
-	function closePicker(btn, list) {
-		list.hidden = true;
+	function closePicker(btn, panel) {
+		panel.hidden = true;
 		btn.setAttribute('aria-expanded', 'false');
 	}
 
 	function closeAllPickers() {
-		closePicker(els.dateBtn, els.dateList);
+		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
 	}
 
-	function openPicker(btn, list) {
+	function openPicker(btn, panel) {
 		closeAllPickers();
-		list.hidden = false;
+		panel.hidden = false;
 		btn.setAttribute('aria-expanded', 'true');
-		const selected = list.querySelector('[aria-selected="true"]') || list.firstElementChild;
+		const selected =
+			panel.querySelector('[aria-selected="true"], .calendar-day.is-selected') ||
+			panel.querySelector('.calendar-day.has-news') ||
+			panel.firstElementChild;
 		if (selected) selected.focus();
 	}
 
-	function togglePicker(btn, list) {
-		if (isPickerOpen(list)) closePicker(btn, list);
-		else openPicker(btn, list);
+	function togglePicker(btn, panel) {
+		if (isPickerOpen(panel)) closePicker(btn, panel);
+		else openPicker(btn, panel);
+	}
+
+	function renderCalendarGrid() {
+		const year = state.calendar.year;
+		const month = state.calendar.month;
+		const first = new Date(year, month, 1);
+		const startOffset = (first.getDay() + 6) % 7;
+		const daysInMonth = new Date(year, month + 1, 0).getDate();
+		const cells = [];
+
+		for (let i = 0; i < startOffset; i += 1) {
+			cells.push('<span class="calendar-day is-empty"></span>');
+		}
+
+		for (let day = 1; day <= daysInMonth; day += 1) {
+			const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+			const hasNews = state.dateSet.has(iso);
+			const selected = iso === state.date;
+			if (hasNews) {
+				cells.push(
+					`<button type="button" class="calendar-day has-news${selected ? ' is-selected' : ''}" ` +
+						`data-date="${iso}" aria-label="${escapeHtml(formatDateLabel(iso))}" ` +
+						`aria-pressed="${selected}">${day}</button>`,
+				);
+			} else {
+				cells.push(`<span class="calendar-day">${day}</span>`);
+			}
+		}
+
+		return cells.join('');
 	}
 
 	function renderDatePicker() {
-		const current = state.date || (state.dates[0] || '');
-		renderPickerButton(els.dateBtn, 'Дата', CALENDAR_SVG, current || 'Дата');
-		els.dateList.innerHTML = state.dates
-			.map((date) => optionMarkup(date, CALENDAR_SVG, date, date === current))
-			.join('');
+		const current = state.date || state.dates[0] || '';
+		renderPickerButton(els.dateBtn, 'Дата', CALENDAR_SVG, formatDateLabel(current));
+
+		const bounds = calendarBounds();
+		const idx = monthIndex(state.calendar.year, state.calendar.month);
+		const canPrev = bounds ? idx > bounds.min : false;
+		const canNext = bounds ? idx < bounds.max : false;
+		const title = `${MONTHS_TITLE[state.calendar.month]} ${state.calendar.year}`;
+
+		els.datePanel.innerHTML =
+			`<div class="calendar-head">` +
+			`<button type="button" class="calendar-nav" data-cal="prev" aria-label="Предыдущий месяц"${canPrev ? '' : ' disabled'}>‹</button>` +
+			`<div class="calendar-title">${escapeHtml(title)}</div>` +
+			`<button type="button" class="calendar-nav" data-cal="next" aria-label="Следующий месяц"${canNext ? '' : ' disabled'}>›</button>` +
+			`</div>` +
+			`<div class="calendar-weekdays">${WEEKDAYS.map((d) => `<span>${d}</span>`).join('')}</div>` +
+			`<div class="calendar-grid">${renderCalendarGrid()}</div>`;
 	}
 
 	function renderLangPicker() {
@@ -262,6 +398,57 @@
 		els.feed.innerHTML = parts.join('') || `<p class="empty">Нет новостей по выбранным фильтрам.</p>`;
 	}
 
+	async function dateFileExists(date) {
+		const url = `data/days/${date}.json`;
+		try {
+			const head = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+			if (head.ok) return true;
+			const get = await fetch(url, { method: 'GET', cache: 'no-store' });
+			return get.ok;
+		} catch (err) {
+			return false;
+		}
+	}
+
+	async function datesFromDirectoryListing() {
+		try {
+			const res = await fetch('data/days/', { cache: 'no-store' });
+			if (!res.ok) return [];
+			const text = await res.text();
+			const found = new Set();
+			const re = /(\d{4}-\d{2}-\d{2})\.json/g;
+			let match;
+			while ((match = re.exec(text))) found.add(match[1]);
+			return Array.from(found);
+		} catch (err) {
+			return [];
+		}
+	}
+
+	async function listAvailableDates() {
+		const fromDir = await datesFromDirectoryListing();
+		let candidates = fromDir;
+		if (!candidates.length) {
+			const indexRes = await fetch('data/index.json', { cache: 'no-store' });
+			if (!indexRes.ok) throw new Error('Не удалось загрузить data/index.json');
+			state.index = await indexRes.json();
+			candidates = state.index.dates || [];
+		} else {
+			try {
+				const indexRes = await fetch('data/index.json', { cache: 'no-store' });
+				if (indexRes.ok) state.index = await indexRes.json();
+			} catch (err) {
+				/* listing is enough */
+			}
+		}
+
+		const unique = Array.from(new Set(candidates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
+		const existing = await Promise.all(
+			unique.map(async (date) => ((await dateFileExists(date)) ? date : null)),
+		);
+		return existing.filter(Boolean).sort().reverse();
+	}
+
 	async function loadDay(date) {
 		setStatus('Загрузка…');
 		const res = await fetch(`data/days/${date}.json`, { cache: 'no-store' });
@@ -269,6 +456,7 @@
 		const day = await res.json();
 		state.currentDay = day;
 		state.date = date;
+		setCalendarToDate(date);
 		setUrlDate(date);
 		renderDatePicker();
 		setStatus('');
@@ -277,7 +465,7 @@
 
 	async function changeDate(date) {
 		if (!date || date === state.date) {
-			closePicker(els.dateBtn, els.dateList);
+			closePicker(els.dateBtn, els.datePanel);
 			return;
 		}
 		state.direction = '';
@@ -296,35 +484,35 @@
 		return target && target.closest ? target.closest('[role="option"]') : null;
 	}
 
-	function bindPicker(btn, list, onSelect) {
-		btn.addEventListener('click', (event) => {
+	function bindLangPicker() {
+		els.langBtn.addEventListener('click', (event) => {
 			event.stopPropagation();
-			togglePicker(btn, list);
+			togglePicker(els.langBtn, els.langList);
 		});
 
-		list.addEventListener('click', (event) => {
+		els.langList.addEventListener('click', (event) => {
 			event.stopPropagation();
 			const option = optionFromTarget(event.target);
 			if (!option) return;
-			onSelect(option.getAttribute('data-value') || '');
+			setLanguage(option.getAttribute('data-value') || '');
 		});
 
-		btn.addEventListener('keydown', (event) => {
+		els.langBtn.addEventListener('keydown', (event) => {
 			if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
-				openPicker(btn, list);
+				openPicker(els.langBtn, els.langList);
 			}
 		});
 
-		list.addEventListener('keydown', (event) => {
-			const options = Array.from(list.querySelectorAll('[role="option"]'));
+		els.langList.addEventListener('keydown', (event) => {
+			const options = Array.from(els.langList.querySelectorAll('[role="option"]'));
 			const current = document.activeElement;
 			const index = options.indexOf(current);
 
 			if (event.key === 'Escape') {
 				event.preventDefault();
-				closePicker(btn, list);
-				btn.focus();
+				closePicker(els.langBtn, els.langList);
+				els.langBtn.focus();
 				return;
 			}
 			if (event.key === 'ArrowDown') {
@@ -340,24 +528,62 @@
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				const option = optionFromTarget(current);
-				if (option) onSelect(option.getAttribute('data-value') || '');
-				btn.focus();
+				if (option) setLanguage(option.getAttribute('data-value') || '');
+				els.langBtn.focus();
+			}
+		});
+	}
+
+	function bindDatePicker() {
+		els.dateBtn.addEventListener('click', (event) => {
+			event.stopPropagation();
+			if (isPickerOpen(els.datePanel)) {
+				closePicker(els.dateBtn, els.datePanel);
+				return;
+			}
+			setCalendarToDate(state.date || state.dates[0]);
+			renderDatePicker();
+			openPicker(els.dateBtn, els.datePanel);
+		});
+
+		els.datePanel.addEventListener('click', (event) => {
+			event.stopPropagation();
+			const nav = event.target.closest('[data-cal]');
+			if (nav) {
+				if (nav.disabled) return;
+				shiftCalendar(nav.getAttribute('data-cal'));
+				return;
+			}
+			const day = event.target.closest('[data-date]');
+			if (day) changeDate(day.getAttribute('data-date') || '');
+		});
+
+		els.dateBtn.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				setCalendarToDate(state.date || state.dates[0]);
+				renderDatePicker();
+				openPicker(els.dateBtn, els.datePanel);
+			}
+		});
+
+		els.datePanel.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				closePicker(els.dateBtn, els.datePanel);
+				els.dateBtn.focus();
 			}
 		});
 	}
 
 	async function init() {
-		bindPicker(els.dateBtn, els.dateList, (value) => {
-			changeDate(value);
-		});
-		bindPicker(els.langBtn, els.langList, (value) => {
-			setLanguage(value);
-		});
+		bindDatePicker();
+		bindLangPicker();
 
 		document.addEventListener('click', (event) => {
 			const target = event.target;
 			if (!(target instanceof Node) || !target.isConnected) return;
-			if (!els.datePicker.contains(target)) closePicker(els.dateBtn, els.dateList);
+			if (!els.datePicker.contains(target)) closePicker(els.dateBtn, els.datePanel);
 			if (!els.langPicker.contains(target)) closePicker(els.langBtn, els.langList);
 		});
 
@@ -373,13 +599,10 @@
 			toggleFilter(chip.getAttribute('data-filter'), chip.getAttribute('data-value') || '');
 		});
 
-		const indexRes = await fetch('data/index.json', { cache: 'no-store' });
-		if (!indexRes.ok) throw new Error('Не удалось загрузить data/index.json');
-		state.index = await indexRes.json();
-
-		state.dates = state.index.dates || [];
+		state.dates = await listAvailableDates();
+		state.dateSet = new Set(state.dates);
 		if (!state.dates.length) {
-			setStatus('Нет опубликованных дней в data/index.json', true);
+			setStatus('Нет опубликованных дней в data/days', true);
 			syncFilterUi();
 			return;
 		}
@@ -387,6 +610,7 @@
 		const requested = queryDate();
 		const initial = requested && state.dates.includes(requested) ? requested : state.dates[0];
 		state.date = initial;
+		setCalendarToDate(initial);
 		syncFilterUi();
 		await loadDay(initial);
 	}

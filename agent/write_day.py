@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import date
 from pathlib import Path
 
 from common import DAYS, INDEX, ROOT, russian_day_title, slug_id
+
+DAY_FILE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.json$")
 
 logger = logging.getLogger(__name__)
 
@@ -34,17 +37,25 @@ def write_day(day: date, items: list[dict]) -> Path:
 	}
 	path = DAYS / f"{day.isoformat()}.json"
 	path.write_text(json.dumps(day_doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+	write_index()
+	logger.info("Wrote %s (%s items)", path.relative_to(ROOT), len(payload_items))
+	return path
 
+
+def dates_from_day_files() -> list[str]:
+	DAYS.mkdir(parents=True, exist_ok=True)
+	dates = [path.stem for path in DAYS.glob("*.json") if DAY_FILE_RE.match(path.name)]
+	dates.sort(reverse=True)
+	return dates
+
+
+def write_index() -> None:
 	index = {"site": "OneS News", "dates": []}
 	if INDEX.exists():
 		loaded = json.loads(INDEX.read_text(encoding="utf-8"))
 		if isinstance(loaded, dict):
 			index = loaded
-	dates = [d for d in (index.get("dates") or []) if d != day.isoformat()]
-	dates.insert(0, day.isoformat())
 	index["site"] = index.get("site") or "OneS News"
-	index["dates"] = dates
+	index["dates"] = dates_from_day_files()
 	INDEX.parent.mkdir(parents=True, exist_ok=True)
 	INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-	logger.info("Wrote %s (%s items)", path.relative_to(ROOT), len(payload_items))
-	return path
