@@ -19,6 +19,8 @@
 				} catch (e) {}
 			})();
 		</script>
+		<link rel="icon" href="favicon.png?v=4" type="image/png" sizes="32x32" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png?v=4" />
 		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
@@ -27,13 +29,20 @@
 		<header class="top">
 			<div class="shell top-inner">
 				<a class="brand" href="index.html">
-					<span class="brand-mark" aria-hidden="true">ON</span>
+					<img
+						class="brand-mark"
+						src="img/mark.png"
+						width="38"
+						height="38"
+						alt=""
+						aria-hidden="true"
+					/>
 					<span class="brand-text">
 						<span class="brand-name">OneS News</span>
 						<span class="brand-sub">enterprisehub.dev</span>
 					</span>
 				</a>
-				<nav class="top-nav" aria-label="Навигация">
+				<nav class="top-nav" aria-label="Оформление">
 					<button
 						type="button"
 						class="theme-toggle"
@@ -54,7 +63,6 @@
 							<span class="theme-toggle-thumb"></span>
 						</span>
 					</button>
-					<a href="index.html">Лента</a>
 				</nav>
 			</div>
 		</header>
@@ -78,15 +86,19 @@
 				Мы не копируем чужие тексты целиком: для каждой новости готовится краткое саммари и
 				указывается первоисточник.
 			</p>
+			<p>
+				Пожелания, идеи по источникам и замечания к дайджесту можно
+				<a href="mailto:mopdeus@gmail.com?subject=OneS%20News">написать нам</a>.
+			</p>
 		</main>
 
 		<footer class="footer">
 			<div class="shell footer-inner">
-				<p>
-					OneS News — независимый дайджест. Сайт не принадлежит фирме «1С» и не является её
-					официальным ресурсом.
-				</p>
-				<p>© OneS News · enterprisehub.dev</p>
+				<nav class="footer-nav" aria-label="О сайте">
+					<a href="index.html">Лента</a>
+					<a href="mailto:mopdeus@gmail.com?subject=OneS%20News">Пожелания</a>
+				</nav>
+				<p>© OneS News</p>
 			</div>
 		</footer>
 

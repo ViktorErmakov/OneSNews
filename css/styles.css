@@ -138,16 +138,12 @@ a:hover {
 }
 
 .brand-mark {
-	display: inline-grid;
-	place-items: center;
+	display: block;
 	width: 2.35rem;
 	height: 2.35rem;
-	border-radius: 0.6rem;
-	background: var(--accent);
-	color: var(--thumb-on-accent);
-	font-size: 0.78rem;
-	font-weight: 700;
-	letter-spacing: 0.04em;
+	flex-shrink: 0;
+	border-radius: 0.58rem;
+	box-shadow: 0 0 0 1.5px #f5c518;
 }
 
 .brand-text {
@@ -818,17 +814,38 @@ a:hover {
 }
 
 .footer-inner {
-	padding: 1.1rem 0 1.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 1rem;
+	min-height: var(--tap);
+	padding: 0.4rem 0;
 	color: var(--muted);
 	font-size: 0.92rem;
 }
 
-.footer-inner p {
-	margin: 0 0 0.45rem;
+.footer-inner p,
+.footer-nav {
+	margin: 0;
 }
 
-.footer-inner p:last-child {
-	margin-bottom: 0;
+.footer-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 1rem;
+}
+
+.footer-inner a,
+.about a {
+	color: var(--ink);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.footer-inner a:hover,
+.about a:hover {
+	color: var(--accent);
 }
 
 .about {
