@@ -55,7 +55,9 @@
 		langPicker: document.querySelector('#lang-picker'),
 		langBtn: document.querySelector('#lang-picker-btn'),
 		langList: document.querySelector('#lang-picker-list'),
-		directionPills: document.querySelector('#direction-pills'),
+		dirPicker: document.querySelector('#dir-picker'),
+		dirBtn: document.querySelector('#dir-picker-btn'),
+		dirList: document.querySelector('#dir-picker-list'),
 		dayTitle: document.querySelector('#day-title'),
 		dayCount: document.querySelector('#day-count'),
 		sectionNav: document.querySelector('#section-nav'),
@@ -75,6 +77,12 @@
 		'<svg class="picker-icon" viewBox="0 0 24 24" aria-hidden="true">' +
 		'<rect x="3.5" y="5.5" width="17" height="15" rx="2"/>' +
 		'<path d="M3.5 10.5h17M8 3.5v4M16 3.5v4"/>' +
+		'</svg>';
+
+	const TAG_SVG =
+		'<svg class="picker-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+		'<path d="M20.5 13.2 L11 3.7H4.8v6.2l9.5 9.5 6.2-6.2z"/>' +
+		'<circle cx="8.2" cy="8.2" r="1.35"/>' +
 		'</svg>';
 
 	const CARET_SVG =
@@ -142,6 +150,19 @@
 	function currentLanguageOption() {
 		const options = languagePickerOptions();
 		return options.find((opt) => opt.code === state.language) || options[0] || { code: '', label: 'Все языки' };
+	}
+
+	function directionPickerOptions() {
+		const available = availableDirections();
+		if (available.length > 1) {
+			return [{ code: '', label: 'Все' }].concat(available);
+		}
+		return available;
+	}
+
+	function currentDirectionOption() {
+		const options = directionPickerOptions();
+		return options.find((opt) => opt.code === state.direction) || options[0] || { code: '', label: 'Все' };
 	}
 
 	function syncLanguageToAvailable() {
@@ -254,21 +275,6 @@
 		renderSectionNav(sections, counts);
 	}
 
-	function syncPillsOverflow() {
-		const el = els.directionPills;
-		if (!el) return;
-		if (el.hidden) {
-			el.classList.remove('is-overflowing', 'is-scrolled', 'is-at-end');
-			return;
-		}
-		const overflowing = el.scrollWidth > el.clientWidth + 2;
-		const atStart = el.scrollLeft <= 2;
-		const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
-		el.classList.toggle('is-overflowing', overflowing);
-		el.classList.toggle('is-scrolled', overflowing && !atStart);
-		el.classList.toggle('is-at-end', overflowing && atEnd);
-	}
-
 	function bindChromeHeight() {
 		if (!els.chrome) return;
 		const apply = () => {
@@ -378,6 +384,14 @@
 		return `${parsed.day} ${MONTHS_GEN[parsed.month]} ${parsed.year}`;
 	}
 
+	function formatDateNumeric(iso) {
+		const parsed = parseIsoDate(iso);
+		if (!parsed) return iso || 'Дата';
+		const day = String(parsed.day).padStart(2, '0');
+		const month = String(parsed.month + 1).padStart(2, '0');
+		return `${day}.${month}.${parsed.year}`;
+	}
+
 	function monthIndex(year, month) {
 		return year * 12 + month;
 	}
@@ -444,9 +458,13 @@
 		);
 	}
 
-	function renderPickerButton(btn, ariaPrefix, iconHtml, label) {
-		btn.innerHTML = iconHtml + `<span class="picker-btn-label">${escapeHtml(label)}</span>` + CARET_SVG;
-		btn.setAttribute('aria-label', ariaPrefix + ': ' + label);
+	function renderPickerButton(btn, ariaPrefix, iconHtml, visualLabel, spokenLabel, hideLabel) {
+		const spoken = spokenLabel || visualLabel;
+		const labelHtml = hideLabel
+			? ''
+			: `<span class="picker-btn-label">${escapeHtml(visualLabel)}</span>`;
+		btn.innerHTML = iconHtml + labelHtml + CARET_SVG;
+		btn.setAttribute('aria-label', ariaPrefix + ': ' + spoken);
 	}
 
 	function isPickerOpen(panel) {
@@ -461,6 +479,7 @@
 	function closeAllPickers() {
 		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
+		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
 	}
 
 	function openPicker(btn, panel) {
@@ -511,7 +530,13 @@
 
 	function renderDatePicker() {
 		const current = state.date || state.dates[0] || '';
-		renderPickerButton(els.dateBtn, 'Дата', CALENDAR_SVG, formatDateLabel(current));
+		renderPickerButton(
+			els.dateBtn,
+			'Дата',
+			CALENDAR_SVG,
+			formatDateNumeric(current),
+			formatDateLabel(current),
+		);
 
 		const bounds = calendarBounds();
 		const idx = monthIndex(state.calendar.year, state.calendar.month);
@@ -531,42 +556,33 @@
 
 	function renderLangPicker() {
 		const current = currentLanguageOption();
-		renderPickerButton(els.langBtn, 'Язык', flagSvg(current.code), current.label);
+		renderPickerButton(els.langBtn, 'Язык', flagSvg(current.code), current.label, current.label, true);
 		els.langList.innerHTML = languagePickerOptions()
 			.map((opt) => optionMarkup(opt.code, flagSvg(opt.code), opt.label, opt.code === state.language))
 			.join('');
 	}
 
-	function renderDirectionPills() {
-		const available = availableDirections();
-		if (!available.length) {
-			els.directionPills.innerHTML = '';
-			els.directionPills.hidden = true;
-			syncPillsOverflow();
+	function renderDirectionPicker() {
+		if (!els.dirPicker) return;
+		const options = directionPickerOptions();
+		if (!options.length) {
+			els.dirPicker.hidden = true;
+			if (els.dirList) els.dirList.innerHTML = '';
 			return;
 		}
 
-		els.directionPills.hidden = false;
-		const pills = available.length > 1 ? [{ code: '', label: 'Все' }].concat(available) : available;
-		els.directionPills.innerHTML = pills
-			.map((pill) => {
-				const active = pill.code === state.direction;
-				return (
-					`<button type="button" class="pill${active ? ' is-active' : ''}" ` +
-					`data-direction="${escapeHtml(pill.code)}" aria-pressed="${active}">` +
-					escapeHtml(pill.label) +
-					`</button>`
-				);
-			})
+		els.dirPicker.hidden = false;
+		const current = currentDirectionOption();
+		renderPickerButton(els.dirBtn, 'Направление', TAG_SVG, current.label, current.label);
+		els.dirList.innerHTML = options
+			.map((opt) => optionMarkup(opt.code, '', opt.label, opt.code === state.direction))
 			.join('');
-		syncPillsOverflow();
-		requestAnimationFrame(syncPillsOverflow);
 	}
 
 	function syncFilterUi() {
 		renderDatePicker();
 		renderLangPicker();
-		renderDirectionPills();
+		renderDirectionPicker();
 	}
 
 	function setDirection(code) {
@@ -576,7 +592,8 @@
 		} else {
 			state.direction = code;
 		}
-		renderDirectionPills();
+		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
+		renderDirectionPicker();
 		renderFeed();
 	}
 
@@ -590,7 +607,7 @@
 		closePicker(els.langBtn, els.langList);
 		syncDirectionToAvailable();
 		renderLangPicker();
-		renderDirectionPills();
+		renderDirectionPicker();
 		renderFeed();
 	}
 
@@ -743,7 +760,7 @@
 		syncFiltersToDay();
 		renderDatePicker();
 		renderLangPicker();
-		renderDirectionPills();
+		renderDirectionPicker();
 		setStatus('');
 		renderFeed();
 	}
@@ -765,35 +782,37 @@
 		return target && target.closest ? target.closest('[role="option"]') : null;
 	}
 
-	function bindLangPicker() {
-		els.langBtn.addEventListener('click', (event) => {
+	function bindListPicker(btn, list, onSelect) {
+		if (!btn || !list) return;
+
+		btn.addEventListener('click', (event) => {
 			event.stopPropagation();
-			togglePicker(els.langBtn, els.langList);
+			togglePicker(btn, list);
 		});
 
-		els.langList.addEventListener('click', (event) => {
+		list.addEventListener('click', (event) => {
 			event.stopPropagation();
 			const option = optionFromTarget(event.target);
 			if (!option) return;
-			setLanguage(option.getAttribute('data-value') || '');
+			onSelect(option.getAttribute('data-value') || '');
 		});
 
-		els.langBtn.addEventListener('keydown', (event) => {
+		btn.addEventListener('keydown', (event) => {
 			if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
-				openPicker(els.langBtn, els.langList);
+				openPicker(btn, list);
 			}
 		});
 
-		els.langList.addEventListener('keydown', (event) => {
-			const options = Array.from(els.langList.querySelectorAll('[role="option"]'));
+		list.addEventListener('keydown', (event) => {
+			const options = Array.from(list.querySelectorAll('[role="option"]'));
 			const current = document.activeElement;
 			const index = options.indexOf(current);
 
 			if (event.key === 'Escape') {
 				event.preventDefault();
-				closePicker(els.langBtn, els.langList);
-				els.langBtn.focus();
+				closePicker(btn, list);
+				btn.focus();
 				return;
 			}
 			if (event.key === 'ArrowDown') {
@@ -809,8 +828,8 @@
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				const option = optionFromTarget(current);
-				if (option) setLanguage(option.getAttribute('data-value') || '');
-				els.langBtn.focus();
+				if (option) onSelect(option.getAttribute('data-value') || '');
+				btn.focus();
 			}
 		});
 	}
@@ -861,22 +880,16 @@
 		loadReadMap();
 		bindChromeHeight();
 		bindDatePicker();
-		bindLangPicker();
+		bindListPicker(els.langBtn, els.langList, setLanguage);
+		bindListPicker(els.dirBtn, els.dirList, setDirection);
 
 		document.addEventListener('click', (event) => {
 			const target = event.target;
 			if (!(target instanceof Node) || !target.isConnected) return;
 			if (!els.datePicker.contains(target)) closePicker(els.dateBtn, els.datePanel);
 			if (!els.langPicker.contains(target)) closePicker(els.langBtn, els.langList);
+			if (els.dirPicker && !els.dirPicker.contains(target)) closePicker(els.dirBtn, els.dirList);
 		});
-
-		els.directionPills.addEventListener('click', (event) => {
-			const pill = event.target.closest('[data-direction]');
-			if (!pill) return;
-			setDirection(pill.getAttribute('data-direction') || '');
-		});
-		els.directionPills.addEventListener('scroll', syncPillsOverflow, { passive: true });
-		window.addEventListener('resize', syncPillsOverflow);
 
 		els.feed.addEventListener('click', (event) => {
 			markCardReadFromEvent(event);

@@ -116,7 +116,25 @@
 								hidden
 							></div>
 						</div>
-						<div class="picker" id="lang-picker">
+						<div class="picker" id="dir-picker">
+							<button
+								type="button"
+								class="picker-btn"
+								id="dir-picker-btn"
+								aria-haspopup="listbox"
+								aria-expanded="false"
+								aria-controls="dir-picker-list"
+								aria-label="Направление"
+							></button>
+							<ul
+								class="picker-list"
+								id="dir-picker-list"
+								role="listbox"
+								aria-label="Направление"
+								hidden
+							></ul>
+						</div>
+						<div class="picker picker-compact" id="lang-picker">
 							<button
 								type="button"
 								class="picker-btn"
@@ -135,7 +153,6 @@
 							></ul>
 						</div>
 					</div>
-					<div class="direction-pills" id="direction-pills" role="group" aria-label="Направление"></div>
 				</div>
 			</div>
 		</div>
