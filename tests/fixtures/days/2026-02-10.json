@@ -1,0 +1,17 @@
+{
+	"date": "2026-02-10",
+	"title": "Дайджест за 10 февраля 2026",
+	"items": [
+		{
+			"id": "2026-02-10-001",
+			"title": "Один материал за день",
+			"summary": "Единственная новость, чтобы спрятать навигацию секций.",
+			"url": "https://example.com/single",
+			"author": "Не указан",
+			"source_name": "Infostart",
+			"source_type": "site",
+			"topics": [],
+			"language": "ru"
+		}
+	]
+}

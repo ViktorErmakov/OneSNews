@@ -1,0 +1,61 @@
+{
+	"date": "2026-03-15",
+	"title": "Дайджест за 15 марта 2026",
+	"items": [
+		{
+			"id": "2026-03-15-001",
+			"title": "Срок поставки в счёте покупателю",
+			"summary": "Расширение для БП 3.0 добавляет колонку срока поставки в счёт.",
+			"url": "https://example.com/infostart-invoice",
+			"author": "AlexSvoykin",
+			"source_name": "Infostart",
+			"source_type": "site",
+			"topics": ["ERP", "БП"],
+			"language": "ru"
+		},
+		{
+			"id": "2026-03-15-002",
+			"title": "Обзор платформы 1С:Предприятие",
+			"summary": "На Хабре разобрали новые возможности платформы для разработчиков.",
+			"url": "https://example.com/habr-platform",
+			"author": "Не указан",
+			"source_name": "Habr 1C",
+			"source_type": "site",
+			"topics": ["habr: разработка", "development"],
+			"language": "ru"
+		},
+		{
+			"id": "2026-03-15-003",
+			"title": "Короткий пост без текста",
+			"summary": "",
+			"url": "https://example.com/telegram-short",
+			"author": "Игорь Апресов | Radio Ingvar",
+			"source_name": "Игорь Апресов | Radio Ingvar",
+			"source_type": "telegram",
+			"topics": [],
+			"language": "ru"
+		},
+		{
+			"id": "2026-03-15-004",
+			"title": "English video about EDT",
+			"summary": "A conference talk covering 1C:EDT debugging tips.",
+			"url": "https://example.com/youtube-edt",
+			"author": "Jane Speaker",
+			"source_name": "Example YouTube",
+			"source_type": "video",
+			"topics": ["EDT"],
+			"language": "en"
+		},
+		{
+			"id": "2026-03-15-005",
+			"title": "Testing 1C configurations",
+			"summary": "How to write unit tests for enterprise configurations.",
+			"url": "https://example.com/en-testing",
+			"author": "John Doe",
+			"source_name": "English Hub",
+			"source_type": "site",
+			"topics": ["testing"],
+			"language": "en"
+		}
+	]
+}

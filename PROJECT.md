@@ -48,6 +48,9 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `js/theme.js` | Светлая / тёмная тема (`localStorage`) |
 | `js/app.js` | Загрузка дня, фильтры, поиск, рендер |
 | `js/about.js` | Список источников на «О проекте» |
+| `package.json` | Playwright: `npm test` |
+| `playwright.config.js` | Chromium, локальный `serve`, HTML-отчёт |
+| `tests/` | E2E UI-тесты и фикстуры JSON |
 | `favicon.svg` | Иконка вкладки |
 | `apple-touch-icon.png` | Иконка на домашнем экране iOS |
 | `data/index.json` | Список доступных дат |
@@ -66,7 +69,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `agent/.env.example` | Шаблон `GEMINI_API_KEY` |
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
-| `.github/workflows/pages.yml` | Деплой статики (белый список файлов) |
+| `.github/workflows/pages.yml` | Тесты Playwright, затем деплой статики (белый список файлов) |
 | `.github/workflows/collect.yml` | Ежедневный сбор (06:00 МСК) |
 | `LICENSE` | Условия использования |
 | `PROJECT.md` | Этот документ (для человека и ИИ) |
@@ -297,7 +300,7 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 ## 11. Деплой
 
-- Хостинг: GitHub Pages. Workflow `.github/workflows/pages.yml` копирует в `_site` только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/` и `sources.yaml` на сайт не попадают.
+- Хостинг: GitHub Pages. Workflow `.github/workflows/pages.yml` сначала гоняет Playwright, затем копирует в `_site` только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/`, `tests/` и `sources.yaml` на сайт не попадают. Падение тестов блокирует деплой; HTML-отчёт — артефакт job `test`.
 - Домен: `enterprisehub.dev` (`CNAME` + DNS у регистратора на IP GitHub Pages).
 - После push в `main` сайт обновляется Actions.
 

@@ -23,6 +23,16 @@ npx --yes serve .
 
 Нужен HTTP: `fetch` JSON не работает с `file://`.
 
+## Тесты UI
+
+Playwright (Chromium) гоняет все возможности ленты и «О проекте» на фикстурах в `tests/fixtures/`. В GitHub Actions прогон — job `test` в `.github/workflows/pages.yml`: HTML-отчёт кладётся в артефакт, падение блокирует деплой.
+
+```powershell
+npm ci
+npx playwright install chromium
+npm test
+```
+
 ## Собрать день
 
 Python 3.12 — как в GitHub Actions. Локально подойдёт 3.12+.

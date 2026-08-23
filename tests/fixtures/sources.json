@@ -1,0 +1,34 @@
+{
+	"sources": [
+		{
+			"name": "Habr 1C",
+			"home": "https://habr.com/ru/hubs/1c/",
+			"source_type": "site",
+			"language": "ru"
+		},
+		{
+			"name": "Infostart",
+			"home": "https://infostart.ru/",
+			"source_type": "site",
+			"language": "ru"
+		},
+		{
+			"name": "Игорь Апресов | Radio Ingvar",
+			"home": "https://t.me/radio_ingvar",
+			"source_type": "telegram",
+			"language": "ru"
+		},
+		{
+			"name": "English Hub",
+			"home": "https://example.com/en-hub",
+			"source_type": "site",
+			"language": "en"
+		},
+		{
+			"name": "Example YouTube",
+			"home": "https://www.youtube.com/channel/CHANNEL_ID",
+			"source_type": "video",
+			"language": "en"
+		}
+	]
+}

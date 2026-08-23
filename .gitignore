@@ -17,3 +17,10 @@ agent/__pycache__/
 *.pyc
 1.md
 _site/
+
+# tests
+node_modules/
+playwright-report/
+test-results/
+playwright/.cache
+blob-report/
