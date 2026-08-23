@@ -236,7 +236,7 @@ python agent/run.py --date 2026-08-17
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`).
 2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS. Фильтр ленты берёт `name`.
 3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
-4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web`. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
+4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
 5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
 
 ---

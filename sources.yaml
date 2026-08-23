@@ -24,13 +24,48 @@ site:
     summarize: false
 
 telegram:
-  - name: "example_dev1c"
-    url: "https://t.me/s/example_dev1c"
-    home: "https://t.me/example_dev1c"
+  - name: "Никита Федькин - мысли, заметки, анонсы"
+    url: "https://t.me/nixel2007_thoughts"
+    home: "https://t.me/nixel2007_thoughts"
     fetch: telegram_web
     language: ru
-    enabled: false
-    summarize: true
+    enabled: true
+    summarize: false
+  - name: "Хатка Бобра"
+    url: "https://t.me/evilbeaverHouse"
+    home: "https://t.me/evilbeaverHouse"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Стандарты 1С v8std"
+    url: "https://t.me/v8std"
+    home: "https://t.me/v8std"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Игорь Апресов | Radio Ingvar"
+    url: "https://t.me/radio_ingvar"
+    home: "https://t.me/radio_ingvar"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Никита Арипов | 1С, DevExp"
+    url: "https://t.me/AriN1C"
+    home: "https://t.me/AriN1C"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Дмитрий Котов | 1С Заметки"
+    url: "https://t.me/top_1c"
+    home: "https://t.me/top_1c"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
 
 video:
   - name: "Example YouTube"
