@@ -11,6 +11,12 @@
       "home": "https://infostart.ru/",
       "source_type": "site",
       "language": "ru"
+    },
+    {
+      "name": "Никита Федькин - мысли, заметки, анонсы",
+      "home": "https://t.me/nixel2007_thoughts",
+      "source_type": "telegram",
+      "language": "ru"
     }
   ]
 }

@@ -30,9 +30,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def apply_direct_summary(item: dict) -> dict:
-	summary = clean_snippet(item.get("snippet") or item.get("title") or "")
-	item["title"] = clean_snippet(item.get("title") or "Без названия")
-	item["summary"] = summary
+	title = clean_snippet(item.get("title") or "Без названия")
+	item["title"] = title
+	snippet = item.get("snippet")
+	if item.get("source_type") == "telegram" and not (snippet or "").strip():
+		item["summary"] = ""
+		return item
+	item["summary"] = clean_snippet(snippet or title or "")
 	return item
 
 

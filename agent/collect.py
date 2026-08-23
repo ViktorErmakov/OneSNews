@@ -3,13 +3,16 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import date, datetime, timedelta, timezone
+import time
+from datetime import date, datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
+
+from bs4 import BeautifulSoup
 
 from common import TMP, clip, load_config, load_sources, resolve_date, strip_html
 
@@ -19,6 +22,20 @@ USER_AGENT = "OneSNewsCollector/1.0 (+https://enterprisehub.dev)"
 ATOM = "{http://www.w3.org/2005/Atom}"
 DC = "{http://purl.org/dc/elements/1.1/}"
 CONTENT = "{http://purl.org/rss/1.0/modules/content/}"
+TG_TITLE_LIMIT = 100
+TG_MAX_PAGES = 30
+TG_PAGE_PAUSE_SEC = 0.4
+TG_SKIP_TEXT = frozenset(
+	{
+		"please open telegram to view this post",
+		"this media is not supported in your browser",
+		"view in telegram",
+	}
+)
+HASHTAG_RE = re.compile(r"#([^\s#]+)", re.UNICODE)
+VERSION_RE = re.compile(r"\b\d+\.\d+(?:\.\d+)*\b")
+ABBREV_RE = re.compile(r"(?i)\b(?:т\.е|т\.д|т\.п|т\.к|т\.н)\.")
+URL_RE = re.compile(r"https?://\S+")
 
 
 def http_get(url: str, timeout: int = 30) -> bytes:
@@ -199,52 +216,180 @@ def telegram_s_url(url: str) -> str:
 	return url
 
 
-def collect_telegram_web(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
-	html = http_get(telegram_s_url(source["url"])).decode("utf-8", errors="ignore")
-	blocks = re.split(r'(?=<div class="tgme_widget_message[\s"])', html)
-	items: list[dict] = []
-	username = source.get("name") or "telegram"
-	m_user = re.search(r"t\.me/s/([^/?#]+)", telegram_s_url(source["url"]))
-	if m_user:
-		username = m_user.group(1)
+def telegram_page_url(base: str, before: str | None) -> str:
+	if not before:
+		return base
+	sep = "&" if "?" in base else "?"
+	return f"{base}{sep}before={before}"
 
-	for block in blocks:
-		if "tgme_widget_message" not in block[:80]:
-			continue
-		post = re.search(r'data-post="([^"]+)"', block)
-		time_m = re.search(r'<time[^>]*datetime="([^"]+)"', block)
-		text_m = re.search(
-			r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>',
-			block,
-			flags=re.DOTALL,
-		)
-		author_m = re.search(
-			r'class="tgme_widget_message_author_name"[^>]*>(.*?)</span>',
-			block,
-			flags=re.DOTALL,
-		)
-		published = parse_datetime(time_m.group(1) if time_m else None)
-		if local_date(published, tz) != target:
-			continue
-		text = strip_html(text_m.group(1) if text_m else "")
-		if not text:
-			continue
-		title = text.split(".")[0][:120].strip() or "Сообщение"
-		url = f"https://t.me/{post.group(1)}" if post else telegram_s_url(source["url"])
-		author = strip_html(author_m.group(1) if author_m else "") or source.get("name") or username
-		items.append(
-			{
-				"title": title,
-				"url": url,
-				"author": author,
-				"published_at": published.isoformat() if published else None,
-				"snippet": clip(text, snippet_chars),
-				**source_meta(
-					{**source, "name": source.get("name") or f"Telegram: {username}"}
-				),
-			}
-		)
-	return items
+
+def telegram_username(url: str) -> str:
+	m = re.search(r"t\.me/s/([^/?#]+)", telegram_s_url(url))
+	return m.group(1) if m else ""
+
+
+def clip_at_word(text: str, limit: int) -> str:
+	text = (text or "").strip()
+	if len(text) <= limit:
+		return text
+	cut = text[:limit].rsplit(" ", 1)[0].rstrip(".,;:—–-")
+	if len(cut) < max(20, limit // 2):
+		cut = text[: max(0, limit - 1)].rstrip()
+	return cut + "…"
+
+
+def first_sentence(text: str) -> str | None:
+	compact = re.sub(r"\s+", " ", text or "").strip()
+	if not compact:
+		return None
+	stashed: list[str] = []
+
+	def stash(match: re.Match) -> str:
+		stashed.append(match.group(0))
+		return f"\x00{len(stashed) - 1}\x00"
+
+	protected = URL_RE.sub(stash, compact)
+	protected = VERSION_RE.sub(stash, protected)
+	protected = ABBREV_RE.sub(stash, protected)
+	match = re.search(r"[.!?…]{1,3}(?=\s|$)", protected)
+	if not match:
+		return None
+	chunk = protected[: match.end()]
+	for i, value in enumerate(stashed):
+		chunk = chunk.replace(f"\x00{i}\x00", value)
+	return chunk.strip()
+
+
+def telegram_title(plain: str, limit: int = TG_TITLE_LIMIT) -> str:
+	lines = [line.strip() for line in (plain or "").splitlines() if line.strip()]
+	if not lines:
+		return "Сообщение"
+	if len(lines[0]) <= limit:
+		return lines[0]
+	sentence = first_sentence(plain)
+	if sentence and len(sentence) <= limit:
+		return sentence
+	return clip_at_word(re.sub(r"\s+", " ", plain).strip(), limit)
+
+
+def telegram_plain_text(text_el) -> str:
+	if text_el is None:
+		return ""
+	clone = BeautifulSoup(str(text_el), "lxml")
+	node = clone.find(True)
+	if node is None:
+		return ""
+	for br in node.find_all("br"):
+		br.replace_with("\n")
+	lines = [re.sub(r"[ \t]+", " ", line).strip() for line in node.get_text().splitlines()]
+	return "\n".join(line for line in lines if line)
+
+
+def telegram_hashtags(text: str) -> list[str]:
+	labels: list[str] = []
+	for raw in HASHTAG_RE.findall(text or ""):
+		label = raw.rstrip(".,;:!?)»\"'")
+		if label:
+			labels.append(label)
+	return unique_labels(labels)
+
+
+def telegram_message_ids(wraps) -> list[int]:
+	ids: list[int] = []
+	for wrap in wraps:
+		post = wrap.get("data-post") or ""
+		part = post.rsplit("/", 1)[-1]
+		if part.isdigit():
+			ids.append(int(part))
+	return ids
+
+
+def parse_telegram_page(html: str) -> tuple[list, str | None]:
+	soup = BeautifulSoup(html, "lxml")
+	wraps = soup.select("div.tgme_widget_message[data-post]")
+	more = soup.select_one("a.js-messages_more[data-before]")
+	before = (more.get("data-before") or "").strip() if more else ""
+	if not before:
+		ids = telegram_message_ids(wraps)
+		before = str(min(ids)) if ids else ""
+	return wraps, before or None
+
+
+def collect_telegram_web_range(
+	source: dict,
+	start: date,
+	end: date,
+	tz: ZoneInfo,
+	snippet_chars: int,
+) -> dict[date, list[dict]]:
+	base = telegram_s_url(source["url"])
+	channel = telegram_username(source["url"])
+	author = source.get("name") or (f"Telegram: {channel}" if channel else "Telegram")
+	source_for_meta = {**source, "name": author}
+	buckets: dict[date, list[dict]] = {}
+	seen_urls: set[str] = set()
+	before: str | None = None
+	name = source.get("name") or base
+
+	for page in range(TG_MAX_PAGES):
+		if page:
+			time.sleep(TG_PAGE_PAUSE_SEC)
+		page_url = telegram_page_url(base, before)
+		html = http_get(page_url).decode("utf-8", errors="ignore")
+		wraps, next_before = parse_telegram_page(html)
+		if page == 0 and not wraps:
+			logger.warning("Telegram preview empty for %s (%s)", name, page_url)
+			return {}
+
+		oldest_on_page: date | None = None
+		for wrap in wraps:
+			if wrap.select_one(".tgme_widget_message_forwarded_from"):
+				continue
+			data_post = (wrap.get("data-post") or "").strip()
+			if not data_post:
+				continue
+			url = f"https://t.me/{data_post}"
+			if url in seen_urls:
+				continue
+			seen_urls.add(url)
+			time_el = wrap.select_one("time[datetime]")
+			published = parse_datetime(time_el.get("datetime") if time_el else None)
+			day = local_date(published, tz)
+			if day is not None and (oldest_on_page is None or day < oldest_on_page):
+				oldest_on_page = day
+			if day is None or day < start or day > end:
+				continue
+			text_el = wrap.select_one(".js-message_text")
+			plain = telegram_plain_text(text_el)
+			body = re.sub(r"\s+", " ", plain).strip()
+			if not body or body.casefold() in TG_SKIP_TEXT:
+				continue
+			title = telegram_title(plain)
+			snippet = "" if body == title else clip(body, snippet_chars)
+			buckets.setdefault(day, []).append(
+				{
+					"title": title,
+					"url": url,
+					"author": author,
+					"published_at": published.isoformat() if published else None,
+					"snippet": snippet,
+					**source_meta(source_for_meta, telegram_hashtags(body)),
+				}
+			)
+
+		if oldest_on_page is not None and oldest_on_page < start:
+			break
+		if not next_before or next_before == before:
+			break
+		before = next_before
+	else:
+		logger.warning("Telegram hit max_pages=%s on %s", TG_MAX_PAGES, name)
+
+	return buckets
+
+
+def collect_telegram_web(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
+	return collect_telegram_web_range(source, target, target, tz, snippet_chars).get(target, [])
 
 
 def collect_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
@@ -309,13 +454,7 @@ def collect_range(start: date, end: date) -> dict[date, list[dict]]:
 			elif fetch in {"rss", "youtube_rss"}:
 				buckets = collect_rss_range(source, start, end, tz, snippet_chars)
 			elif fetch == "telegram_web":
-				buckets = {}
-				cursor = start
-				while cursor <= end:
-					batch = collect_telegram_web(source, cursor, tz, snippet_chars)
-					if batch:
-						buckets[cursor] = batch
-					cursor += timedelta(days=1)
+				buckets = collect_telegram_web_range(source, start, end, tz, snippet_chars)
 			else:
 				logger.warning("Skip %s: unknown fetch type %s", name, fetch)
 				continue
