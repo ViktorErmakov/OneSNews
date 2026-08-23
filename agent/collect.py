@@ -405,6 +405,15 @@ def collect_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int)
 	raise ValueError(f"Unknown fetch type: {fetch}")
 
 
+def log_source_failure(name: str, exc: BaseException) -> None:
+	from collect_infostart import InfostartContractError
+
+	if isinstance(exc, InfostartContractError):
+		logger.error("Skip %s: %s", name, exc)
+		return
+	logger.exception("Failed %s", name)
+
+
 def collect(target: date | None = None, cli_date: str | None = None) -> tuple[date, list[dict]]:
 	config = load_config()
 	tz = ZoneInfo(config.get("timezone") or "Europe/Moscow")
@@ -423,10 +432,7 @@ def collect(target: date | None = None, cli_date: str | None = None) -> tuple[da
 		except (HTTPError, URLError, ET.ParseError, ValueError) as exc:
 			logger.warning("Skip %s: %s", name, exc)
 		except Exception as exc:  # noqa: BLE001
-			if exc.__class__.__name__ == "InfostartContractError":
-				logger.error("Skip %s: %s", name, exc)
-				continue
-			logger.exception("Failed %s", name)
+			log_source_failure(name, exc)
 	TMP.mkdir(parents=True, exist_ok=True)
 	out = TMP / f"raw-{day.isoformat()}.json"
 	out.write_text(json.dumps(collected, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -465,10 +471,7 @@ def collect_range(start: date, end: date) -> dict[date, list[dict]]:
 		except (HTTPError, URLError, ET.ParseError, ValueError) as exc:
 			logger.warning("Skip %s: %s", name, exc)
 		except Exception as exc:  # noqa: BLE001
-			if exc.__class__.__name__ == "InfostartContractError":
-				logger.error("Skip %s: %s", name, exc)
-				continue
-			logger.exception("Failed %s", name)
+			log_source_failure(name, exc)
 
 	TMP.mkdir(parents=True, exist_ok=True)
 	payload = {day.isoformat(): items for day, items in sorted(by_day.items())}

@@ -7,7 +7,7 @@ window.ONES_CONFIG = {
 		{ code: 'other', label: 'Другое' },
 	],
 	LANGUAGES: [
-		{ code: 'ru', label: 'Русский', country: 'ru' },
-		{ code: 'en', label: 'English', country: 'gb' },
+		{ code: 'ru', label: 'Русский' },
+		{ code: 'en', label: 'English' },
 	],
 };

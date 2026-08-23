@@ -27,8 +27,8 @@ jobs:
       - name: Prepare site folder
         run: |
           mkdir _site
-          cp index.html about.html CNAME PROJECT.md README.md sources.yaml favicon.svg apple-touch-icon.png _site/
-          cp -r css js data img _site/
+          cp index.html about.html CNAME PROJECT.md README.md favicon.svg apple-touch-icon.png _site/
+          cp -r css js data _site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

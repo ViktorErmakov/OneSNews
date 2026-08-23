@@ -22,8 +22,8 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
     └─► data/index.json
               │
               ▼
-     index.html + js/app.js
-     about.html + js/about.js
+     index.html + js/theme.js + js/config.js + js/app.js
+     about.html + js/theme.js + js/config.js + js/about.js
               │
               ▼
         GitHub Pages
@@ -31,8 +31,9 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 - Вёрстка почти не меняется после запуска.
 - Сборщик пишет **только** JSON в `data/` (и при необходимости `sources.yaml` / `agent/config.yaml`).
-- Браузер при смене даты загружает один day-файл; фильтры работают уже в памяти.
+- Браузер при смене даты загружает один day-файл; фильтры, поиск и «прочитано» работают уже в памяти.
 - Cursor не гоняется по расписанию: ежедневный прогон — GitHub Actions или скрипт на ПК.
+- `agent/` на сайт не попадает: публичный набор файлов задаёт `.github/workflows/pages.yml`.
 
 ---
 
@@ -40,23 +41,38 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 | Путь | Назначение |
 |------|------------|
-| `index.html` | Единственная рабочая страница ленты |
+| `index.html` | Лента: дата, источник, поиск, карточки дня |
 | `about.html` | О проекте, дисклеймер и список источников |
 | `css/styles.css` | Mobile-first стили |
 | `js/config.js` | Словари: языки, типы источников |
-| `js/app.js` | Загрузка дня, фильтры, рендер |
+| `js/theme.js` | Светлая / тёмная тема (`localStorage`) |
+| `js/app.js` | Загрузка дня, фильтры, поиск, рендер |
 | `js/about.js` | Список источников на «О проекте» |
+| `favicon.svg` | Иконка вкладки |
+| `apple-touch-icon.png` | Иконка на домашнем экране iOS |
 | `data/index.json` | Список доступных дат |
 | `data/sources.json` | Публичный каталог включённых источников |
 | `data/days/*.json` | Новости одного дня |
-| `sources.yaml` | Источники сборщика по секциям site / telegram / video |
+| `sources.yaml` | Источники сборщика по секциям site / telegram / video (браузер не читает) |
 | `agent/config.yaml` | Часовой пояс, режим даты, лимиты, модель |
 | `agent/run.py` | Одна команда: сбор → саммари → day JSON |
+| `agent/collect.py` | RSS, Telegram `/s/`, диспетчер Infostart |
+| `agent/collect_infostart.py` | Каталоги Infostart + RSS |
+| `agent/common.py` | Пути, конфиг, дата, сниппеты |
+| `agent/summarize.py` | Пакет саммари через Gemini |
+| `agent/write_day.py` | day JSON, `index.json`, `sources.json` |
+| `agent/prompts/summarize.md` | Системный промпт Gemini |
+| `agent/requirements.txt` | Зависимости Python 3.12 |
+| `agent/.env.example` | Шаблон `GEMINI_API_KEY` |
+| `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
-| `.github/workflows/pages.yml` | Деплой статики |
+| `.github/workflows/pages.yml` | Деплой статики (белый список файлов) |
 | `.github/workflows/collect.yml` | Ежедневный сбор (06:00 МСК) |
+| `LICENSE` | Условия использования |
 | `PROJECT.md` | Этот документ (для человека и ИИ) |
 | `README.md` | Короткий старт |
+
+`agent/tmp/` — сырые дампы сборщика (`raw-*.json` и отладка). В git не входит (см. `.gitignore`).
 
 ---
 
@@ -75,18 +91,18 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `dates` | string[] | Даты `YYYY-MM-DD`, **новые сверху**. Должна существовать `data/days/{date}.json` |
 
 **Дата по умолчанию в UI = `dates[0]`.**  
-Отдельного поля `default_date` нет.
+Отдельного поля `default_date` нет. Лента читает только этот файл, не listing каталога `data/days/`.
 
 При добавлении дня робот:
 
 1. Создаёт `data/days/YYYY-MM-DD.json`.
-2. Вставляет дату **в начало** массива `dates`.
+2. Пересобирает `dates` по файлам в `data/days/` (новые сверху).
 
 ---
 
 ## 4. Схема `data/sources.json`
 
-Публичный список включённых источников для страницы «О проекте». Пишется в начале `agent/run.py`, независимо от того, нашлись ли новости за день.
+Публичный список включённых источников для страницы «О проекте». Пишется в начале `agent/run.py`, независимо от того, нашлись ли новости за день. Cron (`.github/workflows/collect.yml`) коммитит этот файл вместе с `data/days/` и `data/index.json`.
 
 ```json
 {
@@ -138,7 +154,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 |-----------|-----|----------|
 | `id` | string | Уникален в пределах дня, напр. `{date}-{nnn}` |
 | `title` | string | Заголовок |
-| `summary` | string | Саммари, не копипаст |
+| `summary` | string | Саммари, не копипаст. Может быть пустым (короткий пост Telegram, текст уже в заголовке) |
 | `url` | string | Ссылка на первоисточник |
 | `author` | string | Автор или «Не указан» |
 | `source_name` | string | Имя источника (`name` из `sources.yaml`). По нему фильтр и плашка на карточке. |
@@ -170,7 +186,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `ru` | Русский |
 | `en` | English |
 
-**Расширение языков:** добавить объект в массив `LANGUAGES` в `js/config.js` и упомянуть здесь. Формат day-JSON не меняется.
+**Расширение языков:** добавить объект `{ code, label }` в массив `LANGUAGES` в `js/config.js` и упомянуть здесь. Формат day-JSON не меняется.
 
 Актуальные значения для UI дублируются в `js/config.js` — при расхождении править оба места.
 
@@ -178,14 +194,19 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 ## 7. Как работает UI
 
-1. `GET data/index.json` → заполнить select дат.
+1. `GET data/index.json` → список дат для календаря (`dates`, новые сверху).
 2. Активная дата = `dates[0]` или `?date=YYYY-MM-DD`, если дата есть в `dates`.
 3. `GET data/days/{date}.json` → `currentDay` в памяти.
 4. Рендер секций по `source_type`.
 5. Фильтры «источник» и «язык» **не** делают новых запросов: фильтруют `currentDay.items` и перерисовывают. Пикер источника строится из уникальных `source_name` этого дня; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
-6. Смена даты → новый fetch day-файла; фильтры сбрасываются в «все».
+6. Поиск по заголовку и саммари (в памяти). Недавние запросы — `localStorage` ключ `ones-search-history`.
+7. Клик по ссылке заголовка (и средняя кнопка мыши) помечает карточку прочитанной. Карта id: `ones-read` (до 500 записей, 90 дней).
+8. Тема светлая/тёмная: `js/theme.js`, ключ `ones-theme` (иначе системная preference). Скрипт в `<head>` ставит тему до отрисовки, чтобы не мигала.
+9. Смена даты → новый fetch day-файла; фильтры и строка поиска сбрасываются.
 
 `about.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются.
+
+На обеих страницах — счётчик Яндекс.Метрики.
 
 Ленту за месяц не делаем.
 
@@ -196,9 +217,11 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 **Можно / нужно:**
 
 - создавать/обновлять `data/days/YYYY-MM-DD.json`;
-- обновлять `data/index.json` (дата в начало `dates`);
+- обновлять `data/index.json` (даты по файлам в `data/days/`, новые сверху);
 - обновлять `data/sources.json` из включённых записей `sources.yaml`;
 - править `sources.yaml` и `agent/config.yaml`.
+
+Workflow `.github/workflows/collect.yml` коммитит `data/days/`, `data/index.json` и `data/sources.json`.
 
 **Не трогать без явной просьбы человека:**
 
@@ -233,7 +256,7 @@ python agent/run.py --date 2026-08-17
 
 ### Чеклист нового источника
 
-1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`).
+1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`). Для YouTube можно скопировать отключённый шаблон `Example YouTube` в секции `video` (`enabled: false`) и подставить `channel_id`.
 2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS. Фильтр ленты берёт `name`.
 3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
 4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
@@ -247,6 +270,7 @@ python agent/run.py --date 2026-08-17
 
 - `summarize: false` у источника — snippet (после unescape и обрезки «Читать далее») идёт в `summary` без Gemini.
 - `summarize: true` — пакет этих записей уходит в Gemini Flash.
+- `max_items` в `agent/config.yaml` — лимит **на источник**, не на весь день.
 
 ```text
 sources.yaml + agent/config.yaml
@@ -273,7 +297,7 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 ## 11. Деплой
 
-- Хостинг: GitHub Pages из корня репозитория (workflow `.github/workflows/pages.yml`).
+- Хостинг: GitHub Pages. Workflow `.github/workflows/pages.yml` копирует в `_site` только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/` и `sources.yaml` на сайт не попадают.
 - Домен: `enterprisehub.dev` (`CNAME` + DNS у регистратора на IP GitHub Pages).
 - После push в `main` сайт обновляется Actions.
 

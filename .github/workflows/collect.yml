@@ -36,7 +36,7 @@ jobs:
         run: |
           git config user.name "ones-news-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/days data/index.json
+          git add data/days data/index.json data/sources.json
           if git diff --cached --quiet; then
             echo "No digest changes"
             exit 0

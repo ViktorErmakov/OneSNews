@@ -88,13 +88,6 @@ def abs_url(href: str) -> str:
 	return url.split("#", 1)[0].split("?", 1)[0]
 
 
-def catalog_page_url(base: str, page: int) -> str:
-	if page <= 1:
-		return base
-	sep = "&" if "?" in base else "?"
-	return f"{base}{sep}PAGEN_1={page}"
-
-
 def pagen_number(url: str) -> int:
 	m = re.search(r"PAGEN_1=(\d+)", url)
 	return int(m.group(1)) if m else 1
@@ -206,10 +199,6 @@ def parse_card(card: Tag, today: date, tz: ZoneInfo) -> dict | None:
 		"snippet": snippet,
 		"blob": card_blob(card),
 	}
-
-
-def soup_from_bytes(data: bytes, content_type: str) -> BeautifulSoup:
-	return BeautifulSoup(decode_html(data, content_type), "lxml")
 
 
 def fetch_catalog_page(url: str) -> tuple[BeautifulSoup, str]:
@@ -489,12 +478,12 @@ def main() -> int:
 	out.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
 	logger.info("Wrote %s raw Infostart items to %s", len(items), out)
 	if args.write_day:
-		from write_day import merge_into_day
+		from write_day import merge_sources_into_day
 
 		if not items:
 			logger.info("No Infostart items for %s — day file not changed", day.isoformat())
 			return 0
-		merge_into_day(day, items, replace_source_name=source.get("name") or "Infostart")
+		merge_sources_into_day(day, items, replace_names={source.get("name") or "Infostart"})
 	elif not items:
 		return 0
 	return 0

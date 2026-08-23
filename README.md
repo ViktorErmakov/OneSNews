@@ -4,11 +4,15 @@
 
 Сайт: [enterprisehub.dev](https://enterprisehub.dev)
 
-Статика: HTML/CSS/JS + JSON по дням. Сбор: Python-скрипт + Gemini Flash.
+Две страницы: лента (`index.html`) и «О проекте» (`about.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
+
+Тема, поиск и отметка «прочитано» хранятся в `localStorage` браузера.
 
 ## Документация
 
 Архитектура, схемы JSON и сбор дня: **[PROJECT.md](PROJECT.md)**
+
+Лицензия: **[LICENSE](LICENSE)**
 
 ## Локальный просмотр
 
@@ -20,6 +24,8 @@ npx --yes serve .
 Нужен HTTP: `fetch` JSON не работает с `file://`.
 
 ## Собрать день
+
+Python 3.12 — как в GitHub Actions. Локально подойдёт 3.12+.
 
 1. Ключ: [Google AI Studio](https://aistudio.google.com/apikey) → скопировать `agent/.env.example` в `agent/.env` и вставить `GEMINI_API_KEY`.
 2. Источники: [`sources.yaml`](sources.yaml). Дата: [`agent/config.yaml`](agent/config.yaml) (`date_mode: yesterday` по умолчанию).
@@ -44,6 +50,8 @@ python agent/run.py --from-date 2026-08-01 --to-date 2026-08-21
 # только сбор без записи day JSON
 python agent/run.py --collect-only
 ```
+
+Сырые дампы сборщика пишутся в `agent/tmp/` и в git не попадают.
 
 Cron на GitHub: секрет репозитория `GEMINI_API_KEY`, workflow `.github/workflows/collect.yml`.
 

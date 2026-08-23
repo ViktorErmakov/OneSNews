@@ -33,7 +33,6 @@
 	];
 
 	const state = {
-		index: null,
 		currentDay: null,
 		dates: [],
 		dateSet: new Set(),
@@ -59,9 +58,9 @@
 		langPicker: document.querySelector('#lang-picker'),
 		langBtn: document.querySelector('#lang-picker-btn'),
 		langList: document.querySelector('#lang-picker-list'),
-		dirPicker: document.querySelector('#dir-picker'),
-		dirBtn: document.querySelector('#dir-picker-btn'),
-		dirList: document.querySelector('#dir-picker-list'),
+		sourcePicker: document.querySelector('#source-picker'),
+		sourceBtn: document.querySelector('#source-picker-btn'),
+		sourceList: document.querySelector('#source-picker-list'),
 		dayTitle: document.querySelector('#day-title'),
 		dayCount: document.querySelector('#day-count'),
 		sectionNav: document.querySelector('#section-nav'),
@@ -264,10 +263,10 @@
 				const inLanguage = items.filter((item) => item.language === state.language);
 				if (!inLanguage.length) return 'Смените язык или дату.';
 			}
-			return 'Снимите фильтр направления или языка либо выберите другую дату.';
+			return 'Снимите фильтр источника или языка либо выберите другую дату.';
 		}
 		if (state.query.trim()) return 'Измените слова или сбросьте поиск.';
-		return 'Снимите фильтр направления или языка либо выберите другую дату.';
+		return 'Снимите фильтр источника или языка либо выберите другую дату.';
 	}
 
 	function materialsLabel(count) {
@@ -575,7 +574,7 @@
 	function closeAllPickers() {
 		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
-		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
+		if (els.sourceBtn && els.sourceList) closePicker(els.sourceBtn, els.sourceList);
 		rememberSearch(state.query);
 		closeSearchHistory();
 	}
@@ -583,7 +582,7 @@
 	function closeFilterPickers() {
 		closePicker(els.dateBtn, els.datePanel);
 		closePicker(els.langBtn, els.langList);
-		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
+		if (els.sourceBtn && els.sourceList) closePicker(els.sourceBtn, els.sourceList);
 	}
 
 	function openPicker(btn, panel) {
@@ -667,18 +666,18 @@
 	}
 
 	function renderSourcePicker() {
-		if (!els.dirPicker) return;
+		if (!els.sourcePicker) return;
 		const options = sourcePickerOptions();
 		if (!options.length) {
-			els.dirPicker.hidden = true;
-			if (els.dirList) els.dirList.innerHTML = '';
+			els.sourcePicker.hidden = true;
+			if (els.sourceList) els.sourceList.innerHTML = '';
 			return;
 		}
 
-		els.dirPicker.hidden = false;
+		els.sourcePicker.hidden = false;
 		const current = currentSourceOption();
-		renderPickerButton(els.dirBtn, 'Источник', TAG_SVG, current.label, current.label);
-		els.dirList.innerHTML = options
+		renderPickerButton(els.sourceBtn, 'Источник', TAG_SVG, current.label, current.label);
+		els.sourceList.innerHTML = options
 			.map((opt) =>
 				optionMarkup(opt.code, '', opt.label, opt.code === state.source, opt.count)
 			)
@@ -698,7 +697,7 @@
 		} else {
 			state.source = code;
 		}
-		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
+		if (els.sourceBtn && els.sourceList) closePicker(els.sourceBtn, els.sourceList);
 		renderSourcePicker();
 		renderFeed();
 	}
@@ -769,11 +768,14 @@
 		const topicsHtml = topics.length
 			? `<span class="card-topics">${topics.map((topic) => escapeHtml(topic)).join(' · ')}</span>`
 			: '';
+		const summaryBlock = String(item.summary || '').trim()
+			? `<p class="card-summary">${summaryHtml}</p>`
+			: '';
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
 			`aria-label="${titlePlain} (откроется в новой вкладке)">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
-			`<p class="card-summary">${summaryHtml}</p>` +
+			summaryBlock +
 			`<div class="card-meta">` +
 			sourceChip +
 			authorHtml +
@@ -822,55 +824,12 @@
 		els.feed.innerHTML = parts.join('') || renderEmpty();
 	}
 
-	async function dateFileExists(date) {
-		const url = `data/days/${date}.json`;
-		try {
-			const head = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-			if (head.ok) return true;
-			const get = await fetch(url, { method: 'GET', cache: 'no-store' });
-			return get.ok;
-		} catch (err) {
-			return false;
-		}
-	}
-
-	async function datesFromDirectoryListing() {
-		try {
-			const res = await fetch('data/days/', { cache: 'no-store' });
-			if (!res.ok) return [];
-			const text = await res.text();
-			const found = new Set();
-			const re = /(\d{4}-\d{2}-\d{2})\.json/g;
-			let match;
-			while ((match = re.exec(text))) found.add(match[1]);
-			return Array.from(found);
-		} catch (err) {
-			return [];
-		}
-	}
-
 	async function listAvailableDates() {
-		const fromDir = await datesFromDirectoryListing();
-		let candidates = fromDir;
-		if (!candidates.length) {
-			const indexRes = await fetch('data/index.json', { cache: 'no-store' });
-			if (!indexRes.ok) throw new Error('Не удалось загрузить data/index.json');
-			state.index = await indexRes.json();
-			candidates = state.index.dates || [];
-		} else {
-			try {
-				const indexRes = await fetch('data/index.json', { cache: 'no-store' });
-				if (indexRes.ok) state.index = await indexRes.json();
-			} catch (err) {
-				/* listing is enough */
-			}
-		}
-
-		const unique = Array.from(new Set(candidates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
-		const existing = await Promise.all(
-			unique.map(async (date) => ((await dateFileExists(date)) ? date : null)),
-		);
-		return existing.filter(Boolean).sort().reverse();
+		const indexRes = await fetch('data/index.json', { cache: 'no-store' });
+		if (!indexRes.ok) throw new Error('Не удалось загрузить data/index.json');
+		const data = await indexRes.json();
+		const dates = Array.isArray(data.dates) ? data.dates : [];
+		return Array.from(new Set(dates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
 	}
 
 	async function loadDay(date) {
@@ -1273,14 +1232,14 @@
 		bindDatePicker();
 		bindSearch();
 		bindListPicker(els.langBtn, els.langList, setLanguage);
-		bindListPicker(els.dirBtn, els.dirList, setSource);
+		bindListPicker(els.sourceBtn, els.sourceList, setSource);
 
 		document.addEventListener('click', (event) => {
 			const target = event.target;
 			if (!(target instanceof Node) || !target.isConnected) return;
 			if (!els.datePicker.contains(target)) closePicker(els.dateBtn, els.datePanel);
 			if (!els.langPicker.contains(target)) closePicker(els.langBtn, els.langList);
-			if (els.dirPicker && !els.dirPicker.contains(target)) closePicker(els.dirBtn, els.dirList);
+			if (els.sourcePicker && !els.sourcePicker.contains(target)) closePicker(els.sourceBtn, els.sourceList);
 			if (els.searchBox && !els.searchBox.contains(target)) {
 				rememberSearch(state.query);
 				closeSearchHistory();
