@@ -565,6 +565,19 @@ a:hover {
 	pointer-events: none;
 }
 
+.picker-option-label {
+	min-width: 0;
+}
+
+.picker-count {
+	margin-left: auto;
+	padding-left: 0.75rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--muted);
+}
+
 .picker-list [role='option']:hover,
 .picker-list [role='option'].is-active {
 	background: var(--accent-soft);
@@ -899,6 +912,15 @@ a:hover {
 	align-items: center;
 	font-size: 0.85rem;
 	color: var(--muted);
+}
+
+.card-topics {
+	flex: 1 0 100%;
+	font-size: 0.72rem;
+	font-weight: 400;
+	line-height: 1.35;
+	color: var(--muted);
+	opacity: 0.72;
 }
 
 .chip {

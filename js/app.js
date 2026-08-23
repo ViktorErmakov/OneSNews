@@ -39,7 +39,7 @@
 		dateSet: new Set(),
 		date: null,
 		calendar: { year: 2026, month: 0 },
-		tag: '',
+		source: '',
 		language: '',
 		query: '',
 		searchHistory: [],
@@ -87,7 +87,14 @@
 		'<path d="M3.5 10.5h17M8 3.5v4M16 3.5v4"/>' +
 		'</svg>';
 
-	const CARD_TAG_LIMIT = 3;
+	const OLD_DIRECTION_CODES = new Set([
+		'development',
+		'analytics',
+		'management',
+		'releases',
+		'devops',
+		'community',
+	]);
 	const TAG_SVG =
 		'<svg class="picker-icon" viewBox="0 0 24 24" aria-hidden="true">' +
 		'<path d="M20.5 13.2 L11 3.7H4.8v6.2l9.5 9.5 6.2-6.2z"/>' +
@@ -137,33 +144,42 @@
 		return cfg.LANGUAGES.filter((lang) => present.has(lang.code));
 	}
 
-	function itemTags(item) {
-		if (Array.isArray(item.tags) && item.tags.length) {
-			return item.tags.map((tag) => String(tag || '').trim()).filter(Boolean);
-		}
-		if (item.direction) return [String(item.direction)];
-		return [];
-	}
-
-	function itemsForTags() {
+	function itemsForSources() {
 		const items = dayItems();
 		if (!state.language) return items;
 		return items.filter((item) => item.language === state.language);
 	}
 
-	function availableTags() {
-		const present = [];
-		const seen = new Set();
-		for (const item of itemsForTags()) {
-			for (const tag of itemTags(item)) {
-				const key = tag.toLocaleLowerCase('ru');
-				if (seen.has(key)) continue;
-				seen.add(key);
-				present.push(tag);
-			}
+	function availableSources() {
+		const counts = new Map();
+		for (const item of itemsForSources()) {
+			const name = String(item.source_name || '').trim();
+			if (!name) continue;
+			counts.set(name, (counts.get(name) || 0) + 1);
 		}
-		present.sort((a, b) => a.localeCompare(b, 'ru', { sensitivity: 'base' }));
-		return present.map((tag) => ({ code: tag, label: tag }));
+		return [...counts.entries()]
+			.sort((a, b) => a[0].localeCompare(b[0], 'ru', { sensitivity: 'base' }))
+			.map(([name, count]) => ({ code: name, label: name, count }));
+	}
+
+	function itemTopics(item) {
+		const source = String(item.source_name || '').trim();
+		const sourceKey = source.toLocaleLowerCase('ru');
+		const raw = Array.isArray(item.topics) && item.topics.length ? item.topics : item.tags;
+		if (!Array.isArray(raw) || !raw.length) return [];
+		const out = [];
+		const seen = new Set();
+		for (const value of raw) {
+			let label = String(value || '').trim();
+			if (!label) continue;
+			if (/^habr:\s*/i.test(label)) label = label.replace(/^habr:\s*/i, '').trim();
+			if (!label) continue;
+			const key = label.toLocaleLowerCase('ru');
+			if (key === sourceKey || OLD_DIRECTION_CODES.has(key) || seen.has(key)) continue;
+			seen.add(key);
+			out.push(label);
+		}
+		return out;
 	}
 
 	function languagePickerOptions() {
@@ -179,17 +195,18 @@
 		return options.find((opt) => opt.code === state.language) || options[0] || { code: '', label: 'Все языки' };
 	}
 
-	function directionPickerOptions() {
-		const available = availableTags();
+	function sourcePickerOptions() {
+		const available = availableSources();
 		if (available.length > 1) {
-			return [{ code: '', label: 'Все' }].concat(available);
+			const total = available.reduce((sum, opt) => sum + opt.count, 0);
+			return [{ code: '', label: 'Все', count: total }].concat(available);
 		}
 		return available;
 	}
 
-	function currentDirectionOption() {
-		const options = directionPickerOptions();
-		return options.find((opt) => opt.code === state.tag) || options[0] || { code: '', label: 'Все' };
+	function currentSourceOption() {
+		const options = sourcePickerOptions();
+		return options.find((opt) => opt.code === state.source) || options[0] || { code: '', label: 'Все' };
 	}
 
 	function syncLanguageToAvailable() {
@@ -203,20 +220,20 @@
 		}
 	}
 
-	function syncDirectionToAvailable() {
-		const available = availableTags();
+	function syncSourceToAvailable() {
+		const available = availableSources();
 		if (available.length === 1) {
-			state.tag = available[0].code;
+			state.source = available[0].code;
 			return;
 		}
-		if (state.tag && !available.some((d) => d.code === state.tag)) {
-			state.tag = '';
+		if (state.source && !available.some((d) => d.code === state.source)) {
+			state.source = '';
 		}
 	}
 
 	function syncFiltersToDay() {
 		syncLanguageToAvailable();
-		syncDirectionToAvailable();
+		syncSourceToAvailable();
 	}
 
 	function emptyFeedMessage() {
@@ -481,7 +498,7 @@
 	function itemsAfterFilters() {
 		const items = state.currentDay?.items || [];
 		return items.filter((item) => {
-			if (state.tag && !itemTags(item).includes(state.tag)) return false;
+			if (state.source && item.source_name !== state.source) return false;
 			if (state.language && item.language !== state.language) return false;
 			return true;
 		});
@@ -522,12 +539,17 @@
 		}
 	}
 
-	function optionMarkup(value, iconHtml, label, selected) {
+	function optionMarkup(value, iconHtml, label, selected, count) {
+		const countHtml =
+			count == null
+				? ''
+				: `<span class="picker-count">${escapeHtml(String(count))}</span>`;
 		return (
 			`<li role="option" tabindex="-1" data-value="${escapeHtml(value)}" ` +
 			`aria-selected="${selected}" class="${selected ? 'is-active' : ''}">` +
 			iconHtml +
-			`<span>${escapeHtml(label)}</span>` +
+			`<span class="picker-option-label">${escapeHtml(label)}</span>` +
+			countHtml +
 			`</li>`
 		);
 	}
@@ -644,9 +666,9 @@
 			.join('');
 	}
 
-	function renderDirectionPicker() {
+	function renderSourcePicker() {
 		if (!els.dirPicker) return;
-		const options = directionPickerOptions();
+		const options = sourcePickerOptions();
 		if (!options.length) {
 			els.dirPicker.hidden = true;
 			if (els.dirList) els.dirList.innerHTML = '';
@@ -654,28 +676,30 @@
 		}
 
 		els.dirPicker.hidden = false;
-		const current = currentDirectionOption();
-		renderPickerButton(els.dirBtn, 'Тема', TAG_SVG, current.label, current.label);
+		const current = currentSourceOption();
+		renderPickerButton(els.dirBtn, 'Источник', TAG_SVG, current.label, current.label);
 		els.dirList.innerHTML = options
-			.map((opt) => optionMarkup(opt.code, '', opt.label, opt.code === state.tag))
+			.map((opt) =>
+				optionMarkup(opt.code, '', opt.label, opt.code === state.source, opt.count)
+			)
 			.join('');
 	}
 
 	function syncFilterUi() {
 		renderDatePicker();
 		renderLangPicker();
-		renderDirectionPicker();
+		renderSourcePicker();
 	}
 
-	function setDirection(code) {
-		const available = availableTags();
+	function setSource(code) {
+		const available = availableSources();
 		if (available.length === 1) {
-			state.tag = available[0].code;
+			state.source = available[0].code;
 		} else {
-			state.tag = code;
+			state.source = code;
 		}
 		if (els.dirBtn && els.dirList) closePicker(els.dirBtn, els.dirList);
-		renderDirectionPicker();
+		renderSourcePicker();
 		renderFeed();
 	}
 
@@ -687,20 +711,20 @@
 			state.language = code;
 		}
 		closePicker(els.langBtn, els.langList);
-		syncDirectionToAvailable();
+		syncSourceToAvailable();
 		renderLangPicker();
-		renderDirectionPicker();
+		renderSourcePicker();
 		renderFeed();
 	}
 
 	function toggleFilter(kind, code) {
-		if (kind === 'tag' || kind === 'direction') {
-			const available = availableTags();
+		if (kind === 'source') {
+			const available = availableSources();
 			if (available.length === 1) {
-				setDirection(available[0].code);
+				setSource(available[0].code);
 				return;
 			}
-			setDirection(state.tag === code ? '' : code);
+			setSource(state.source === code ? '' : code);
 			return;
 		}
 		if (kind === 'language') {
@@ -727,27 +751,26 @@
 				`title="Фильтр по языку: ${escapeHtml(language)}" ` +
 				`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>`
 			: '';
-		const tagChips = itemTags(item)
-			.slice(0, CARD_TAG_LIMIT)
-			.map((tag) => {
-				const active = state.tag === tag;
-				return (
-					`<button type="button" class="chip${active ? ' is-active' : ''}" data-filter="tag" ` +
-					`data-value="${escapeHtml(tag)}" aria-pressed="${active}" ` +
-					`title="Фильтр по теме: ${escapeHtml(tag)}" ` +
-					`aria-label="Фильтр по теме: ${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
-				);
-			})
-			.join('');
+		const sourceName = String(item.source_name || '').trim() || 'Источник';
+		const sourceActive = state.source === sourceName;
+		const sourceChip =
+			`<button type="button" class="chip${sourceActive ? ' is-active' : ''}" data-filter="source" ` +
+			`data-value="${escapeHtml(sourceName)}" aria-pressed="${sourceActive}" ` +
+			`title="Фильтр по источнику: ${escapeHtml(sourceName)}" ` +
+			`aria-label="Фильтр по источнику: ${escapeHtml(sourceName)}">${escapeHtml(sourceName)}</button>`;
+		const topics = itemTopics(item);
+		const topicsHtml = topics.length
+			? `<span class="card-topics">${topics.map((topic) => escapeHtml(topic)).join(' · ')}</span>`
+			: '';
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
 			`aria-label="${titlePlain} (откроется в новой вкладке)">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
 			`<p class="card-summary">${summaryHtml}</p>` +
 			`<div class="card-meta">` +
-			`<span>${escapeHtml(item.source_name)}</span>` +
+			sourceChip +
 			`<span>${escapeHtml(item.author || 'Не указан')}</span>` +
-			tagChips +
+			topicsHtml +
 			langChip +
 			`<span class="read-badge">Прочитано</span>` +
 			`</div>` +
@@ -859,7 +882,7 @@
 		syncFiltersToDay();
 		renderDatePicker();
 		renderLangPicker();
-		renderDirectionPicker();
+		renderSourcePicker();
 		setStatus('');
 		renderFeed();
 	}
@@ -1243,7 +1266,7 @@
 		bindDatePicker();
 		bindSearch();
 		bindListPicker(els.langBtn, els.langList, setLanguage);
-		bindListPicker(els.dirBtn, els.dirList, setDirection);
+		bindListPicker(els.dirBtn, els.dirList, setSource);
 
 		document.addEventListener('click', (event) => {
 			const target = event.target;

@@ -12,7 +12,6 @@ from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
 from common import TMP, clip, load_config, load_sources, resolve_date, strip_html
-from tags import source_tags
 
 logger = logging.getLogger(__name__)
 
@@ -58,11 +57,26 @@ def local_name(el) -> str:
 	return el.tag.split("}", 1)[-1] if "}" in el.tag else el.tag
 
 
+def unique_labels(raw_labels: list[str] | None = None) -> list[str]:
+	seen: set[str] = set()
+	out: list[str] = []
+	for value in raw_labels or []:
+		label = re.sub(r"\s+", " ", str(value).strip())
+		if not label:
+			continue
+		key = label.casefold()
+		if key in seen:
+			continue
+		seen.add(key)
+		out.append(label)
+	return out
+
+
 def source_meta(source: dict, raw_labels: list[str] | None = None) -> dict:
 	return {
 		"source_name": source.get("name") or "",
 		"source_type": source["source_type"],
-		"tags": source_tags(source, raw_labels),
+		"topics": unique_labels(raw_labels),
 		"language": source.get("language") or "ru",
 		"summarize": bool(source.get("summarize", True)),
 	}

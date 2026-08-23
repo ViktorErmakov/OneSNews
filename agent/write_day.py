@@ -13,27 +13,30 @@ DAY_FILE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.json$")
 logger = logging.getLogger(__name__)
 
 
-def day_tags(raw: dict) -> list[str]:
-	tags = raw.get("tags")
-	if isinstance(tags, list):
-		out: list[str] = []
-		seen: set[str] = set()
-		for value in tags:
-			label = str(value).strip()
-			if not label:
-				continue
-			key = label.casefold()
-			if key in seen:
-				continue
-			seen.add(key)
-			out.append(label)
-		if out:
-			return out
-	direction = str(raw.get("direction") or "").strip()
-	if direction:
-		return [direction]
-	name = str(raw.get("source_name") or "").strip()
-	return [name] if name else []
+SKIP_TOPIC_LABELS = frozenset(
+	{"development", "analytics", "management", "releases", "devops", "community"}
+)
+
+
+def day_topics(raw: dict) -> list[str]:
+	source_key = str(raw.get("source_name") or "").strip().casefold()
+	raw_topics = raw.get("topics")
+	if not isinstance(raw_topics, list) or not raw_topics:
+		raw_topics = raw.get("tags") if isinstance(raw.get("tags"), list) else []
+	out: list[str] = []
+	seen: set[str] = set()
+	for value in raw_topics:
+		label = str(value).strip()
+		if label.lower().startswith("habr:"):
+			label = label.split(":", 1)[1].strip()
+		if not label:
+			continue
+		key = label.casefold()
+		if key == source_key or key in SKIP_TOPIC_LABELS or key in seen:
+			continue
+		seen.add(key)
+		out.append(label)
+	return out
 
 
 def to_day_item(raw: dict, item_id: str) -> dict:
@@ -45,7 +48,7 @@ def to_day_item(raw: dict, item_id: str) -> dict:
 		"author": raw.get("author") or "Не указан",
 		"source_name": raw.get("source_name") or "",
 		"source_type": raw.get("source_type") or "other",
-		"tags": day_tags(raw),
+		"topics": day_topics(raw),
 		"language": raw.get("language") or "ru",
 	}
 

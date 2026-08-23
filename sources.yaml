@@ -3,7 +3,6 @@
 #
 # language: ru | en
 # fetch: rss | telegram_web | youtube_rss | infostart
-# tag_prefix: если задан — метки из RSS пишутся как «Prefix: метка»; иначе тег = name
 # url: адрес для сборщика (RSS / t.me/s / …)
 # home: публичная страница источника для about.html
 # summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
@@ -13,7 +12,6 @@ site:
     url: "https://habr.com/ru/rss/hub/1c/all/?fl=ru"
     home: "https://habr.com/ru/hubs/1c/"
     fetch: rss
-    tag_prefix: "Habr"
     language: ru
     enabled: true
     summarize: false

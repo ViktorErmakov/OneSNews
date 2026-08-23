@@ -52,7 +52,6 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `sources.yaml` | Источники сборщика по секциям site / telegram / video |
 | `agent/config.yaml` | Часовой пояс, режим даты, лимиты, модель |
 | `agent/run.py` | Одна команда: сбор → саммари → day JSON |
-| `agent/tags.py` | Теги карточки: метки RSS с префиксом или имя источника |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
 | `.github/workflows/pages.yml` | Деплой статики |
 | `.github/workflows/collect.yml` | Ежедневный сбор (06:00 МСК) |
@@ -128,7 +127,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
       "author": "Автор или Не указан",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": ["Habr: бизнес-анализ", "Habr: ERP"],
+      "topics": ["бизнес-анализ", "ERP"],
       "language": "ru"
     }
   ]
@@ -142,9 +141,9 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `summary` | string | Саммари, не копипаст |
 | `url` | string | Ссылка на первоисточник |
 | `author` | string | Автор или «Не указан» |
-| `source_name` | string | Имя источника |
+| `source_name` | string | Имя источника (`name` из `sources.yaml`). По нему фильтр и плашка на карточке. |
 | `source_type` | enum | см. словари |
-| `tags` | string[] | Темы карточки. Хабр: `Habr: метка` из RSS. Источники без таксономии: `[имя источника]`. Старые дни без `tags` UI читает поле `direction` как один тег. |
+| `topics` | string[] | Метки первоисточника (у Хабра — RSS `<category>`). Только справка на карточке, в фильтр не входят. Пусто, если меток нет. |
 | `language` | enum | см. словари |
 
 `date` в файле должен совпадать с именем файла.
@@ -183,7 +182,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 2. Активная дата = `dates[0]` или `?date=YYYY-MM-DD`, если дата есть в `dates`.
 3. `GET data/days/{date}.json` → `currentDay` в памяти.
 4. Рендер секций по `source_type`.
-5. Фильтры «тема» и «язык» **не** делают новых запросов: фильтруют `currentDay.items` и перерисовывают. Пикер темы строится из уникальных `tags` этого дня.
+5. Фильтры «источник» и «язык» **не** делают новых запросов: фильтруют `currentDay.items` и перерисовывают. Пикер источника строится из уникальных `source_name` этого дня; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
 6. Смена даты → новый fetch day-файла; фильтры сбрасываются в «все».
 
 `about.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются.
@@ -235,7 +234,7 @@ python agent/run.py --date 2026-08-17
 ### Чеклист нового источника
 
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`).
-2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS. Если RSS отдаёт метки — `tag_prefix` (карточки станут `Prefix: метка`). Иначе фильтр — имя источника (`name`).
+2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS. Фильтр ленты берёт `name`.
 3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
 4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web`. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
 5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
