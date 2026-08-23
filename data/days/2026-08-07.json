@@ -10,9 +10,7 @@
       "author": "maxber",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -23,9 +21,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -36,9 +32,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -49,9 +43,7 @@
       "author": "YA_1259673647",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -62,9 +54,7 @@
       "author": "Koder_",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -75,9 +65,7 @@
       "author": "gnomron",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -88,9 +76,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -101,9 +87,7 @@
       "author": "Rassel8911",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -114,9 +98,7 @@
       "author": "Marat1c8",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -127,9 +109,7 @@
       "author": "AlexHelmer",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -140,8 +120,47 @@
       "author": "Viktor_Ermakov",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-07-012",
+      "title": "Использование модуля объекта, модуля менеджера объекта и общих модулей",
+      "summary": "Использование модуля объекта, модуля менеджера объекта и общих модулей 🟡 Для функций модуля менеджера не должен требоваться экземпляр объекта данных (СправочникОбъект, ДокументОбъект и т.п.). 🟡 Размещайте в нем процедуры и функции, которые работают с данными объекта (ЭтотОбъект и переменные модуля), в том числе когда объект еще не записан в базу. 🟡 Учитывайте, что для вызова экспортных процедур и функций из других модулей обычно нужно сначала получить экземпляр через ПолучитьОбъект(). 🟡 Если функциональность нельзя однозначно отнести к одному объекту метаданных, она считается общей для нескол…",
+      "url": "https://t.me/v8std/160",
+      "author": "Стандарты 1С v8std",
+      "source_name": "Стандарты 1С v8std",
+      "source_type": "telegram",
+      "topics": [
+        "std486"
+      ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-07-013",
+      "title": "Написал статью для Инфостарт про v8std.ru - но ее отказались публиковать.",
+      "summary": "Написал статью для Инфостарт про v8std.ru - но ее отказались публиковать. Это реклама других ресурсов. Бесплатный сайт. Бесплатный MCP. Все работает на своем железе если надо развернуть у себя. Все исходники открыты. Инфостарт, что с тобой не так?",
+      "url": "https://t.me/radio_ingvar/1664",
+      "author": "Игорь Апресов | Radio Ingvar",
+      "source_name": "Игорь Апресов | Radio Ingvar",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-07-014",
+      "title": "🙂 Я не вайбкодер?",
+      "summary": "🙂 Я не вайбкодер? А кто же я? Это я на фото со своими ИИ-агентами дописал игру, которую хочу в ближайшем будущем выпустить. Мог ли я сделать это раньше? Нет! Но сначала про скриншоты 🙂 Привет! Я Дима Котов, и я 1Сник, который по выходным увлекается вайбкодингом. Сегодня я засветился на канале «Жёлтый клуб», правда, фразы отчасти вырвали из контекста. Женя продаёт курс всеми путями. Молодец, красавчик! Но погнали, накинем контекста. Я всё-таки аналитик, как-никак. Скандалы, интриги, расследования! Мне всегда интересно наблюдать за агрессивными продажами Жени Шилова. Кто-то зовёт его инфоцыгано…",
+      "url": "https://t.me/top_1c/1981",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
       ],
       "language": "ru"
     }

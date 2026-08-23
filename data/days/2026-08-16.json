@@ -10,9 +10,18 @@
       "author": "AlexSvoykin",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-16-002",
+      "title": "А сколько токенов сжигаешь ты?",
+      "summary": "",
+      "url": "https://t.me/radio_ingvar/1673",
+      "author": "Игорь Апресов | Radio Ingvar",
+      "source_name": "Игорь Апресов | Radio Ingvar",
+      "source_type": "telegram",
+      "topics": [],
       "language": "ru"
     }
   ]

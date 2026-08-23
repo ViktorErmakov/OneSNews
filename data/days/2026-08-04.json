@@ -10,15 +10,15 @@
       "author": "strannik96",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: аис налог-3",
-        "Habr: фнс",
-        "Habr: налоговый контроль",
-        "Habr: налоговое администрирование",
-        "Habr: нк рф",
-        "Habr: нейросети",
-        "Habr: будущее",
-        "Habr: налоги"
+      "topics": [
+        "аис налог-3",
+        "фнс",
+        "налоговый контроль",
+        "налоговое администрирование",
+        "нк рф",
+        "нейросети",
+        "будущее",
+        "налоги"
       ],
       "language": "ru"
     },
@@ -30,9 +30,7 @@
       "author": "Tarlich",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -43,9 +41,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -56,9 +52,7 @@
       "author": "DontsovMA",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -69,9 +63,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -82,9 +74,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -95,9 +85,7 @@
       "author": "svcoopers",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -108,9 +96,7 @@
       "author": "Nikola23",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -121,9 +107,7 @@
       "author": "Nortronic",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -134,9 +118,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -147,9 +129,7 @@
       "author": "Dolzhenko3107",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -160,9 +140,7 @@
       "author": "fan_club_chelsea",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -173,9 +151,7 @@
       "author": "user2210970",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -186,9 +162,7 @@
       "author": "RKE_OBN",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -199,9 +173,7 @@
       "author": "SuvorovS",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -212,9 +184,7 @@
       "author": "nikitinav",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -225,9 +195,7 @@
       "author": "Asyst-pro",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -238,9 +206,7 @@
       "author": "Subar_ist",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -251,9 +217,18 @@
       "author": "vovan_matveev",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-04-020",
+      "title": "Скоро EDT перестанет работать на Mac!",
+      "summary": "Скоро EDT перестанет работать на Mac! Mac прекращает поддержку Intel-based приложений на Apple silicon https://support.apple.com/en-au/102527 А это может касаться и не только edt а еще и всех других компонент, и платформы в том числе. И даже веб-клиент может не спасти, потому что внутри сафари и хрома плагин тоже должен быть адаптирован к эпл силикон, ну и все внешние компоненты...",
+      "url": "https://t.me/radio_ingvar/1659",
+      "author": "Игорь Апресов | Radio Ingvar",
+      "source_name": "Игорь Апресов | Radio Ingvar",
+      "source_type": "telegram",
+      "topics": [],
       "language": "ru"
     }
   ]

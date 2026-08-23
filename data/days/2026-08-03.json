@@ -10,16 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: Infostart Toolkit Air",
-        "Habr: СКД",
-        "Habr: консоль запросов",
-        "Habr: конструктор запросов",
-        "Habr: отладка отчетов",
-        "Habr: разработка 1С",
-        "Habr: анализ запросов",
-        "Habr: права доступа",
-        "Habr: пользовательские алгоритмы"
+      "topics": [
+        "Infostart Toolkit Air",
+        "1С",
+        "СКД",
+        "консоль запросов",
+        "конструктор запросов",
+        "отладка отчетов",
+        "разработка 1С",
+        "анализ запросов",
+        "права доступа",
+        "пользовательские алгоритмы"
       ],
       "language": "ru"
     },
@@ -31,9 +32,7 @@
       "author": "andrew.ab",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -44,9 +43,7 @@
       "author": "Sorm",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -57,9 +54,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -70,9 +65,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -83,9 +76,7 @@
       "author": "YA_826532418",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -96,9 +87,7 @@
       "author": "dsdred",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -109,9 +98,7 @@
       "author": "AlexeyVereshchaka",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -122,9 +109,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -135,9 +120,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -148,9 +131,7 @@
       "author": "VKuser25893647",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -161,9 +142,7 @@
       "author": "VKuser118754938",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -174,47 +153,54 @@
       "author": "andrey7617",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
       "id": "2026-08-03-014",
       "title": "Возможность изменения (редактирования) цены в чеке ККМ в 1С:УТ 11.5.27.68",
-      "summary": "Для изменения (редактирования) цены в чеке ККМ в 1С:УТ 11.5 создано данное расширение конфигурации 1С: Управление торговлей 11.5.27.68, актуально на август 2026г.",
+      "summary": "Для измРµРЅРµРЅРёСЏ (СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ) С†РµРЅС‹ РІ С‡РµРєРµ РљРљРњ РІ 1РЎ:РЈРў 11.5 СЃРѕР·РґР°РЅРѕ РґР°РЅРЅРѕРµ СЂР°СЃС€РёСЂРµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё 1РЎ: РЈРїСЂР°РІР»РµРЅРёРµ С‚РѕСЂРіРѕРІР»РµР№ 11.5.27.68, Р°РєС‚СѓР°Р»СЊРЅРѕ РЅР° Р°РІРіСѓСЃС‚ 2026Рі.",
       "url": "https://infostart.ru/1c/reports/2752983/",
       "author": "eroma",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
       "id": "2026-08-03-015",
-      "title": "ОЗОН: Досье клиента",
-      "summary": "Р”Р°РЅРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ Рё РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ Р·Р»РѕСѓРїРѕС‚СЂРµР±Р»РµРЅРёР№ СЃРѕ СЃС‚РѕСЂРѕРЅС‹ РїРѕРєСѓРїР°С‚РµР»РµР№ РјР°СЂРєРµС‚РїР»РµР№СЃР° РћР·РѕРЅ.",
-      "url": "https://infostart.ru/1c/reports/2752788/",
-      "author": "Nik-An",
-      "source_name": "Infostart",
-      "source_type": "site",
-      "tags": [
-        "Infostart"
+      "title": "Общие сведения об организации хранения данных",
+      "summary": "Общие сведения об организации хранения данных 🟡 Для хранения списка характеристик, когда состав списка, тип характеристик и их состав определяет пользователь, используйте «План видов характеристик». 🟡 Для хранения результатов расчета учета начислений и удержаний используйте «Регистр расчета». 🟡 Для хранения плана счетов по принципам двойной записи используйте объект метаданных «План счетов». 🟡 Для хранения данных учета с использованием принципа двойной записи используйте «Регистр бухгалтерии». #std683 https://v8std.ru/std/683/",
+      "url": "https://t.me/v8std/157",
+      "author": "Стандарты 1С v8std",
+      "source_name": "Стандарты 1С v8std",
+      "source_type": "telegram",
+      "topics": [
+        "std683"
       ],
       "language": "ru"
     },
     {
       "id": "2026-08-03-016",
-      "title": "РњРѕР±РёР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ РљРµС€Р±СЌРє",
-      "summary": "РњРѕР±РёР»СЊРЅРѕРµ РїСЂРёР»РѕР¶РµРЅРёРµ РљРµС€Р±СЌРє РЅР° РїР»Р°С‚С„РѕСЂРјРµ 8.5 РґР»СЏ Android. РџРѕР·РІРѕР»СЏРµС‚ С…СЂР°РЅРёС‚СЊ РєР°С‚РµРіРѕСЂРёРёВ РєРµС€Р±СЌРєР° СЂР°Р·Р»РёС‡РЅС‹С… Р±Р°РЅРєРѕРІ РІ РѕРґРЅРѕРј РјРµСЃС‚Рµ Рё Р±РµР· Р»РёС€РЅРёС… СѓСЃРёР»РёР№ РїРѕР»СѓС‡РёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ. РќР°Р¶Р°Р» РїР°СЂСѓ РєРЅРѕРїРѕРє, СѓРІРёРґРµР» РЅР° СЌРєСЂР°РЅРµ РІСЃРµ, С‡С‚Рѕ РЅСѓР¶РЅРѕ.",
-      "url": "https://infostart.ru/1c/reports/2752566/",
-      "author": "i4eX",
-      "source_name": "Infostart",
-      "source_type": "site",
-      "tags": [
-        "Infostart"
+      "title": "Новая версия тренажера код-ревью",
+      "summary": "Новая версия тренажера код-ревью Подготовил новую версию приложения https://codereview1c.ru 1. В профиле появились Стандарты Теперь можно посмотреть что уже пройдено и что в целом еще бывает. Плюс дополнительная возможность отслеживать свой прогресс 2. Вход через Яндекс На замену входа через Гитхаб добавлена возможность войти через Яндекс. Вход через Гитхаб скрыт 3. Новые блоки статистики Дополнительно показывается Активность, точность и стандарты 4. Работа оффлайн и через PWA-приложение Можно сохранить себе на рабочий стол приложение и тренироваться когда нет доступа к сети. При появлении ин…",
+      "url": "https://t.me/AriN1C/566",
+      "author": "Никита Арипов | 1С, DevExp",
+      "source_name": "Никита Арипов | 1С, DevExp",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-03-017",
+      "title": "#ЖёлтаяРжомба + Случайный мем",
+      "summary": "#ЖёлтаяРжомба + Случайный мем Kotov.top / Tg / Max / YouTube Поддержи канал голосом",
+      "url": "https://t.me/top_1c/1972",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [
+        "ЖёлтаяРжомба"
       ],
       "language": "ru"
     }

@@ -10,9 +10,7 @@
       "author": "OAIweb",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -23,9 +21,7 @@
       "author": "jul.dolganova",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -36,9 +32,7 @@
       "author": "user2211076",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -49,9 +43,7 @@
       "author": "max2000119187",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -62,9 +54,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -75,9 +65,7 @@
       "author": "G_100802897175107255412",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -88,9 +76,7 @@
       "author": "Rassel8911",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -101,9 +87,7 @@
       "author": "Sardukar",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -114,9 +98,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -127,9 +109,7 @@
       "author": "Ankare",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -140,9 +120,40 @@
       "author": "Marat1c8",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-11-012",
+      "title": "Вот именно поэтому я не садился за систему типов так долго.",
+      "summary": "Вот именно поэтому я не садился за систему типов так долго. NSFW: https://www.youtube.com/watch?v=UHQ6vJ-r50U&pp=ygUk0LrQsNGA0LjQvdCwINGB0LvQvtC20L3QviDQsdC70Y_RgtGM",
+      "url": "https://t.me/nixel2007_thoughts/777",
+      "author": "Никита Федькин - мысли, заметки, анонсы",
+      "source_name": "Никита Федькин - мысли, заметки, анонсы",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-11-013",
+      "title": "Подкинули gif-версию вот",
+      "summary": "",
+      "url": "https://t.me/nixel2007_thoughts/778",
+      "author": "Никита Федькин - мысли, заметки, анонсы",
+      "source_name": "Никита Федькин - мысли, заметки, анонсы",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-11-014",
+      "title": "👨‍💻 Про юзабилити!",
+      "summary": "👨‍💻 Про юзабилити! Внимание, в тексте все маты исправлены нейросетью в стиле Льва Толстого. Приятного прочтения. Хочу рассказать вам о том, как даже великие гиганты порой способны породить нечто удивительно нелепое. В эти выходные я прилетел в Гонконг и решил наконец познакомиться с приложением Uber. Говорят, это чуть ли не ориентир для всех сервисов заказа такси. Сразу скажу словами, которые мог бы произнести Лебедев: продукт оказался весьма сомнительного достоинства. А теперь подробнее. Вы представляете размеры аэропорта Гонконга? Думаю, да. Масштаб там соответствующий. Сначала я хотел вызв…",
+      "url": "https://t.me/top_1c/1986",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [],
       "language": "ru"
     }
   ]

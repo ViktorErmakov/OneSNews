@@ -740,6 +740,7 @@
 	function renderCard(item) {
 		const language = labelOf(cfg.LANGUAGES, item.language);
 		const showLangChip = !state.language && availableLanguages().length > 1;
+		const showSourceChip = !state.source && availableSources().length > 1;
 		const read = isRead(item.id);
 		const terms = searchTerms();
 		const titlePlain = escapeHtml(item.title);
@@ -752,12 +753,18 @@
 				`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>`
 			: '';
 		const sourceName = String(item.source_name || '').trim() || 'Источник';
-		const sourceActive = state.source === sourceName;
-		const sourceChip =
-			`<button type="button" class="chip${sourceActive ? ' is-active' : ''}" data-filter="source" ` +
-			`data-value="${escapeHtml(sourceName)}" aria-pressed="${sourceActive}" ` +
-			`title="Фильтр по источнику: ${escapeHtml(sourceName)}" ` +
-			`aria-label="Фильтр по источнику: ${escapeHtml(sourceName)}">${escapeHtml(sourceName)}</button>`;
+		const sourceChip = showSourceChip
+			? `<button type="button" class="chip" data-filter="source" ` +
+				`data-value="${escapeHtml(sourceName)}" aria-pressed="false" ` +
+				`title="Фильтр по источнику: ${escapeHtml(sourceName)}" ` +
+				`aria-label="Фильтр по источнику: ${escapeHtml(sourceName)}">${escapeHtml(sourceName)}</button>`
+			: '';
+		const author = String(item.author || '').trim();
+		const showAuthor =
+			Boolean(author) &&
+			author !== 'Не указан' &&
+			author.toLocaleLowerCase('ru') !== sourceName.toLocaleLowerCase('ru');
+		const authorHtml = showAuthor ? `<span>${escapeHtml(author)}</span>` : '';
 		const topics = itemTopics(item);
 		const topicsHtml = topics.length
 			? `<span class="card-topics">${topics.map((topic) => escapeHtml(topic)).join(' · ')}</span>`
@@ -769,7 +776,7 @@
 			`<p class="card-summary">${summaryHtml}</p>` +
 			`<div class="card-meta">` +
 			sourceChip +
-			`<span>${escapeHtml(item.author || 'Не указан')}</span>` +
+			authorHtml +
 			topicsHtml +
 			langChip +
 			`<span class="read-badge">Прочитано</span>` +

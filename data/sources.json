@@ -17,6 +17,36 @@
       "home": "https://t.me/nixel2007_thoughts",
       "source_type": "telegram",
       "language": "ru"
+    },
+    {
+      "name": "Хатка Бобра",
+      "home": "https://t.me/evilbeaverHouse",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Стандарты 1С v8std",
+      "home": "https://t.me/v8std",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Игорь Апресов | Radio Ingvar",
+      "home": "https://t.me/radio_ingvar",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Никита Арипов | 1С, DevExp",
+      "home": "https://t.me/AriN1C",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Дмитрий Котов | 1С Заметки",
+      "home": "https://t.me/top_1c",
+      "source_type": "telegram",
+      "language": "ru"
     }
   ]
 }

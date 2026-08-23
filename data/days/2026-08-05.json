@@ -10,17 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: системный аналитик",
-        "Habr: бизнес-аналитик",
-        "Habr: аналитик 1С",
-        "Habr: анализ требований",
-        "Habr: проектирование систем",
-        "Habr: архитектура требований",
-        "Habr: интеграция информационных систем",
-        "Habr: практические кейсы",
-        "Habr: конференция для аналитиков",
-        "Habr: infostart a pm 2026"
+      "topics": [
+        "системный аналитик",
+        "бизнес-аналитик",
+        "аналитик 1С",
+        "анализ требований",
+        "проектирование систем",
+        "архитектура требований",
+        "интеграция информационных систем",
+        "практические кейсы",
+        "конференция для аналитиков",
+        "infostart a pm 2026"
       ],
       "language": "ru"
     },
@@ -32,13 +32,14 @@
       "author": "kron_1C",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: Система компоновки данных",
-        "Habr: СКД",
-        "Habr: расширения 1с",
-        "Habr: разработка на 1с",
-        "Habr: оптимизация запросов",
-        "Habr: отладка"
+      "topics": [
+        "Система компоновки данных",
+        "СКД",
+        "расширения 1с",
+        "разработка на 1с",
+        "оптимизация запросов",
+        "отладка",
+        "1с"
       ],
       "language": "ru"
     },
@@ -50,13 +51,13 @@
       "author": "danolivo (Тантор Лабс)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: postgresql",
-        "Habr: shared memory",
-        "Habr: aggregation",
-        "Habr: parallelism",
-        "Habr: performance",
-        "Habr: query execution"
+      "topics": [
+        "postgresql",
+        "shared memory",
+        "aggregation",
+        "parallelism",
+        "performance",
+        "query execution"
       ],
       "language": "ru"
     },
@@ -68,16 +69,17 @@
       "author": "Sofya_Sukur (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: hr",
-        "Habr: it",
-        "Habr: разработка 1с",
-        "Habr: ии",
-        "Habr: ai",
-        "Habr: работа",
-        "Habr: жизнь программистов",
-        "Habr: инфостарт",
-        "Habr: hr в it"
+      "topics": [
+        "hr",
+        "it",
+        "разработка 1с",
+        "1с",
+        "ии",
+        "ai",
+        "работа",
+        "жизнь программистов",
+        "инфостарт",
+        "hr в it"
       ],
       "language": "ru"
     },
@@ -89,9 +91,7 @@
       "author": "1c-izh",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -102,9 +102,7 @@
       "author": "ardn",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -115,9 +113,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -128,9 +124,7 @@
       "author": "graphbuh",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -141,9 +135,7 @@
       "author": "YA_826532418",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -154,9 +146,7 @@
       "author": "YA_113698529",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -167,9 +157,7 @@
       "author": "G_100802897175107255412",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -180,9 +168,7 @@
       "author": "Marat1c8",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -193,9 +179,7 @@
       "author": "VKuser118754938",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -206,9 +190,7 @@
       "author": "Rassel8911",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -219,9 +201,7 @@
       "author": "Lay-s",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -232,9 +212,7 @@
       "author": "accounting_cons",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -245,9 +223,7 @@
       "author": "alimuslim",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -258,8 +234,43 @@
       "author": "Dolzhenko3107",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-05-019",
+      "title": "Эффективные условия запросов",
+      "summary": "Эффективные условия запросов 🟡 В дополнительном условии оператор ИЛИ можно использовать без ограничений. 🟡 В основном условии МЕЖДУ можно использовать для последнего (или единственного) поля индекса. 🟡 В основном условии ПОДОБНО можно применять для последнего (или единственного) используемого поля индекса. 🟡 Арифметические операции над полями выполняйте только в дополнительных условиях. #std658 https://v8std.ru/std/658/",
+      "url": "https://t.me/v8std/158",
+      "author": "Стандарты 1С v8std",
+      "source_name": "Стандарты 1С v8std",
+      "source_type": "telegram",
+      "topics": [
+        "std658"
+      ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-05-020",
+      "title": "Последний месяц лета",
+      "summary": "Последний месяц лета Коллеги, уже в процессе последний месяц лета! Как успехи? Что самое крутое уже произошло, а что только планируется? Давайте хвастаться или жаловаться в комментах!",
+      "url": "https://t.me/AriN1C/567",
+      "author": "Никита Арипов | 1С, DevExp",
+      "source_name": "Никита Арипов | 1С, DevExp",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-05-021",
+      "title": "💡💡💡 #Стримчевский Обзор новостей за неделю про 1С",
+      "summary": "💡💡💡 #Стримчевский Обзор новостей за неделю про 1С Сегодня стрим про новости из мира 1С, давно не было! Скучали? 🔖СЕГОДНЯ 05 августа в 14:30 по МСК YouTube | ВК-Видео | Телеграм Приходите пообщаемся! Kotov.top / Tg / Max / YouTube Поддержи канал голосом",
+      "url": "https://t.me/top_1c/1973",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [
+        "Стримчевский"
       ],
       "language": "ru"
     }

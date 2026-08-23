@@ -10,10 +10,22 @@
       "author": "ZEEGIN",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: стандарты",
-        "Habr: mcp"
+      "topics": [
+        "1с",
+        "стандарты",
+        "mcp"
       ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-08-002",
+      "title": "https://habr.com/ru/articles/1068094/",
+      "summary": "",
+      "url": "https://t.me/radio_ingvar/1666",
+      "author": "Игорь Апресов | Radio Ingvar",
+      "source_name": "Игорь Апресов | Radio Ingvar",
+      "source_type": "telegram",
+      "topics": [],
       "language": "ru"
     }
   ]

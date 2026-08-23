@@ -10,16 +10,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: INFOSTART A PM EVENT 2026",
-        "Habr: бизнес-анализ",
-        "Habr: системный анализ",
-        "Habr: управление проектами",
-        "Habr: управление продуктом",
-        "Habr: аналитики",
-        "Habr: руководители проектов",
-        "Habr: продуктовые команды",
-        "Habr: IT-конференции"
+      "topics": [
+        "INFOSTART A PM EVENT 2026",
+        "1С",
+        "бизнес-анализ",
+        "системный анализ",
+        "управление проектами",
+        "управление продуктом",
+        "аналитики",
+        "руководители проектов",
+        "продуктовые команды",
+        "IT-конференции"
       ],
       "language": "ru"
     },
@@ -31,8 +32,8 @@
       "author": "IBS_habrablog (IBS)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr"
+      "topics": [
+        "1с"
       ],
       "language": "ru"
     },
@@ -44,16 +45,17 @@
       "author": "MrSotnik",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: программирование",
-        "Habr: мобильное приложение",
-        "Habr: элемент",
-        "Habr: python",
-        "Habr: swift",
-        "Habr: kotlin",
-        "Habr: разработка",
-        "Habr: логистика",
-        "Habr: архитектура приложений"
+      "topics": [
+        "программирование",
+        "мобильное приложение",
+        "1с",
+        "элемент",
+        "python",
+        "swift",
+        "kotlin",
+        "разработка",
+        "логистика",
+        "архитектура приложений"
       ],
       "language": "ru"
     },
@@ -65,9 +67,7 @@
       "author": "jf2000",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -78,9 +78,7 @@
       "author": "vladismi",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -91,9 +89,7 @@
       "author": "FB_AIK",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -104,9 +100,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -117,9 +111,7 @@
       "author": "postgres_professional",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -130,9 +122,7 @@
       "author": "zap_zap",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -143,9 +133,7 @@
       "author": "G_100802897175107255412",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -156,9 +144,7 @@
       "author": "user2211076",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -169,9 +155,7 @@
       "author": "MaryRF",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -182,9 +166,7 @@
       "author": "war41k",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -195,8 +177,43 @@
       "author": "ksnik",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-10-015",
+      "title": "Использование ключевых слов \"ОБЪЕДИНИТЬ\" и \"ОБЪЕДИНИТЬ ВСЕ\" в запросах",
+      "summary": "Использование ключевых слов \"ОБЪЕДИНИТЬ\" и \"ОБЪЕДИНИТЬ ВСЕ\" в запросах 🟡 В общем случае при объединении результатов нескольких запросов используйте ОБЪЕДИНИТЬ ВСЕ, а не ОБЪЕДИНИТЬ. 🟡 Исключение: ситуации, когда удаление дубликатов является обязательным условием корректного результата запроса. 🟡 Причина: ОБЪЕДИНИТЬ удаляет полностью одинаковые строки, и это требует дополнительного времени даже тогда, когда одинаковых строк заведомо быть не может. 🟡 Проверяйте соблюдение стандарта при доработках и перед выпуском релиза. #std434 https://v8std.ru/std/434/",
+      "url": "https://t.me/v8std/161",
+      "author": "Стандарты 1С v8std",
+      "source_name": "Стандарты 1С v8std",
+      "source_type": "telegram",
+      "topics": [
+        "std434"
+      ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-10-016",
+      "title": "Что самое сложное в интеграциях?",
+      "summary": "Что самое сложное в интеграциях? На ум сразу приходят технические сложности: 1. Разные модели данных Например, в одной системе контрагенты, в другой клиенты, а третья система вообще делит поставщиков и покупателей. И все это нужно сопоставить друг с другом 2. Надежность и идемпотентность Что делать если запрос прошел, а ответ не получен? Сработает ли повторная отправка? А нужна ли защита от дублей? 3. Недостаточность документации Пока не встречались сценарии где можно было бы положиться исключительно на документацию. Даже если документация хорошая, остается проблема, что ее еще нужно правильн…",
+      "url": "https://t.me/AriN1C/569",
+      "author": "Никита Арипов | 1С, DevExp",
+      "source_name": "Никита Арипов | 1С, DevExp",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-10-017",
+      "title": "#ЖёлтаяРжомба + Случайный мем",
+      "summary": "#ЖёлтаяРжомба + Случайный мем Kotov.top / Tg / Max / YouTube Поддержи канал голосом",
+      "url": "https://t.me/top_1c/1985",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [
+        "ЖёлтаяРжомба"
       ],
       "language": "ru"
     }

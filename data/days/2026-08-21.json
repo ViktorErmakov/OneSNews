@@ -10,9 +10,10 @@
       "author": "fixin",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: обновления",
-        "Habr: обратная совместимость"
+      "topics": [
+        "1с",
+        "обновления",
+        "обратная совместимость"
       ],
       "language": "ru"
     },
@@ -24,11 +25,11 @@
       "author": "shagi80",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: 1С8",
-        "Habr: 1с7",
-        "Habr: мобильная разработка",
-        "Habr: склад 15"
+      "topics": [
+        "1С8",
+        "1с7",
+        "мобильная разработка",
+        "склад 15"
       ],
       "language": "ru"
     },
@@ -40,16 +41,17 @@
       "author": "infostart-press (INFOSTART.RU)",
       "source_name": "Habr 1C",
       "source_type": "site",
-      "tags": [
-        "Habr: разработка 1С",
-        "Habr: программирование",
-        "Habr: искусственный интеллект",
-        "Habr: code review",
-        "Habr: VS Code",
-        "Habr: HashiCorp Vault",
-        "Habr: тестирование",
-        "Habr: качество кода",
-        "Habr: infostart tech event"
+      "topics": [
+        "1С",
+        "разработка 1С",
+        "программирование",
+        "искусственный интеллект",
+        "code review",
+        "VS Code",
+        "HashiCorp Vault",
+        "тестирование",
+        "качество кода",
+        "infostart tech event"
       ],
       "language": "ru"
     },
@@ -61,9 +63,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -74,9 +74,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -87,9 +85,7 @@
       "author": "nedomolkov.ivan",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -100,9 +96,7 @@
       "author": "ZaikinDA",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -113,9 +107,7 @@
       "author": "malikov_pro",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -126,9 +118,7 @@
       "author": "ZOKS_1",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -139,9 +129,7 @@
       "author": "aximo",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -152,9 +140,7 @@
       "author": "mefalcon",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -165,9 +151,7 @@
       "author": "kindly73",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -178,9 +162,7 @@
       "author": "AlexSvoykin",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -191,9 +173,7 @@
       "author": "DrZombi",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -204,9 +184,7 @@
       "author": "vibe1C",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -217,9 +195,7 @@
       "author": "zhuravl",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
-      ],
+      "topics": [],
       "language": "ru"
     },
     {
@@ -230,8 +206,43 @@
       "author": "bulgakov_online",
       "source_name": "Infostart",
       "source_type": "site",
-      "tags": [
-        "Infostart"
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-21-018",
+      "title": "Доступ к файловой системе из кода конфигурации",
+      "summary": "Доступ к файловой системе из кода конфигурации 🟡 Если один и тот же файл обрабатывается и на клиенте, и на сервере, передавайте его через временное хранилище. 🟡 В именах файлов, которые формируются системой, используйте только английские буквы и цифры. 🟡 Если временные файлы или каталоги используются на сервере, завершайте работу с ними в рамках одного серверного вызова. 🟡 Если конфигурация использует БСП, для транслитерации имен файлов применяйте СтроковыеФункцииКлиентСервер.СтрокаЛатиницей(). #std542 https://v8std.ru/std/542/",
+      "url": "https://t.me/v8std/166",
+      "author": "Стандарты 1С v8std",
+      "source_name": "Стандарты 1С v8std",
+      "source_type": "telegram",
+      "topics": [
+        "std542"
+      ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-21-019",
+      "title": "OnEvents.ru - один год!",
+      "summary": "OnEvents.ru - один год! Крутому и очень полезному проекту с агрегатором всех событий в мире 1С исполняется год! Я для себя собирал мероприятия и конференции по 1С, но помнил только основные - Партнерка, Инфостарт, RarusTechDay и, пожалуй, все. Даже митапы желтого клуба не знал. Поэтому, когда появился OnEvents, я очень расстроился. Причем сразу по трем поводам: 1. Почему его не было раньше 2. Как много мероприятий по 1С 3. Почему его сделал не я И тут же подключился к разработке этого проекта. Потому что сама идея проекта очень крутая и полезная - целый мир событий 1С в одном месте. А чтобы н…",
+      "url": "https://t.me/AriN1C/574",
+      "author": "Никита Арипов | 1С, DevExp",
+      "source_name": "Никита Арипов | 1С, DevExp",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-08-21-020",
+      "title": "С пятницей! Короче, я сделал игру 🎲",
+      "summary": "С пятницей! Короче, я сделал игру 🎲 Без архитектурных решений, без чтения кода, но с TDD, SDD и AI. На практике хотел проверить на сколько можно доверять ИИ, чтобы не контролировать каждый её чих. Спойлер: можно и нужно 😯 Теперь вот также хочется в 1С. «Жёлтый путь» — текстовая RPG симулятор 1Сника. Прямо в телеге, ничего ставить не надо, бери и играй @YellowPathBot Суть такая: ты — джун (студент, сисадмин или взрослый, который решил войти в айти). Тикеты — это монстры, у них есть хиты, ты бьёшь их броском d20, как в DnD. Пьёшь кофе, чтобы успеть к пятничному деплою, берёшь пенное, чтобы не в…",
+      "url": "https://t.me/top_1c/2004",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [
+        "ЖелтыйПуть"
       ],
       "language": "ru"
     }
