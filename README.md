@@ -4,9 +4,9 @@
 
 Сайт: [enterprisehub.dev](https://enterprisehub.dev)
 
-Две страницы: лента (`index.html`) и «О проекте» (`about.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
+Три страницы: лента (`index.html`), «О проекте» (`about.html`) и «Конфиденциальность» (`privacy.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
 
-Тема, поиск и отметка «прочитано» хранятся в `localStorage` браузера.
+Тема, поиск и отметка «прочитано» хранятся в `localStorage` браузера. Яндекс.Метрика включается только после согласия.
 
 ## Документация
 

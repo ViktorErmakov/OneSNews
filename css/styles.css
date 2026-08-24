@@ -1125,6 +1125,126 @@ a:hover {
 	color: var(--error-ink);
 }
 
+.privacy-updated {
+	color: var(--muted);
+	font-size: 0.92rem;
+}
+
+.consent-banner {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 40;
+	border-top: 1px solid var(--line);
+	background: var(--surface);
+	box-shadow: var(--shadow);
+}
+
+.has-consent-banner {
+	padding-bottom: 11rem;
+}
+
+.consent-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem 1rem;
+	padding: 0.85rem 0;
+}
+
+.consent-text {
+	flex: 1 1 16rem;
+	margin: 0;
+	color: var(--card-text);
+	font-size: 0.95rem;
+}
+
+.consent-text a {
+	color: var(--ink);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.consent-text a:hover,
+.consent-settings a:hover {
+	color: var(--accent);
+}
+
+.consent-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.consent-btn {
+	min-height: var(--tap);
+	min-width: 8.5rem;
+	padding: 0.45rem 1rem;
+	border-radius: var(--radius);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.consent-btn:focus-visible {
+	outline: 0.125rem solid var(--accent);
+	outline-offset: 0.125rem;
+}
+
+.consent-btn-accept {
+	border: 1px solid var(--accent);
+	background: var(--accent);
+	color: var(--thumb-on-accent);
+}
+
+.consent-btn-accept:hover {
+	border-color: var(--accent-hover);
+	background: var(--accent-hover);
+}
+
+.consent-btn-reject {
+	border: 1px solid var(--line);
+	background: var(--surface);
+	color: var(--ink);
+}
+
+.consent-btn-reject:hover {
+	background: var(--accent-soft);
+}
+
+.consent-settings {
+	margin: 1.35rem 0 1.1rem;
+	padding: 1rem 1.05rem;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--surface);
+}
+
+.consent-settings h2 {
+	margin-top: 0;
+}
+
+.consent-settings .consent-actions {
+	margin-top: 0.35rem;
+}
+
+.about ul {
+	margin: 0 0 0.9rem;
+	padding-left: 1.2rem;
+	color: var(--card-text);
+}
+
+.about li {
+	margin: 0 0 0.45rem;
+}
+
+.about code {
+	font-size: 0.9em;
+}
+
 @media (min-width: 45rem) {
 	.shell {
 		width: min(100% - 2rem, var(--max));

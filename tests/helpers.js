@@ -74,6 +74,25 @@ async function installAppMocks(page, overrides) {
 	});
 }
 
+async function installConsent(page, consent) {
+	if (consent === 'none') return;
+	const choice = consent || 'decline';
+	await page.addInitScript((value) => {
+		try {
+			localStorage.setItem(
+				'ones-consent',
+				JSON.stringify({ v: 1, analytics: value === 'accept' }),
+			);
+		} catch (err) {
+			/* ignore */
+		}
+	}, choice);
+}
+
+function metrikaScript(page) {
+	return page.locator('script[src*="mc.yandex.ru/metrika"]');
+}
+
 async function waitForDay(page) {
 	await expect(page.locator('#day-title')).not.toHaveText('Загрузка…', { timeout: 10000 });
 }
@@ -81,6 +100,7 @@ async function waitForDay(page) {
 async function openIndex(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
+	await installConsent(page, opts.consent);
 	await page.goto(opts.path || '/');
 	if (opts.wait === 'status') {
 		await expect(page.locator('#status')).toBeVisible({ timeout: 10000 });
@@ -92,8 +112,17 @@ async function openIndex(page, options) {
 async function openAbout(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
+	await installConsent(page, opts.consent);
 	await page.goto(opts.path || '/about.html');
 	await expect(page.locator('#sources')).not.toHaveText('Загрузка…', { timeout: 10000 });
+}
+
+async function openPrivacy(page, options) {
+	const opts = options || {};
+	await installAppMocks(page, opts);
+	await installConsent(page, opts.consent);
+	await page.goto(opts.path || '/privacy.html');
+	await expect(page.locator('h1')).toHaveText('Конфиденциальность');
 }
 
 function card(page, id) {
@@ -105,6 +134,8 @@ module.exports = {
 	installAppMocks,
 	openIndex,
 	openAbout,
+	openPrivacy,
 	waitForDay,
 	card,
+	metrikaScript,
 };

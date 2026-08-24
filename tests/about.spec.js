@@ -7,6 +7,11 @@ test.describe('О проекте', () => {
 		await expect(page.locator('h1')).toHaveText('О проекте');
 		await expect(page.locator('main.about')).toContainText('не принадлежит');
 		await expect(page.locator('main.about')).toContainText('фирме «1С»');
+		await expect(page.locator('main.about')).toContainText('только в вашем браузере');
+		await expect(page.locator('main.about').getByRole('link', { name: 'Конфиденциальность' })).toHaveAttribute(
+			'href',
+			'privacy.html',
+		);
 
 		const langs = page.locator('.about-lang');
 		await expect(langs).toHaveCount(2);

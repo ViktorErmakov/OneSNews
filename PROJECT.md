@@ -22,8 +22,9 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
     └─► data/index.json
               │
               ▼
-     index.html + js/theme.js + js/config.js + js/app.js
-     about.html + js/theme.js + js/config.js + js/about.js
+     index.html + js/theme.js + js/consent.js + js/config.js + js/app.js
+     about.html + js/theme.js + js/consent.js + js/config.js + js/about.js
+     privacy.html + js/theme.js + js/consent.js
               │
               ▼
         GitHub Pages
@@ -43,9 +44,11 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 |------|------------|
 | `index.html` | Лента: дата, источник, поиск, карточки дня |
 | `about.html` | О проекте, дисклеймер и список источников |
+| `privacy.html` | Что хранится в браузере и согласие на Метрику |
 | `css/styles.css` | Mobile-first стили |
 | `js/config.js` | Словари: языки, типы источников |
 | `js/theme.js` | Светлая / тёмная тема (`localStorage`) |
+| `js/consent.js` | Баннер согласия; Яндекс.Метрика только после «Принять» |
 | `js/app.js` | Загрузка дня, фильтры, поиск, рендер |
 | `js/about.js` | Список источников на «О проекте» |
 | `package.json` | Playwright: `npm test` |
@@ -209,7 +212,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 `about.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются.
 
-На обеих страницах — счётчик Яндекс.Метрики.
+Яндекс.Метрика не вшита в HTML. `js/consent.js` показывает баннер, пока нет выбора в `ones-consent`. Счётчик грузится только после «Принять» (без Вебвизора и ecommerce). «Отклонить» оставляет сайт рабочим. На `privacy.html` выбор можно сменить.
 
 Ленту за месяц не делаем.
 
@@ -228,7 +231,7 @@ Workflow `.github/workflows/collect.yml` коммитит `data/days/`, `data/in
 
 **Не трогать без явной просьбы человека:**
 
-- `index.html`, `about.html`, `css/`, `js/` (кроме согласованного расширения словарей языков/типов);
+- `index.html`, `about.html`, `privacy.html`, `css/`, `js/` (кроме согласованного расширения словарей языков/типов);
 - деплой-workflow, collect-workflow и `CNAME`.
 
 **Контент:**
