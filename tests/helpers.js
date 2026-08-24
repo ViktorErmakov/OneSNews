@@ -114,6 +114,24 @@ async function openAbout(page, options) {
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
 	await page.goto(opts.path || '/about.html');
+	await expect(page.locator('h1')).toHaveText('О проекте');
+}
+
+async function openSettings(page, options) {
+	const opts = options || {};
+	await installAppMocks(page, opts);
+	await installConsent(page, opts.consent);
+	if (opts.hiddenSources) {
+		await page.addInitScript((names) => {
+			try {
+				if (!names.length) localStorage.removeItem('ones-hidden-sources');
+				else localStorage.setItem('ones-hidden-sources', JSON.stringify(names));
+			} catch (err) {
+				/* ignore */
+			}
+		}, opts.hiddenSources);
+	}
+	await page.goto(opts.path || '/settings.html');
 	await expect(page.locator('#sources')).not.toHaveText('Загрузка…', { timeout: 10000 });
 }
 
@@ -121,8 +139,9 @@ async function openPrivacy(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
-	await page.goto(opts.path || '/privacy.html');
-	await expect(page.locator('h1')).toHaveText('Конфиденциальность');
+	const path = opts.path || '/settings.html#privacy';
+	await page.goto(path);
+	await expect(page.locator('#privacy')).toBeVisible({ timeout: 10000 });
 }
 
 function card(page, id) {
@@ -134,6 +153,7 @@ module.exports = {
 	installAppMocks,
 	openIndex,
 	openAbout,
+	openSettings,
 	openPrivacy,
 	waitForDay,
 	card,

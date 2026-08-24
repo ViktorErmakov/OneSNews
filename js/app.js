@@ -134,8 +134,24 @@
 		return GLOBE_SVG;
 	}
 
-	function dayItems() {
+	function allDayItems() {
 		return state.currentDay?.items || [];
+	}
+
+	function hiddenSourceNames() {
+		return window.ONES_PREFS ? window.ONES_PREFS.loadHidden() : new Set();
+	}
+
+	function dayItems() {
+		const hidden = hiddenSourceNames();
+		return allDayItems().filter((item) => {
+			const name = String(item.source_name || '').trim();
+			return !hidden.has(name);
+		});
+	}
+
+	function allSourcesHidden() {
+		return allDayItems().length > 0 && dayItems().length === 0;
 	}
 
 	function availableLanguages() {
@@ -237,7 +253,8 @@
 
 	function emptyFeedMessage() {
 		const items = dayItems();
-		if (!items.length) return 'Нет новостей за этот день.';
+		if (!allDayItems().length) return 'Нет новостей за этот день.';
+		if (!items.length) return 'Вы скрыли источники за этот день.';
 		const afterFilters = itemsAfterFilters();
 		if (!afterFilters.length) {
 			if (state.language) {
@@ -256,7 +273,8 @@
 
 	function emptyFeedHint() {
 		const items = dayItems();
-		if (!items.length) return 'Выберите другую дату в календаре.';
+		if (!allDayItems().length) return 'Выберите другую дату в календаре.';
+		if (!items.length) return '';
 		const afterFilters = itemsAfterFilters();
 		if (!afterFilters.length) {
 			if (state.language) {
@@ -280,10 +298,13 @@
 	}
 
 	function renderEmpty() {
+		const hint = allSourcesHidden()
+			? 'Включите их в <a href="settings.html">настройках</a>.'
+			: escapeHtml(emptyFeedHint());
 		return (
 			`<p class="empty">` +
 			`<span class="empty-lead">${escapeHtml(emptyFeedMessage())}</span>` +
-			`<span class="empty-hint">${escapeHtml(emptyFeedHint())}</span>` +
+			`<span class="empty-hint">${hint}</span>` +
 			`</p>`
 		);
 	}
@@ -495,8 +516,7 @@
 	}
 
 	function itemsAfterFilters() {
-		const items = state.currentDay?.items || [];
-		return items.filter((item) => {
+		return dayItems().filter((item) => {
 			if (state.source && item.source_name !== state.source) return false;
 			if (state.language && item.language !== state.language) return false;
 			return true;
@@ -658,6 +678,14 @@
 	}
 
 	function renderLangPicker() {
+		if (!els.langPicker) return;
+		const available = availableLanguages();
+		if (!available.length) {
+			els.langPicker.hidden = true;
+			if (els.langList) els.langList.innerHTML = '';
+			return;
+		}
+		els.langPicker.hidden = false;
 		const current = currentLanguageOption();
 		renderPickerButton(els.langBtn, 'Язык', flagSvg(current.code), current.label, current.label, true);
 		els.langList.innerHTML = languagePickerOptions()

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { openIndex, openAbout } = require('./helpers');
+const { openIndex, openSettings } = require('./helpers');
 
 test.describe('Ошибки', () => {
 	test('показывает статус, если в индексе нет дат', async ({ page }) => {
@@ -14,7 +14,7 @@ test.describe('Ошибки', () => {
 	});
 
 	test('показывает ошибку, если не загрузился список источников', async ({ page }) => {
-		await openAbout(page, { sourcesStatus: 500 });
+		await openSettings(page, { sourcesStatus: 500 });
 		const message = page.locator('#sources .about-sources-status');
 		await expect(message).toHaveClass(/is-error/);
 		await expect(message).toHaveText('Не удалось загрузить список источников.');

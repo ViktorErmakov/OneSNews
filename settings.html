@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Настройки — OneS News</title>
+		<meta
+			name="description"
+			content="Какие источники показывать на ленте OneS News и что хранится в браузере."
+		/>
+		<meta name="color-scheme" content="light dark" />
+		<script>
+			(function () {
+				try {
+					var t = localStorage.getItem('ones-theme');
+					if (t !== 'light' && t !== 'dark') {
+						t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+					}
+					document.documentElement.setAttribute('data-theme', t);
+					var cs = document.querySelector('meta[name="color-scheme"]');
+					if (cs) cs.setAttribute('content', t);
+				} catch (e) {}
+			})();
+		</script>
+		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png?v=5" />
+		<link rel="stylesheet" href="css/styles.css" />
+	</head>
+	<body>
+		<a class="skip-link" href="#main">К содержанию</a>
+
+		<header class="top">
+			<div class="shell top-inner">
+				<a class="brand" href="index.html">
+					<svg
+						class="brand-mark"
+						viewBox="0 0 64 64"
+						width="38"
+						height="38"
+						aria-hidden="true"
+						focusable="false"
+					>
+						<g
+							fill="none"
+							stroke-width="3.1"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<rect
+								x="2.4"
+								y="2.4"
+								width="59.2"
+								height="59.2"
+								rx="13"
+								fill="none"
+								stroke-width="2.6"
+							/>
+							<path
+								fill="none"
+								d="M23.5 11.62h5.33a2.2 2.2 0 0 1 2.2 2.2v36.53a2.2 2.2 0 0 1-2.2 2.2h-5.33a2.2 2.2 0 0 1-2.2-2.2V24.45l-5.9-1.25q-2.07-.45-2.07-2.35v-1.3q0-1.7 1.45-2.8L21.3 12.2a2.2 2.2 0 0 1 2.2-.58z"
+							/>
+							<path fill="none" d="M37.73 23.24A11.83 11.83 0 0 1 38.7 41.97" />
+							<path fill="none" d="M39.84 13.88A21.26 21.26 0 0 1 43.81 50.3" />
+						</g>
+					</svg>
+					<span class="brand-text">
+						<span class="brand-name">OneS News</span>
+						<span class="brand-sub">enterprisehub.dev</span>
+					</span>
+				</a>
+				<nav class="top-nav" aria-label="Оформление">
+					<button
+						type="button"
+						class="theme-toggle"
+						id="theme-toggle"
+						aria-pressed="false"
+						aria-label="Включить тёмную тему"
+					>
+						<span class="theme-toggle-track" aria-hidden="true">
+							<svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
+								<circle cx="12" cy="12" r="4" />
+								<path
+									d="M12 3v1.5M12 19.5V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.5M19.5 12H21M4.9 19.1l1.1-1.1M18 6l1.1-1.1"
+								/>
+							</svg>
+							<svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
+								<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z" />
+							</svg>
+							<span class="theme-toggle-thumb"></span>
+						</span>
+					</button>
+				</nav>
+			</div>
+		</header>
+
+		<main id="main" class="shell about">
+			<h1>Настройки</h1>
+
+			<section class="about-sources" aria-labelledby="sources-heading">
+				<h2 id="sources-heading">Источники</h2>
+				<p>
+					Свои тексты не пишем: с сайтов берём заголовок и краткое описание, из Telegram —
+					начало поста. Ссылки ведут на сайты и каналы.
+				</p>
+				<p>
+					Галочка значит «показывать на ленте». Без неё источник скрыт во все дни, выбор
+					запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и
+					сбрасывается при смене даты.
+				</p>
+				<p class="settings-toolbar">
+					<button type="button" class="settings-show-all" id="sources-show-all" disabled>
+						Показать все
+					</button>
+				</p>
+				<div id="sources">
+					<p class="about-sources-status">Загрузка…</p>
+				</div>
+			</section>
+
+			<section id="privacy" class="settings-privacy" aria-labelledby="privacy-heading">
+				<h2 id="privacy-heading">Конфиденциальность</h2>
+				<p>
+					Учётной записи нет: мы не принимаем и не храним ваши данные на своей стороне.
+				</p>
+				<p>
+					В браузере (<code>localStorage</code>) остаются только настройки ленты:
+				</p>
+				<ul>
+					<li>
+						<strong>Тема</strong> (<code>ones-theme</code>) — светлая или тёмная, если вы нажали
+						переключатель.
+					</li>
+					<li>
+						<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек
+						и время отметки, не больше 500 записей и 90 дней.
+					</li>
+					<li>
+						<strong>Поиск</strong> (<code>ones-search-history</code>) — до восьми недавних запросов.
+					</li>
+					<li>
+						<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не
+						показывать на ленте.
+					</li>
+					<li>
+						<strong>Выбор по аналитике</strong> (<code>ones-consent</code>) — чтобы не спрашивать
+						снова.
+					</li>
+				</ul>
+				<p>
+					Их можно стереть в настройках браузера; в режиме инкогнито они не сохранятся. Согласия на
+					эти записи не спрашиваем: это работа ленты.
+				</p>
+				<p>
+					По желанию включается
+					<a href="https://metrika.yandex.ru/" rel="noopener noreferrer" target="_blank">Яндекс.Метрика</a>
+					(счётчик 111876187) — <strong>только после кнопки «Принять»</strong>. Вебвизор выключен.
+					Яндекс может видеть адрес страницы, источник перехода, тип устройства и приблизительный
+					регион. Условия:
+					<a href="https://yandex.ru/legal/confidential/" rel="noopener noreferrer" target="_blank">политика конфиденциальности Яндекса</a>
+					и
+					<a href="https://yandex.ru/legal/metrica_termsofuse/" rel="noopener noreferrer" target="_blank">условия Метрики</a>.
+					Отключить можно здесь же.
+				</p>
+
+				<div class="consent-settings" aria-labelledby="consent-settings-title">
+					<h3 id="consent-settings-title">Ваш выбор</h3>
+					<p id="consent-status">Проверяем сохранённый выбор…</p>
+					<div class="consent-actions">
+						<button type="button" class="consent-btn consent-btn-reject" data-consent="reject">
+							Отключить аналитику
+						</button>
+						<button type="button" class="consent-btn consent-btn-accept" data-consent="accept">
+							Включить аналитику
+						</button>
+					</div>
+				</div>
+				<p class="privacy-updated">Страница обновлена 24 августа 2026.</p>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<div class="shell footer-inner">
+				<nav class="footer-nav" aria-label="О сайте">
+					<a href="index.html">Лента</a>
+					<a href="about.html">О проекте</a>
+					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">Пожелания</a>
+				</nav>
+				<p>© OneS News</p>
+			</div>
+		</footer>
+
+		<script src="js/theme.js"></script>
+		<script src="js/consent.js"></script>
+		<script src="js/config.js"></script>
+		<script src="js/prefs.js"></script>
+		<script src="js/settings.js"></script>
+	</body>
+</html>

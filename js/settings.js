@@ -1,9 +1,12 @@
+/** Source catalog with show/hide checkboxes. */
 (function () {
 	'use strict';
 
 	const cfg = window.ONES_CONFIG;
+	const prefs = window.ONES_PREFS;
 	const root = document.querySelector('#sources');
-	if (!root || !cfg) return;
+	const showAllBtn = document.querySelector('#sources-show-all');
+	if (!root || !cfg || !prefs) return;
 
 	const EXTERNAL_SVG =
 		'<svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true">' +
@@ -21,6 +24,7 @@
 	function setMessage(text, isError) {
 		root.innerHTML =
 			`<p class="about-sources-status${isError ? ' is-error' : ''}">${escapeHtml(text)}</p>`;
+		syncShowAll();
 	}
 
 	function languageOrder(sources) {
@@ -45,13 +49,20 @@
 		return known.concat(extra);
 	}
 
+	function syncShowAll() {
+		if (!showAllBtn) return;
+		showAllBtn.disabled = prefs.loadHidden().size === 0;
+	}
+
 	function render(sources) {
 		if (!sources.length) {
 			setMessage('Пока нет включённых источников.');
 			return;
 		}
 
+		const hidden = prefs.loadHidden();
 		const parts = [];
+		let index = 0;
 		for (const lang of languageOrder(sources)) {
 			const byLang = sources.filter((item) => item.language === lang.code);
 			if (!byLang.length) continue;
@@ -61,13 +72,19 @@
 				const byType = byLang.filter((item) => (item.source_type || 'other') === type.code);
 				if (!byType.length) continue;
 				parts.push(`<h4 class="about-type-title">${escapeHtml(type.label)}</h4>`);
-				parts.push('<ul class="about-source-list">');
+				parts.push('<ul class="settings-source-list">');
 				for (const src of byType) {
+					const name = String(src.name || src.home || '').trim();
+					const id = `source-${index}`;
+					index += 1;
+					const checked = hidden.has(name) ? '' : ' checked';
 					parts.push(
-						'<li>' +
-							`<a href="${escapeHtml(src.home)}" target="_blank" rel="noopener noreferrer">` +
-							`${escapeHtml(src.name || src.home)}${EXTERNAL_SVG}</a>` +
-							'</li>'
+						'<li class="settings-source">' +
+							`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}"${checked} ` +
+							`aria-labelledby="${id}-name">` +
+							`<a id="${id}-name" href="${escapeHtml(src.home)}" target="_blank" rel="noopener noreferrer">` +
+							`${escapeHtml(name || src.home)}${EXTERNAL_SVG}</a>` +
+							'</li>',
 					);
 				}
 				parts.push('</ul>');
@@ -75,6 +92,27 @@
 			parts.push('</section>');
 		}
 		root.innerHTML = parts.join('');
+		syncShowAll();
+	}
+
+	function onToggle(event) {
+		const input = event.target.closest('input[type="checkbox"][data-source]');
+		if (!input) return;
+		const name = String(input.getAttribute('data-source') || '').trim();
+		if (!name) return;
+		const hidden = prefs.loadHidden();
+		if (input.checked) hidden.delete(name);
+		else hidden.add(name);
+		prefs.saveHidden(hidden);
+		syncShowAll();
+	}
+
+	function showAll() {
+		prefs.saveHidden([]);
+		root.querySelectorAll('input[type="checkbox"][data-source]').forEach((input) => {
+			input.checked = true;
+		});
+		syncShowAll();
 	}
 
 	async function load() {
@@ -89,5 +127,7 @@
 		}
 	}
 
+	root.addEventListener('change', onToggle);
+	if (showAllBtn) showAllBtn.addEventListener('click', showAll);
 	load();
 })();

@@ -897,7 +897,7 @@ a:hover {
 }
 
 .card-title a:hover .external-icon,
-.about-source-list a:hover .external-icon {
+.settings-source a:hover .external-icon {
 	opacity: 1;
 }
 
@@ -1021,6 +1021,16 @@ a:hover {
 	font-size: 0.92rem;
 }
 
+.empty-hint a {
+	color: var(--ink);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.empty-hint a:hover {
+	color: var(--accent);
+}
+
 .footer {
 	border-top: 1px solid var(--line);
 	background: var(--footer-bg);
@@ -1099,23 +1109,6 @@ a:hover {
 	color: var(--muted);
 }
 
-.about-source-list {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	display: grid;
-	gap: 0.35rem;
-}
-
-.about-source-list a {
-	display: inline-flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.15rem;
-	max-width: 100%;
-	overflow-wrap: anywhere;
-}
-
 .about-sources-status {
 	margin: 0;
 	color: var(--muted);
@@ -1128,6 +1121,71 @@ a:hover {
 .privacy-updated {
 	color: var(--muted);
 	font-size: 0.92rem;
+}
+
+.settings-toolbar {
+	margin: 0 0 0.85rem;
+}
+
+.settings-show-all {
+	min-height: var(--tap);
+	padding: 0.35rem 0.85rem;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.settings-show-all:hover:not(:disabled) {
+	background: var(--accent-soft);
+}
+
+.settings-show-all:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.settings-show-all:focus-visible {
+	outline: 0.125rem solid var(--accent);
+	outline-offset: 0.125rem;
+}
+
+.settings-source-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 0.15rem;
+}
+
+.settings-source {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	min-height: var(--tap);
+}
+
+.settings-source input {
+	flex: 0 0 auto;
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: var(--accent);
+}
+
+.settings-source a {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.15rem;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+}
+
+.settings-privacy {
+	scroll-margin-top: 5rem;
 }
 
 .consent-banner {
@@ -1223,7 +1281,8 @@ a:hover {
 	background: var(--surface);
 }
 
-.consent-settings h2 {
+.consent-settings h2,
+.consent-settings h3 {
 	margin-top: 0;
 }
 

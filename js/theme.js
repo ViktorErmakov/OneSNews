@@ -1,4 +1,4 @@
-/** Theme toggle shared by index and about pages. */
+/** Theme toggle shared by all pages. */
 (function () {
 	'use strict';
 

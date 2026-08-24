@@ -10,7 +10,7 @@ test.describe('Согласие на аналитику', () => {
 		await expect(banner.getByRole('button', { name: 'Отклонить' })).toBeVisible();
 		await expect(banner.getByRole('link', { name: 'Подробнее' })).toHaveAttribute(
 			'href',
-			'privacy.html',
+			'settings.html#privacy',
 		);
 		await expect(metrikaScript(page)).toHaveCount(0);
 	});
@@ -63,6 +63,7 @@ test.describe('Конфиденциальность', () => {
 		await openPrivacy(page, { consent: 'none' });
 		await expect(page.locator('main.about')).toContainText('ones-read');
 		await expect(page.locator('main.about')).toContainText('ones-search-history');
+		await expect(page.locator('main.about')).toContainText('ones-hidden-sources');
 		await expect(page.locator('main.about')).toContainText('только после кнопки «Принять»');
 		await expect(page.locator('#consent-status')).toContainText('не сделали выбор');
 		await expect(metrikaScript(page)).toHaveCount(0);
@@ -82,9 +83,16 @@ test.describe('Конфиденциальность', () => {
 		await expect(metrikaScript(page)).toHaveCount(1);
 	});
 
-	test('из подвала ленты открывается политика', async ({ page }) => {
+	test('из подвала ленты открываются настройки с политикой', async ({ page }) => {
 		await openIndex(page);
-		await page.locator('footer').getByRole('link', { name: 'Конфиденциальность' }).click();
-		await expect(page.locator('h1')).toHaveText('Конфиденциальность');
+		await page.locator('footer').getByRole('link', { name: 'Настройки' }).click();
+		await expect(page.locator('h1')).toHaveText('Настройки');
+		await expect(page.locator('#privacy')).toBeVisible();
+	});
+
+	test('privacy.html перенаправляет к разделу конфиденциальности', async ({ page }) => {
+		await openPrivacy(page, { path: '/privacy.html' });
+		await expect(page).toHaveURL(/settings(?:\.html)?#privacy/);
+		await expect(page.locator('#privacy-heading')).toHaveText('Конфиденциальность');
 	});
 });

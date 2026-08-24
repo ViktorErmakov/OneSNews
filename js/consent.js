@@ -99,7 +99,8 @@
 
 	function showBanner() {
 		if (bannerEl()) return;
-		const onPrivacy = /privacy\.html$/i.test(location.pathname);
+		const path = String(location.pathname || '').replace(/\/+$/, '');
+		const onSettings = /(^|\/)settings(?:\.html)?$/i.test(path);
 		const el = document.createElement('div');
 		el.id = 'consent-banner';
 		el.className = 'consent-banner';
@@ -109,7 +110,7 @@
 			'<div class="shell consent-inner">' +
 			'<p class="consent-text">' +
 			'Для статистики посещений можем включить Яндекс.Метрику. Тема, «прочитано» и поиск остаются только в вашем браузере.' +
-			(onPrivacy ? '' : ' <a href="privacy.html">Подробнее</a>') +
+			(onSettings ? '' : ' <a href="settings.html#privacy">Подробнее</a>') +
 			'</p>' +
 			'<div class="consent-actions">' +
 			'<button type="button" class="consent-btn consent-btn-reject" data-consent="reject">Отклонить</button>' +

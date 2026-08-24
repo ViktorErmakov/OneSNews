@@ -22,9 +22,10 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
     └─► data/index.json
               │
               ▼
-     index.html + js/theme.js + js/consent.js + js/config.js + js/app.js
-     about.html + js/theme.js + js/consent.js + js/config.js + js/about.js
-     privacy.html + js/theme.js + js/consent.js
+     index.html + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/app.js
+     settings.html + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/settings.js
+     about.html + js/theme.js + js/consent.js
+     privacy.html → settings.html#privacy
               │
               ▼
         GitHub Pages
@@ -32,7 +33,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 - Вёрстка почти не меняется после запуска.
 - Сборщик пишет **только** JSON в `data/` (и при необходимости `sources.yaml` / `agent/config.yaml`).
-- Браузер при смене даты загружает один day-файл; фильтры, поиск и «прочитано» работают уже в памяти.
+- Браузер при смене даты загружает один day-файл; фильтры, поиск, скрытые источники и «прочитано» работают уже в памяти.
 - Cursor не гоняется по расписанию: ежедневный прогон — GitHub Actions или скрипт на ПК.
 - `agent/` на сайт не попадает: публичный набор файлов задаёт `.github/workflows/pages.yml`.
 
@@ -43,14 +44,16 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | Путь | Назначение |
 |------|------------|
 | `index.html` | Лента: дата, источник, поиск, карточки дня |
-| `about.html` | О проекте, дисклеймер и список источников |
-| `privacy.html` | Что хранится в браузере и согласие на Метрику |
+| `settings.html` | Источники (галочки) и конфиденциальность |
+| `about.html` | О проекте и дисклеймер |
+| `privacy.html` | Редирект на `settings.html#privacy` |
 | `css/styles.css` | Mobile-first стили |
 | `js/config.js` | Словари: языки, типы источников |
 | `js/theme.js` | Светлая / тёмная тема (`localStorage`) |
 | `js/consent.js` | Баннер согласия; Яндекс.Метрика только после «Принять» |
+| `js/prefs.js` | Скрытые источники (`ones-hidden-sources`) |
 | `js/app.js` | Загрузка дня, фильтры, поиск, рендер |
-| `js/about.js` | Список источников на «О проекте» |
+| `js/settings.js` | Каталог источников и галочки на «Настройках» |
 | `package.json` | Playwright: `npm test` |
 | `playwright.config.js` | Chromium, локальный `serve`, HTML-отчёт |
 | `tests/` | E2E UI-тесты и фикстуры JSON |
@@ -108,7 +111,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 ## 4. Схема `data/sources.json`
 
-Публичный список включённых источников для страницы «О проекте». Пишется в начале `agent/run.py`, независимо от того, нашлись ли новости за день. Cron (`.github/workflows/collect.yml`) коммитит этот файл вместе с `data/days/` и `data/index.json`.
+Публичный список включённых источников для страницы настроек. Пишется в начале `agent/run.py`, независимо от того, нашлись ли новости за день. Cron (`.github/workflows/collect.yml`) коммитит этот файл вместе с `data/days/` и `data/index.json`.
 
 ```json
 {
@@ -204,15 +207,15 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 2. Активная дата = `dates[0]` или `?date=YYYY-MM-DD`, если дата есть в `dates`.
 3. `GET data/days/{date}.json` → `currentDay` в памяти.
 4. Рендер секций по `source_type`.
-5. Фильтры «источник» и «язык» **не** делают новых запросов: фильтруют `currentDay.items` и перерисовывают. Пикер источника строится из уникальных `source_name` этого дня; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
+5. Скрытые источники (`ones-hidden-sources`) отфильтровываются **до** пикера и счётчиков. Фильтры «источник» и «язык» **не** делают новых запросов: фильтруют уже видимые `currentDay.items` и перерисовывают. Пикер источника строится из уникальных `source_name` этого дня; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
 6. Поиск по заголовку и саммари (в памяти). Недавние запросы — `localStorage` ключ `ones-search-history`.
 7. Клик по ссылке заголовка (и средняя кнопка мыши) помечает карточку прочитанной. Карта id: `ones-read` (до 500 записей, 90 дней).
 8. Тема светлая/тёмная: `js/theme.js`, ключ `ones-theme` (иначе системная preference). Скрипт в `<head>` ставит тему до отрисовки, чтобы не мигала.
-9. Смена даты → новый fetch day-файла; фильтры и строка поиска сбрасываются.
+9. Смена даты → новый fetch day-файла; фильтры и строка поиска сбрасываются. Скрытые источники не сбрасываются.
 
-`about.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются.
+`settings.html`: `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются. Галочка снимает источник с ленты (opt-out, ключ `ones-hidden-sources`). `about.html` — дисклеймер и ссылка на настройки.
 
-Яндекс.Метрика не вшита в HTML. `js/consent.js` показывает баннер, пока нет выбора в `ones-consent`. Счётчик грузится только после «Принять» (без Вебвизора и ecommerce). «Отклонить» оставляет сайт рабочим. На `privacy.html` выбор можно сменить.
+Яндекс.Метрика не вшита в HTML. `js/consent.js` показывает баннер, пока нет выбора в `ones-consent`. Счётчик грузится только после «Принять» (без Вебвизора и ecommerce). «Отклонить» оставляет сайт рабочим. На `settings.html#privacy` выбор можно сменить. `privacy.html` перенаправляет туда.
 
 Ленту за месяц не делаем.
 
@@ -231,7 +234,7 @@ Workflow `.github/workflows/collect.yml` коммитит `data/days/`, `data/in
 
 **Не трогать без явной просьбы человека:**
 
-- `index.html`, `about.html`, `privacy.html`, `css/`, `js/` (кроме согласованного расширения словарей языков/типов);
+- `index.html`, `about.html`, `settings.html`, `privacy.html`, `css/`, `js/` (кроме согласованного расширения словарей языков/типов);
 - деплой-workflow, collect-workflow и `CNAME`.
 
 **Контент:**
@@ -263,7 +266,7 @@ python agent/run.py --date 2026-08-17
 ### Чеклист нового источника
 
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`). Для YouTube можно скопировать отключённый шаблон `Example YouTube` в секции `video` (`enabled: false`) и подставить `channel_id`.
-2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для «О проекте»), не RSS. Фильтр ленты берёт `name`.
+2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для настроек), не RSS. Фильтр ленты берёт `name`.
 3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
 4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
 5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
