@@ -4,9 +4,9 @@
 
 Сайт: [enterprisehub.dev](https://enterprisehub.dev)
 
-Три страницы: лента (`index.html`), «Настройки» (`settings.html`) и «О проекте» (`about.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
+Две страницы: лента (`index.html`) и «Настройки» (`settings.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
 
-Тема, поиск, скрытые источники и отметка «прочитано» хранятся в `localStorage` браузера. Яндекс.Метрика включается только после согласия. Старый адрес `privacy.html` перенаправляет в настройки.
+Тема, поиск, скрытые источники и отметка «прочитано» хранятся в `localStorage` браузера. Яндекс.Метрика включается только после согласия. Старые адреса `about.html` и `privacy.html` перенаправляют в настройки.
 
 ## Документация
 
@@ -25,7 +25,7 @@ npx --yes serve .
 
 ## Тесты UI
 
-Playwright (Chromium) гоняет ленту, настройки и «О проекте» на фикстурах в `tests/fixtures/`. В GitHub Actions прогон — job `test` в `.github/workflows/pages.yml`: HTML-отчёт кладётся в артефакт, падение блокирует деплой.
+Playwright (Chromium) гоняет ленту и настройки на фикстурах в `tests/fixtures/`. В GitHub Actions прогон — job `test` в `.github/workflows/pages.yml`: HTML-отчёт кладётся в артефакт, падение блокирует деплой.
 
 ```powershell
 npm ci

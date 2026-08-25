@@ -5,6 +5,7 @@ test.describe('Настройки', () => {
 	test('группирует источники по языку и типу и даёт ссылки', async ({ page }) => {
 		await openSettings(page);
 		await expect(page.locator('h1')).toHaveText('Настройки');
+		await expect(page.locator('#about')).toContainText('не принадлежит');
 
 		const langs = page.locator('.about-lang');
 		await expect(langs).toHaveCount(2);
@@ -24,8 +25,10 @@ test.describe('Настройки', () => {
 			'https://www.youtube.com/channel/CHANNEL_ID',
 		);
 
-		await expect(page.locator('.about-sources')).toContainText('показывать на ленте');
+		await expect(page.locator('.about-sources')).toContainText('Галочка у категории');
 		await expect(page.locator('.about-sources')).toContainText('Фильтр на главной');
+		await expect(page.getByRole('checkbox', { name: 'Сайты' }).first()).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'Telegram' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Infostart' })).toBeChecked();
 		await expect(page.getByRole('button', { name: 'Показать все' })).toBeDisabled();
 	});
@@ -50,33 +53,54 @@ test.describe('Настройки', () => {
 		);
 	});
 
+	test('снятие галочки категории скрывает все её источники на ленте', async ({ page }) => {
+		await openSettings(page);
+		await page.getByRole('checkbox', { name: 'Telegram' }).uncheck();
+		const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('ones-hidden-types') || '[]'));
+		expect(stored).toEqual(['telegram']);
+		await expect(page.getByRole('checkbox', { name: 'Игорь Апресов | Radio Ingvar' })).toBeDisabled();
+		await expect(page.getByRole('button', { name: 'Показать все' })).toBeEnabled();
+
+		await page.goto('/');
+		await waitForDay(page);
+		await expect(page.locator('article.card')).toHaveCount(4);
+		await expect(card(page, '2026-03-15-003')).toHaveCount(0);
+		await expect(card(page, '2026-03-15-001')).toBeVisible();
+		await expect(page.locator('#section-telegram')).toHaveCount(0);
+	});
+
 	test('«Показать все» возвращает скрытые источники', async ({ page }) => {
 		await openSettings(page);
 		await page.getByRole('checkbox', { name: 'Infostart' }).uncheck();
+		await page.getByRole('checkbox', { name: 'Telegram' }).uncheck();
 		await page.getByRole('button', { name: 'Показать все' }).click();
 		await expect(page.getByRole('checkbox', { name: 'Infostart' })).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'Telegram' })).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'Игорь Апресов | Radio Ingvar' })).toBeEnabled();
 		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-sources'))).toBeNull();
+		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-types'))).toBeNull();
 		await expect(page.getByRole('button', { name: 'Показать все' })).toBeDisabled();
 
 		await page.goto('/');
 		await waitForDay(page);
 		await expect(page.locator('article.card')).toHaveCount(5);
 		await expect(card(page, '2026-03-15-001')).toBeVisible();
+		await expect(card(page, '2026-03-15-003')).toBeVisible();
 	});
 
 	test('если скрыты все источники дня, лента показывает пустое состояние', async ({ page }) => {
 		await openSettings(page);
-		const boxes = page.locator('#sources input[type="checkbox"]');
-		const count = await boxes.count();
+		const typeBoxes = page.locator('#sources input[data-type]');
+		const count = await typeBoxes.count();
 		for (let i = 0; i < count; i += 1) {
-			await boxes.nth(i).uncheck();
+			await typeBoxes.nth(i).uncheck();
 		}
 
 		await page.goto('/');
 		await waitForDay(page);
 		await expect(page.locator('article.card')).toHaveCount(0);
 		await expect(page.locator('.empty-lead')).toHaveText('Вы скрыли источники за этот день.');
-		await expect(page.locator('.empty-hint a')).toHaveAttribute('href', 'settings.html');
+		await expect(page.locator('.empty-hint a')).toHaveAttribute('href', 'settings.html#sources-heading');
 		await expect(page.locator('#source-picker')).toBeHidden();
 	});
 });

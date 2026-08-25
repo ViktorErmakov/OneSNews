@@ -33,7 +33,7 @@ def apply_direct_summary(item: dict) -> dict:
 	title = clean_snippet(item.get("title") or "Без названия")
 	item["title"] = title
 	snippet = item.get("snippet")
-	if item.get("source_type") == "telegram" and not (snippet or "").strip():
+	if item.get("source_type") in {"telegram", "video"} and not (snippet or "").strip():
 		item["summary"] = ""
 		return item
 	item["summary"] = clean_snippet(snippet or title or "")

@@ -211,6 +211,45 @@ a:hover {
 	gap: 0.25rem;
 }
 
+.site-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.7rem;
+	height: 1.7rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface);
+	color: var(--ink);
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+.site-link:hover {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.site-link[aria-current='page'] {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.site-link:focus-visible {
+	outline: 0.125rem solid var(--accent);
+	outline-offset: 0.125rem;
+}
+
+.site-link-icon {
+	width: 0.95rem;
+	height: 0.95rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
 .theme-toggle {
 	display: inline-flex;
 	align-items: center;
@@ -1109,6 +1148,25 @@ a:hover {
 	color: var(--muted);
 }
 
+.settings-type {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	min-height: 2.1rem;
+	font-weight: 600;
+}
+
+.settings-type input {
+	flex: 0 0 auto;
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: var(--accent);
+}
+
+.settings-type label {
+	cursor: pointer;
+}
+
 .about-sources-status {
 	margin: 0;
 	color: var(--muted);
@@ -1161,11 +1219,12 @@ a:hover {
 	gap: 0.15rem;
 }
 
-.settings-source {
-	display: flex;
-	align-items: center;
-	gap: 0.55rem;
-	min-height: var(--tap);
+.settings-source:has(input:disabled) {
+	opacity: 0.55;
+}
+
+.settings-source:has(input:disabled) a {
+	pointer-events: none;
 }
 
 .settings-source input {
@@ -1184,7 +1243,8 @@ a:hover {
 	overflow-wrap: anywhere;
 }
 
-.settings-privacy {
+.settings-privacy,
+.about-sources {
 	scroll-margin-top: 5rem;
 }
 

@@ -4,136 +4,15 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>О проекте — OneS News</title>
-		<meta
-			name="description"
-			content="OneS News собирает публичные новости вокруг мира 1С и не принадлежит фирме «1С»."
-		/>
-		<meta name="color-scheme" content="light dark" />
+		<meta http-equiv="refresh" content="0; url=/settings.html" />
+		<link rel="canonical" href="/settings.html" />
 		<script>
-			(function () {
-				try {
-					var t = localStorage.getItem('ones-theme');
-					if (t !== 'light' && t !== 'dark') {
-						t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-					}
-					document.documentElement.setAttribute('data-theme', t);
-					var cs = document.querySelector('meta[name="color-scheme"]');
-					if (cs) cs.setAttribute('content', t);
-				} catch (e) {}
-			})();
+			location.replace('/settings.html');
 		</script>
-		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
-		<link rel="apple-touch-icon" href="apple-touch-icon.png?v=5" />
-		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
-		<a class="skip-link" href="#main">К содержанию</a>
-
-		<header class="top">
-			<div class="shell top-inner">
-				<a class="brand" href="index.html">
-					<svg
-						class="brand-mark"
-						viewBox="0 0 64 64"
-						width="38"
-						height="38"
-						aria-hidden="true"
-						focusable="false"
-					>
-						<g
-							fill="none"
-							stroke-width="3.1"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<rect
-								x="2.4"
-								y="2.4"
-								width="59.2"
-								height="59.2"
-								rx="13"
-								fill="none"
-								stroke-width="2.6"
-							/>
-							<path
-								fill="none"
-								d="M23.5 11.62h5.33a2.2 2.2 0 0 1 2.2 2.2v36.53a2.2 2.2 0 0 1-2.2 2.2h-5.33a2.2 2.2 0 0 1-2.2-2.2V24.45l-5.9-1.25q-2.07-.45-2.07-2.35v-1.3q0-1.7 1.45-2.8L21.3 12.2a2.2 2.2 0 0 1 2.2-.58z"
-							/>
-							<path fill="none" d="M37.73 23.24A11.83 11.83 0 0 1 38.7 41.97" />
-							<path fill="none" d="M39.84 13.88A21.26 21.26 0 0 1 43.81 50.3" />
-						</g>
-					</svg>
-					<span class="brand-text">
-						<span class="brand-name">OneS News</span>
-						<span class="brand-sub">enterprisehub.dev</span>
-					</span>
-				</a>
-				<nav class="top-nav" aria-label="Оформление">
-					<button
-						type="button"
-						class="theme-toggle"
-						id="theme-toggle"
-						aria-pressed="false"
-						aria-label="Включить тёмную тему"
-					>
-						<span class="theme-toggle-track" aria-hidden="true">
-							<svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-								<circle cx="12" cy="12" r="4" />
-								<path
-									d="M12 3v1.5M12 19.5V21M4.9 4.9l1.1 1.1M18 18l1.1 1.1M3 12h1.5M19.5 12H21M4.9 19.1l1.1-1.1M18 6l1.1-1.1"
-								/>
-							</svg>
-							<svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-								<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z" />
-							</svg>
-							<span class="theme-toggle-thumb"></span>
-						</span>
-					</button>
-				</nav>
-			</div>
-		</header>
-
-		<main id="main" class="shell about">
-			<h1>О проекте</h1>
-			<p>
-				OneS News собирает новости вокруг мира 1С из открытых источников и публикует ежедневный
-				дайджест со ссылками на первоисточники.
-			</p>
-			<p>
-				Сайт <strong>не принадлежит</strong> фирме «1С», не является её официальным ресурсом и не
-				использует товарные знаки или эмблемы компании. Мы не представляем фирму «1С».
-			</p>
-			<p>
-				На первом этапе материалы ориентированы в первую очередь на <strong>разработчиков</strong>.
-				На ленте можно фильтровать по источнику и языку; новости сгруппированы по типу источника:
-				сайты, Telegram, видеохостинги.
-			</p>
-			<p>
-				Список источников и какие из них показывать на ленте — в
-				<a href="settings.html">настройках</a>.
-			</p>
-			<p>
-				Пожелания, идеи по источникам и замечания к дайджесту можно
-				<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">написать нам</a>.
-			</p>
-			<p>
-				Тема, прочитанное, поиск и скрытые источники хранятся только в вашем браузере. Подробности —
-				в <a href="settings.html#privacy">настройках</a>.
-			</p>
-		</main>
-
-		<footer class="footer">
-			<div class="shell footer-inner">
-				<nav class="footer-nav" aria-label="О сайте">
-					<a href="index.html">Лента</a>
-					<a href="settings.html">Настройки</a>
-					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">Пожелания</a>
-				</nav>
-				<p>© OneS News</p>
-			</div>
-		</footer>
-
-		<script src="js/theme.js"></script>
-		<script src="js/consent.js"></script>
+		<p>
+			<a href="/settings.html">Перейти к настройкам</a>
+		</p>
 	</body>
 </html>

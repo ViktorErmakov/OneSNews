@@ -23,7 +23,7 @@ test.describe('Тема', () => {
 		await expect(root).toHaveAttribute('data-theme', next);
 	});
 
-	test('переключатель темы работает на странице «О проекте»', async ({ page }) => {
+	test('переключатель темы работает на странице настроек', async ({ page }) => {
 		await openAbout(page);
 		const root = page.locator('html');
 		const initial = await root.getAttribute('data-theme');

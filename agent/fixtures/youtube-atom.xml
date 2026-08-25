@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+  <title>Желтый клуб — 1С программирование</title>
+  <yt:channelId>UCO1Vs4ZvpxC7Cke2BIFFDuA</yt:channelId>
+  <entry>
+    <id>yt:video:5pLfIoJfW40</id>
+    <yt:videoId>5pLfIoJfW40</yt:videoId>
+    <title>Зачем 1С-разработчику DDD</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=5pLfIoJfW40"/>
+    <author>
+      <name>Желтый клуб — 1С программирование</name>
+    </author>
+    <published>2026-08-14T02:03:54+00:00</published>
+    <media:group>
+      <media:description>На стриме разбираю, зачем 1С-разработчику DDD и чистая архитектура на практике: API-first подход, явные бизнес-сценарии, границы агрегата и почему метод Записать ломает инварианты. Дальше идёт длинный хвост описания, чтобы сборщик обрезал текст до лимита snippet_chars. Повторяю абзац для длины: слои, тонкая форма, сервисные слоты, БСП и программный интерфейс только в общих модулях. Ещё раз: слои, тонкая форма, сервисные слоты, БСП и программный интерфейс только в общих модулях. И ещё раз для запаса символов: слои, тонкая форма, сервисные слоты, БСП и программный интерфейс только в общих модулях, плюс ссылка на курс и таймкоды выпуска.</media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:kRivfpCIE2E</id>
+    <yt:videoId>kRivfpCIE2E</yt:videoId>
+    <title>Почему метод Записать — это плохо по DDD #1c #желтыйклуб #cleanarchitecture</title>
+    <link rel="alternate" href="https://www.youtube.com/shorts/kRivfpCIE2E"/>
+    <author>
+      <name>Желтый клуб — 1С программирование</name>
+    </author>
+    <published>2026-08-24T13:39:52+00:00</published>
+    <media:group>
+      <media:description>Промо-текст шорта, который не должен попасть в день.</media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:FjL9sBgfGo8</id>
+    <yt:videoId>FjL9sBgfGo8</yt:videoId>
+    <title>Пример DDD и Чистой Архитектуры в 1С</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=FjL9sBgfGo8"/>
+    <author>
+      <name>Желтый клуб — 1С программирование</name>
+    </author>
+    <published>2026-07-23T18:30:57+00:00</published>
+    <media:group>
+      <media:description>Предзапись на курс по Архитектуре.</media:description>
+    </media:group>
+  </entry>
+  <entry>
+    <id>yt:video:nodesc00001</id>
+    <yt:videoId>nodesc00001</yt:videoId>
+    <title>Выпуск без описания</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=nodesc00001"/>
+    <author>
+      <name>Желтый клуб — 1С программирование</name>
+    </author>
+    <published>2026-08-14T12:00:00+00:00</published>
+  </entry>
+</feed>

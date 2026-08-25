@@ -82,9 +82,11 @@ test.describe('Лента', () => {
 		await expect(skip).toHaveAttribute('href', '#main');
 		await expect(skip).toHaveText('К содержанию');
 
+		const header = page.locator('.top-nav');
+		await expect(header.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
+
 		const footer = page.locator('footer');
 		await expect(footer.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
-		await expect(footer.getByRole('link', { name: 'О проекте' })).toHaveAttribute('href', 'about.html');
 		await expect(footer.getByRole('link', { name: 'Пожелания' })).toHaveAttribute(
 			'href',
 			/mailto:mopdeus@gmail.com/,

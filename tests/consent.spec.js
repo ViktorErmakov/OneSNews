@@ -64,6 +64,7 @@ test.describe('Конфиденциальность', () => {
 		await expect(page.locator('main.about')).toContainText('ones-read');
 		await expect(page.locator('main.about')).toContainText('ones-search-history');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-sources');
+		await expect(page.locator('main.about')).toContainText('ones-hidden-types');
 		await expect(page.locator('main.about')).toContainText('только после кнопки «Принять»');
 		await expect(page.locator('#consent-status')).toContainText('не сделали выбор');
 		await expect(metrikaScript(page)).toHaveCount(0);
@@ -83,9 +84,9 @@ test.describe('Конфиденциальность', () => {
 		await expect(metrikaScript(page)).toHaveCount(1);
 	});
 
-	test('из подвала ленты открываются настройки с политикой', async ({ page }) => {
+	test('из шапки ленты открываются настройки', async ({ page }) => {
 		await openIndex(page);
-		await page.locator('footer').getByRole('link', { name: 'Настройки' }).click();
+		await page.locator('.top-nav').getByRole('link', { name: 'Настройки' }).click();
 		await expect(page.locator('h1')).toHaveText('Настройки');
 		await expect(page.locator('#privacy')).toBeVisible();
 	});

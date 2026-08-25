@@ -114,7 +114,7 @@ async function openAbout(page, options) {
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
 	await page.goto(opts.path || '/about.html');
-	await expect(page.locator('h1')).toHaveText('О проекте');
+	await expect(page.locator('h1')).toHaveText('Настройки');
 }
 
 async function openSettings(page, options) {

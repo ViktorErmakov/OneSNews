@@ -22,6 +22,14 @@ USER_AGENT = "OneSNewsCollector/1.0 (+https://enterprisehub.dev)"
 ATOM = "{http://www.w3.org/2005/Atom}"
 DC = "{http://purl.org/dc/elements/1.1/}"
 CONTENT = "{http://purl.org/rss/1.0/modules/content/}"
+MEDIA = "{http://search.yahoo.com/mrss/}"
+YT = "{http://www.youtube.com/xml/schemas/2015}"
+YOUTUBE_FEED = "https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+SCHEME_TYPO_RE = re.compile(r"(?i)^h+ttps://")
+YOUTUBE_HANDLE_RE = re.compile(r"(?i)(?:www\.)?youtube\.com/@([^/?#]+)")
+YOUTUBE_CHANNEL_PATH_RE = re.compile(r"(?i)(?:www\.)?youtube\.com/channel/(UC[A-Za-z0-9_-]{22,})")
+YOUTUBE_FEED_ID_RE = re.compile(r"(?i)[?&]channel_id=(UC[A-Za-z0-9_-]{22,})")
+YOUTUBE_EXTERNAL_ID_RE = re.compile(r'"externalId":"(UC[A-Za-z0-9_-]{22,})"')
 TG_TITLE_LIMIT = 100
 TG_MAX_PAGES = 30
 TG_PAGE_PAUSE_SEC = 0.4
@@ -204,6 +212,140 @@ def collect_rss_range(
 			read_categories(entry),
 		)
 	return buckets
+
+
+def normalize_http_scheme(url: str) -> str:
+	return SCHEME_TYPO_RE.sub("https://", (url or "").strip(), count=1)
+
+
+def youtube_feed_url_for_channel(channel_id: str) -> str:
+	return YOUTUBE_FEED.format(channel_id=channel_id)
+
+
+def channel_id_from_channel_page(html: str) -> str:
+	match = YOUTUBE_EXTERNAL_ID_RE.search(html or "")
+	if match:
+		return match.group(1)
+	match = YOUTUBE_CHANNEL_PATH_RE.search(html or "")
+	if match:
+		return match.group(1)
+	raise ValueError("YouTube channel page has no channel id")
+
+
+def resolve_youtube_feed_url(url: str, fetch_bytes=None) -> str:
+	url = normalize_http_scheme(url)
+	if not url:
+		raise ValueError("YouTube source url is empty")
+	if "feeds/videos.xml" in url.lower():
+		feed_id = YOUTUBE_FEED_ID_RE.search(url)
+		if feed_id:
+			return youtube_feed_url_for_channel(feed_id.group(1))
+		return url
+	channel_path = YOUTUBE_CHANNEL_PATH_RE.search(url)
+	if channel_path:
+		return youtube_feed_url_for_channel(channel_path.group(1))
+	handle_match = YOUTUBE_HANDLE_RE.search(url)
+	if not handle_match:
+		raise ValueError(f"Cannot resolve YouTube feed from {url}")
+	handle = handle_match.group(1).lstrip("@")
+	getter = fetch_bytes or http_get
+	html = getter(f"https://www.youtube.com/@{handle}").decode("utf-8", errors="ignore")
+	return youtube_feed_url_for_channel(channel_id_from_channel_page(html))
+
+
+def youtube_entry_is_short(entry) -> bool:
+	for child in list(entry):
+		if local_name(child) != "link":
+			continue
+		href = (child.attrib.get("href") or child.text or "").strip()
+		rel = child.attrib.get("rel")
+		if "/shorts/" not in href.lower():
+			continue
+		if rel in (None, "", "alternate"):
+			return True
+	return False
+
+
+def youtube_entry_fields(entry) -> tuple[str, str, str, datetime | None, str]:
+	title = ""
+	link = ""
+	author = ""
+	published = None
+	video_id = (entry.findtext(f"{YT}videoId") or "").strip()
+	description = entry.findtext(f"{MEDIA}group/{MEDIA}description") or ""
+	for child in list(entry):
+		tag = local_name(child)
+		if tag == "title":
+			title = (child.text or "").strip()
+		elif tag == "link":
+			href = child.attrib.get("href") or (child.text or "").strip()
+			if child.attrib.get("rel") in (None, "", "alternate") or not link:
+				link = href
+		elif tag == "author":
+			name_el = None
+			for sub in child:
+				if local_name(sub) == "name":
+					name_el = sub
+					break
+			author = ((name_el.text if name_el is not None else child.text) or author).strip()
+		elif tag in ("published", "updated") and published is None:
+			published = parse_datetime(child.text)
+		elif tag == "videoId" and not video_id:
+			video_id = (child.text or "").strip()
+		elif tag == "group" and not description:
+			for sub in child:
+				if local_name(sub) == "description":
+					description = "".join(sub.itertext())
+					break
+	watch_url = f"https://www.youtube.com/watch?v={video_id}" if video_id else link
+	return title, watch_url, author, published, description
+
+
+def parse_youtube_atom(
+	xml_bytes: bytes,
+	source: dict,
+	start: date,
+	end: date,
+	tz: ZoneInfo,
+	snippet_chars: int,
+) -> dict[date, list[dict]]:
+	root = ET.fromstring(xml_bytes)
+	buckets: dict[date, list[dict]] = {}
+	for entry in root.findall(f"{ATOM}entry") or root.findall("entry"):
+		if youtube_entry_is_short(entry):
+			continue
+		title, url, author, published, description = youtube_entry_fields(entry)
+		if not url:
+			continue
+		day = local_date(published, tz)
+		if day is None or day < start or day > end:
+			continue
+		buckets.setdefault(day, []).append(
+			{
+				"title": title or "Без названия",
+				"url": url,
+				"author": strip_html(author) or source.get("name") or "Не указан",
+				"published_at": published.isoformat() if published else None,
+				"snippet": clip(strip_html(description), snippet_chars),
+				**source_meta(source, []),
+			}
+		)
+	return buckets
+
+
+def collect_youtube_rss_range(
+	source: dict,
+	start: date,
+	end: date,
+	tz: ZoneInfo,
+	snippet_chars: int,
+) -> dict[date, list[dict]]:
+	feed_url = resolve_youtube_feed_url(source.get("url") or "")
+	return parse_youtube_atom(http_get(feed_url), source, start, end, tz, snippet_chars)
+
+
+def collect_youtube_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
+	return collect_youtube_rss_range(source, target, target, tz, snippet_chars).get(target, [])
 
 
 def telegram_s_url(url: str) -> str:
@@ -394,21 +536,28 @@ def collect_telegram_web(source: dict, target: date, tz: ZoneInfo, snippet_chars
 
 def collect_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
 	fetch = source.get("fetch") or "rss"
-	if fetch in {"rss", "youtube_rss"}:
+	if fetch == "rss":
 		return collect_rss(source, target, tz, snippet_chars)
+	if fetch == "youtube_rss":
+		return collect_youtube_rss(source, target, tz, snippet_chars)
 	if fetch == "telegram_web":
 		return collect_telegram_web(source, target, tz, snippet_chars)
 	if fetch == "infostart":
 		from collect_infostart import collect_infostart_source
 
 		return collect_infostart_source(source, target, tz, snippet_chars)
+	if fetch == "1c_dn":
+		from collect_1cdn import collect_1cdn_source
+
+		return collect_1cdn_source(source, target, tz, snippet_chars)
 	raise ValueError(f"Unknown fetch type: {fetch}")
 
 
 def log_source_failure(name: str, exc: BaseException) -> None:
+	from collect_1cdn import OnesDnContractError
 	from collect_infostart import InfostartContractError
 
-	if isinstance(exc, InfostartContractError):
+	if isinstance(exc, (InfostartContractError, OnesDnContractError)):
 		logger.error("Skip %s: %s", name, exc)
 		return
 	logger.exception("Failed %s", name)
@@ -457,8 +606,14 @@ def collect_range(start: date, end: date) -> dict[date, list[dict]]:
 				from collect_infostart import collect_infostart_range
 
 				buckets = collect_infostart_range(source, start, end, tz, snippet_chars)
-			elif fetch in {"rss", "youtube_rss"}:
+			elif fetch == "1c_dn":
+				from collect_1cdn import collect_1cdn_range
+
+				buckets = collect_1cdn_range(source, start, end, tz, snippet_chars)
+			elif fetch == "rss":
 				buckets = collect_rss_range(source, start, end, tz, snippet_chars)
+			elif fetch == "youtube_rss":
+				buckets = collect_youtube_rss_range(source, start, end, tz, snippet_chars)
 			elif fetch == "telegram_web":
 				buckets = collect_telegram_web_range(source, start, end, tz, snippet_chars)
 			else:

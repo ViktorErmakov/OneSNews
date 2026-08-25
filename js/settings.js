@@ -49,9 +49,22 @@
 		return known.concat(extra);
 	}
 
+	function nothingHidden() {
+		return prefs.loadHidden().size === 0 && prefs.loadHiddenTypes().size === 0;
+	}
+
 	function syncShowAll() {
 		if (!showAllBtn) return;
-		showAllBtn.disabled = prefs.loadHidden().size === 0;
+		showAllBtn.disabled = nothingHidden();
+	}
+
+	function syncTypeUi(type, typeOn) {
+		root.querySelectorAll('input[data-type="' + type + '"]').forEach((input) => {
+			input.checked = typeOn;
+		});
+		root.querySelectorAll('input[data-source-type="' + type + '"]').forEach((input) => {
+			input.disabled = !typeOn;
+		});
 	}
 
 	function render(sources) {
@@ -61,6 +74,7 @@
 		}
 
 		const hidden = prefs.loadHidden();
+		const hiddenTypes = prefs.loadHiddenTypes();
 		const parts = [];
 		let index = 0;
 		for (const lang of languageOrder(sources)) {
@@ -71,16 +85,26 @@
 			for (const type of typesFor(byLang)) {
 				const byType = byLang.filter((item) => (item.source_type || 'other') === type.code);
 				if (!byType.length) continue;
-				parts.push(`<h4 class="about-type-title">${escapeHtml(type.label)}</h4>`);
+				const typeId = `type-${index}`;
+				const typeOn = !hiddenTypes.has(type.code);
+				const typeChecked = typeOn ? ' checked' : '';
+				parts.push(
+					`<h4 class="about-type-title settings-type">` +
+						`<input type="checkbox" id="${typeId}" data-type="${escapeHtml(type.code)}"${typeChecked}>` +
+						`<label for="${typeId}">${escapeHtml(type.label)}</label>` +
+						`</h4>`,
+				);
 				parts.push('<ul class="settings-source-list">');
 				for (const src of byType) {
 					const name = String(src.name || src.home || '').trim();
 					const id = `source-${index}`;
 					index += 1;
 					const checked = hidden.has(name) ? '' : ' checked';
+					const disabled = typeOn ? '' : ' disabled';
 					parts.push(
 						'<li class="settings-source">' +
-							`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}"${checked} ` +
+							`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}" ` +
+							`data-source-type="${escapeHtml(type.code)}"${checked}${disabled} ` +
 							`aria-labelledby="${id}-name">` +
 							`<a id="${id}-name" href="${escapeHtml(src.home)}" target="_blank" rel="noopener noreferrer">` +
 							`${escapeHtml(name || src.home)}${EXTERNAL_SVG}</a>` +
@@ -96,8 +120,21 @@
 	}
 
 	function onToggle(event) {
+		const typeInput = event.target.closest('input[type="checkbox"][data-type]');
+		if (typeInput) {
+			const type = String(typeInput.getAttribute('data-type') || '').trim();
+			if (!type) return;
+			const hiddenTypes = prefs.loadHiddenTypes();
+			if (typeInput.checked) hiddenTypes.delete(type);
+			else hiddenTypes.add(type);
+			prefs.saveHiddenTypes(hiddenTypes);
+			syncTypeUi(type, typeInput.checked);
+			syncShowAll();
+			return;
+		}
+
 		const input = event.target.closest('input[type="checkbox"][data-source]');
-		if (!input) return;
+		if (!input || input.disabled) return;
 		const name = String(input.getAttribute('data-source') || '').trim();
 		if (!name) return;
 		const hidden = prefs.loadHidden();
@@ -109,8 +146,13 @@
 
 	function showAll() {
 		prefs.saveHidden([]);
+		prefs.saveHiddenTypes([]);
+		root.querySelectorAll('input[type="checkbox"][data-type]').forEach((input) => {
+			input.checked = true;
+		});
 		root.querySelectorAll('input[type="checkbox"][data-source]').forEach((input) => {
 			input.checked = true;
+			input.disabled = false;
 		});
 		syncShowAll();
 	}

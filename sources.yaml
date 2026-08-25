@@ -2,8 +2,8 @@
 # Секции совпадают с блоками на сайте: site / telegram / video.
 #
 # language: ru | en
-# fetch: rss | telegram_web | youtube_rss | infostart
-# url: адрес для сборщика (RSS / t.me/s / …)
+# fetch: rss | telegram_web | youtube_rss | infostart | 1c_dn
+# url: адрес для сборщика (RSS / t.me/s / YouTube RSS, /channel/UC… или @handle; для 1c_dn — https://1c-dn.com/blog/)
 # home: публичная страница источника для about.html
 # summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
 
@@ -22,16 +22,16 @@ site:
     language: ru
     enabled: true
     summarize: false
-  - name: "1C-DN"
-    url: "https://1c-dn.com/rss/"
-    home: "https://1c-dn.com/"
-    fetch: rss
-    language: ru
-    enabled: false
+  - name: "1C:DN"
+    url: "https://1c-dn.com/blog/"
+    home: "https://1c-dn.com/blog/"
+    fetch: 1c_dn
+    language: en
+    enabled: true
     summarize: false
 
 telegram:
-  - name: "Никита Федькин - мысли, заметки, анонсы"
+  - name: "Никита Федькин"
     url: "https://t.me/nixel2007_thoughts"
     home: "https://t.me/nixel2007_thoughts"
     fetch: telegram_web
@@ -75,10 +75,59 @@ telegram:
     summarize: false
 
 video:
-  - name: "Example YouTube"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID"
-    home: "https://www.youtube.com/channel/CHANNEL_ID"
+  - name: "Желтый клуб"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCO1Vs4ZvpxC7Cke2BIFFDuA"
+    home: "https://www.youtube.com/@yellow_club"
     fetch: youtube_rss
     language: ru
-    enabled: false
-    summarize: true
+    enabled: true
+    summarize: false
+  - name: "Okolo_1C"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCFMWCbTS_6UE_uAuCKzjawg"
+    home: "https://www.youtube.com/@Okolo_1C"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Сообщество 1С-разработчиков"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCnr1TQrQXqVyCR3EHR3PcLw"
+    home: "https://www.youtube.com/@e1c_community"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "IRONSKILLS - Курсы по 1С"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC124tAuP11GlaGpK3YGHzlw"
+    home: "https://www.youtube.com/@ironskills-1c"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "Stas Ganiev"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCiwGR9bwfIc0RM6ft_ZjH9Q"
+    home: "https://www.youtube.com/@stasganiev9584"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "БИАТЕХ"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCjFouI0xl_tmKdVgdQq4cNg"
+    home: "https://www.youtube.com/@biatechnologies"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "1С:Учебный центр №1"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCY5KNuYZAp2a67pOZGdpdDg"
+    home: "https://www.youtube.com/@1c_center"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false
+  - name: "OdinES"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbJ6vL3zLajcuSBJ1B8-NvQ"
+    home: "https://www.youtube.com/@odines_io"
+    fetch: youtube_rss
+    language: ru
+    enabled: true
+    summarize: false

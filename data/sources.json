@@ -13,7 +13,13 @@
       "language": "ru"
     },
     {
-      "name": "Никита Федькин - мысли, заметки, анонсы",
+      "name": "1C:DN",
+      "home": "https://1c-dn.com/blog/",
+      "source_type": "site",
+      "language": "en"
+    },
+    {
+      "name": "Никита Федькин",
       "home": "https://t.me/nixel2007_thoughts",
       "source_type": "telegram",
       "language": "ru"
@@ -46,6 +52,54 @@
       "name": "Дмитрий Котов | 1С Заметки",
       "home": "https://t.me/top_1c",
       "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Желтый клуб",
+      "home": "https://www.youtube.com/@yellow_club",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "Okolo_1C",
+      "home": "https://www.youtube.com/@Okolo_1C",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "Сообщество 1С-разработчиков",
+      "home": "https://www.youtube.com/@e1c_community",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "IRONSKILLS - Курсы по 1С",
+      "home": "https://www.youtube.com/@ironskills-1c",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "Stas Ganiev",
+      "home": "https://www.youtube.com/@stasganiev9584",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "БИАТЕХ",
+      "home": "https://www.youtube.com/@biatechnologies",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "1С:Учебный центр №1",
+      "home": "https://www.youtube.com/@1c_center",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "OdinES",
+      "home": "https://www.youtube.com/@odines_io",
+      "source_type": "video",
       "language": "ru"
     }
   ]

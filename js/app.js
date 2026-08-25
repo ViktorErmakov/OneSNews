@@ -142,10 +142,17 @@
 		return window.ONES_PREFS ? window.ONES_PREFS.loadHidden() : new Set();
 	}
 
+	function hiddenTypeCodes() {
+		return window.ONES_PREFS ? window.ONES_PREFS.loadHiddenTypes() : new Set();
+	}
+
 	function dayItems() {
 		const hidden = hiddenSourceNames();
+		const hiddenTypes = hiddenTypeCodes();
 		return allDayItems().filter((item) => {
 			const name = String(item.source_name || '').trim();
+			const type = String(item.source_type || 'other').trim();
+			if (hiddenTypes.has(type)) return false;
 			return !hidden.has(name);
 		});
 	}
@@ -299,7 +306,7 @@
 
 	function renderEmpty() {
 		const hint = allSourcesHidden()
-			? 'Включите их в <a href="settings.html">настройках</a>.'
+			? 'Включите их в <a href="settings.html#sources-heading">списке источников</a>.'
 			: escapeHtml(emptyFeedHint());
 		return (
 			`<p class="empty">` +
