@@ -73,6 +73,14 @@ telegram:
     language: ru
     enabled: true
     summarize: false
+  - name: "Vanessa Automation"
+    url: "https://t.me/VanessaAutomation"
+    home: "https://t.me/VanessaAutomation"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+    summarize: false
+
 
 video:
   - name: "Желтый клуб"
