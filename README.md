@@ -4,9 +4,9 @@
 
 Сайт: [enterprisehub.dev](https://enterprisehub.dev)
 
-Две страницы: лента (`index.html`) и «Настройки» (`settings.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**) и при необходимости Gemini Flash.
+Две страницы: лента (`index.html`) и «Настройки» (`settings.html`). Статика HTML/CSS/JS + JSON по дням. Сбор: `python agent/run.py` (Python **3.12**). Интерфейс и календарь — на выбранном языке (`ru` / `en`).
 
-Тема, поиск, скрытые источники и отметка «прочитано» хранятся в `localStorage` браузера. Яндекс.Метрика включается только после согласия. Старые адреса `about.html` и `privacy.html` перенаправляют в настройки.
+Тема, язык, поиск, скрытые источники и отметка «прочитано» хранятся в `localStorage` браузера. Яндекс.Метрика включается только после согласия. Старые адреса `about.html` и `privacy.html` перенаправляют в настройки.
 
 ## Документация
 
@@ -37,15 +37,14 @@ npm test
 
 Python 3.12 — как в GitHub Actions. Локально подойдёт 3.12+.
 
-1. Ключ: [Google AI Studio](https://aistudio.google.com/apikey) → скопировать `agent/.env.example` в `agent/.env` и вставить `GEMINI_API_KEY`.
-2. Источники: [`sources.yaml`](sources.yaml). Дата: [`agent/config.yaml`](agent/config.yaml) (`date_mode: yesterday` по умолчанию).
-3. Установить зависимости:
+1. Источники: [`sources.yaml`](sources.yaml). Дата: [`agent/config.yaml`](agent/config.yaml) (`date_mode: yesterday` по умолчанию).
+2. Установить зависимости:
 
 ```powershell
 pip install -r agent/requirements.txt
 ```
 
-4. Собрать день:
+3. Собрать день:
 
 ```powershell
 # вчера (по agent/config.yaml, date_mode: yesterday)
@@ -63,7 +62,7 @@ python agent/run.py --collect-only
 
 Сырые дампы сборщика пишутся в `agent/tmp/` и в git не попадают.
 
-Cron на GitHub: секрет репозитория `GEMINI_API_KEY`, workflow `.github/workflows/collect.yml`.
+Cron на GitHub: workflow `.github/workflows/collect.yml`.
 
 ## Дисклеймер
 

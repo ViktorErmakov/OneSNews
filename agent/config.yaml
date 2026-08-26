@@ -3,6 +3,3 @@ date_mode: yesterday          # yesterday | today | explicit
 explicit_date: "2026-08-17"   # used only when date_mode: explicit
 max_items: 40
 snippet_chars: 600
-llm:
-  provider: gemini
-  model: gemini-2.0-flash

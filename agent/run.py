@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect sources for a date, summarize with Gemini when needed, write day JSON."""
+"""Collect sources for a date and write day JSON from source snippets."""
 
 from __future__ import annotations
 
@@ -14,18 +14,16 @@ if str(AGENT) not in sys.path:
 	sys.path.insert(0, str(AGENT))
 
 from collect import collect, collect_range  # noqa: E402
-from common import clean_snippet, load_dotenv, slug_id  # noqa: E402
-from summarize import summarize  # noqa: E402
+from common import clean_snippet, slug_id  # noqa: E402
 from write_day import merge_sources_into_day, write_day, write_sources_catalog  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
-	p = argparse.ArgumentParser(description="OneS News daily collect + summarize")
+	p = argparse.ArgumentParser(description="OneS News daily collect")
 	p.add_argument("--date", help="YYYY-MM-DD (overrides agent/config.yaml)")
 	p.add_argument("--from-date", dest="from_date", help="Range start YYYY-MM-DD (with --to-date)")
 	p.add_argument("--to-date", dest="to_date", help="Range end YYYY-MM-DD (with --from-date)")
 	p.add_argument("--collect-only", action="store_true", help="Stop after raw JSON")
-	p.add_argument("--skip-llm", action="store_true", help="Write day file using snippets as summaries")
 	return p
 
 
@@ -38,25 +36,6 @@ def apply_direct_summary(item: dict) -> dict:
 		return item
 	item["summary"] = clean_snippet(snippet or title or "")
 	return item
-
-
-def summarize_items(items: list[dict], skip_llm: bool) -> list[dict]:
-	if skip_llm:
-		return [apply_direct_summary(item) for item in items]
-	direct = [item for item in items if item.get("summarize") is False]
-	need_llm = [item for item in items if item.get("summarize") is not False]
-	for item in direct:
-		apply_direct_summary(item)
-	if need_llm:
-		logging.info("Gemini summaries for %s items", len(need_llm))
-		need_llm = summarize(need_llm)
-	else:
-		logging.info("All sources have summarize: false — skip Gemini")
-	by_id = {item["id"]: item for item in need_llm}
-	merged = []
-	for item in items:
-		merged.append(by_id.get(item["id"], item))
-	return merged
 
 
 def write_collected_day(day: date, items: list[dict], *, merge: bool) -> None:
@@ -77,7 +56,7 @@ def process_day(day: date, items: list[dict], args: argparse.Namespace, *, merge
 	if args.collect_only:
 		logging.info("Collect-only: %s items for %s", len(items), day.isoformat())
 		return 0
-	items = summarize_items(items, args.skip_llm)
+	items = [apply_direct_summary(item) for item in items]
 	write_collected_day(day, items, merge=merge)
 	return 0
 
@@ -91,7 +70,6 @@ def each_date(start: date, end: date):
 
 def main() -> int:
 	logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-	load_dotenv()
 	args = build_parser().parse_args()
 	write_sources_catalog()
 	if (args.from_date and not args.to_date) or (args.to_date and not args.from_date):

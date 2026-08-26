@@ -8,12 +8,16 @@
 		return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 	}
 
+	function t(key) {
+		return window.ONES_I18N ? window.ONES_I18N.t(key) : key;
+	}
+
 	function syncButton() {
 		const btn = document.querySelector('#theme-toggle');
 		if (!btn) return;
 		const dark = currentTheme() === 'dark';
 		btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-		btn.setAttribute('aria-label', dark ? 'Включить светлую тему' : 'Включить тёмную тему');
+		btn.setAttribute('aria-label', t(dark ? 'theme.light' : 'theme.dark'));
 	}
 
 	function setTheme(theme) {
@@ -48,4 +52,5 @@
 		});
 	}
 	syncButton();
+	document.addEventListener('ones-locale', syncButton);
 })();

@@ -65,6 +65,7 @@ test.describe('Конфиденциальность', () => {
 		await expect(page.locator('main.about')).toContainText('ones-search-history');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-sources');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-types');
+		await expect(page.locator('main.about')).toContainText('ones-hidden-languages');
 		await expect(page.locator('main.about')).toContainText('только после кнопки «Принять»');
 		await expect(page.locator('#consent-status')).toContainText('не сделали выбор');
 		await expect(metrikaScript(page)).toHaveCount(0);

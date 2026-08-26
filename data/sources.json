@@ -62,8 +62,32 @@
     },
     {
       "name": "Желтый клуб",
-      "home": "https://www.youtube.com/@yellow_club",
-      "source_type": "video",
+      "home": "https://t.me/yellowclub_official",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "1С СППР",
+      "home": "https://t.me/SPPR1c",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "1Cnik",
+      "home": "https://t.me/by_1cnik",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "wiki 1С + AI",
+      "home": "https://t.me/wiki1c",
+      "source_type": "telegram",
+      "language": "ru"
+    },
+    {
+      "name": "Владимир Харин | Просто Pro 1С",
+      "home": "https://t.me/prosto_pro1c",
+      "source_type": "telegram",
       "language": "ru"
     },
     {
@@ -105,6 +129,12 @@
     {
       "name": "OdinES",
       "home": "https://www.youtube.com/@odines_io",
+      "source_type": "video",
+      "language": "ru"
+    },
+    {
+      "name": "Кунг-фу конфа",
+      "home": "https://www.youtube.com/@kungfu_conf",
       "source_type": "video",
       "language": "ru"
     }

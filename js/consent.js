@@ -87,6 +87,10 @@
 		});
 	}
 
+	function t(key) {
+		return window.ONES_I18N ? window.ONES_I18N.t(key) : key;
+	}
+
 	function bannerEl() {
 		return document.querySelector('#consent-banner');
 	}
@@ -105,16 +109,20 @@
 		el.id = 'consent-banner';
 		el.className = 'consent-banner';
 		el.setAttribute('role', 'region');
-		el.setAttribute('aria-label', 'Согласие на аналитику');
+		el.setAttribute('aria-label', t('consent.region'));
 		el.innerHTML =
 			'<div class="shell consent-inner">' +
 			'<p class="consent-text">' +
-			'Для статистики посещений можем включить Яндекс.Метрику. Тема, «прочитано» и поиск остаются только в вашем браузере.' +
-			(onSettings ? '' : ' <a href="settings.html#privacy">Подробнее</a>') +
+			t('consent.text') +
+			(onSettings ? '' : ' <a href="settings.html#privacy">' + t('consent.more') + '</a>') +
 			'</p>' +
 			'<div class="consent-actions">' +
-			'<button type="button" class="consent-btn consent-btn-reject" data-consent="reject">Отклонить</button>' +
-			'<button type="button" class="consent-btn consent-btn-accept" data-consent="accept">Принять</button>' +
+			'<button type="button" class="consent-btn consent-btn-reject" data-consent="reject">' +
+			t('consent.reject') +
+			'</button>' +
+			'<button type="button" class="consent-btn consent-btn-accept" data-consent="accept">' +
+			t('consent.accept') +
+			'</button>' +
 			'</div>' +
 			'</div>';
 		document.body.appendChild(el);
@@ -126,12 +134,10 @@
 		if (!status) return;
 		const choice = readChoice();
 		if (!choice) {
-			status.textContent = 'Вы ещё не сделали выбор. Счётчик посещений выключен.';
+			status.textContent = t('consent.none');
 			return;
 		}
-		status.textContent = choice.analytics
-			? 'Яндекс.Метрика включена. Можно отключить в любой момент — счётчик перестанет загружаться.'
-			: 'Яндекс.Метрика выключена. Функции сайта от этого не зависят.';
+		status.textContent = choice.analytics ? t('consent.on') : t('consent.off');
 	}
 
 	function applyChoice(analytics) {
@@ -160,6 +166,14 @@
 	}
 
 	document.addEventListener('click', onClick);
+	document.addEventListener('ones-locale', () => {
+		const banner = bannerEl();
+		if (banner) {
+			hideBanner();
+			showBanner();
+		}
+		syncSettings();
+	});
 
 	const choice = readChoice();
 	if (!choice) {

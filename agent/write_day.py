@@ -100,6 +100,27 @@ def dates_from_day_files() -> list[str]:
 	return dates
 
 
+def dates_by_language_from_day_files() -> dict[str, list[str]]:
+	DAYS.mkdir(parents=True, exist_ok=True)
+	by_lang: dict[str, list[str]] = {}
+	for path in DAYS.glob("*.json"):
+		if not DAY_FILE_RE.match(path.name):
+			continue
+		try:
+			loaded = json.loads(path.read_text(encoding="utf-8"))
+		except (OSError, json.JSONDecodeError):
+			continue
+		langs: set[str] = set()
+		for item in loaded.get("items") or []:
+			if not isinstance(item, dict):
+				continue
+			code = str(item.get("language") or "ru").strip() or "ru"
+			langs.add(code)
+		for code in langs:
+			by_lang.setdefault(code, []).append(path.stem)
+	return {code: sorted(set(days), reverse=True) for code, days in sorted(by_lang.items())}
+
+
 def write_sources_catalog() -> Path:
 	catalog: list[dict] = []
 	for src in load_sources():
@@ -131,5 +152,6 @@ def write_index() -> None:
 			index = loaded
 	index["site"] = index.get("site") or "OneS News"
 	index["dates"] = dates_from_day_files()
+	index["dates_by_language"] = dates_by_language_from_day_files()
 	INDEX.parent.mkdir(parents=True, exist_ok=True)
 	INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

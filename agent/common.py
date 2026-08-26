@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import html
-import os
 import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -17,7 +16,6 @@ INDEX = ROOT / "data" / "index.json"
 SOURCES = ROOT / "sources.yaml"
 SOURCES_JSON = ROOT / "data" / "sources.json"
 CONFIG = AGENT / "config.yaml"
-PROMPT = AGENT / "prompts" / "summarize.md"
 
 SECTION_TO_TYPE = {
 	"site": "site",
@@ -41,18 +39,6 @@ MONTHS_RU = {
 }
 
 
-def load_dotenv(path: Path | None = None) -> None:
-	env_path = path or (AGENT / ".env")
-	if not env_path.exists():
-		return
-	for line in env_path.read_text(encoding="utf-8").splitlines():
-		line = line.strip()
-		if not line or line.startswith("#") or "=" not in line:
-			continue
-		key, value = line.split("=", 1)
-		os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
-
-
 def load_config() -> dict:
 	data = yaml.safe_load(CONFIG.read_text(encoding="utf-8")) or {}
 	if not isinstance(data, dict):
@@ -74,7 +60,6 @@ def load_sources(*, include_disabled: bool = False) -> list[dict]:
 			entry = dict(src)
 			entry["source_type"] = source_type
 			entry["fetch"] = (entry.get("fetch") or "rss").strip()
-			entry["summarize"] = bool(entry.get("summarize", True))
 			items.append(entry)
 	return items
 

@@ -18,7 +18,6 @@ SOURCE = {
 	"name": "Желтый клуб",
 	"source_type": "video",
 	"language": "ru",
-	"summarize": False,
 }
 
 

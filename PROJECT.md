@@ -15,15 +15,15 @@
 sources.yaml + agent/config.yaml
     │
     ▼
-agent/run.py  (каталог источников → collect.py → raw JSON → Gemini Flash → write_day.py)
+agent/run.py  (каталог источников → collect.py → raw JSON → write_day.py)
     │
     ├─► data/sources.json
     ├─► data/days/YYYY-MM-DD.json
     └─► data/index.json
               │
               ▼
-     index.html + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/app.js
-     settings.html + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/settings.js
+     index.html + js/i18n.js + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/app.js
+     settings.html + js/i18n.js + js/theme.js + js/consent.js + js/config.js + js/prefs.js + js/settings.js
      about.html → settings.html
      privacy.html → settings.html#privacy
               │
@@ -33,7 +33,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 - Вёрстка почти не меняется после запуска.
 - Сборщик пишет **только** JSON в `data/` (и при необходимости `sources.yaml` / `agent/config.yaml`).
-- Браузер при смене даты загружает один day-файл; фильтры, поиск, скрытые источники и «прочитано» работают уже в памяти.
+- Браузер сначала выбирает язык (`ones-language` / `?lang=` / язык браузера), календарь строится по `dates_by_language`; смена даты загружает один day-файл.
 - Cursor не гоняется по расписанию: ежедневный прогон — GitHub Actions или скрипт на ПК.
 - `agent/` на сайт не попадает: публичный набор файлов задаёт `.github/workflows/pages.yml`.
 
@@ -49,9 +49,10 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `privacy.html` | Редирект на `settings.html#privacy` |
 | `css/styles.css` | Mobile-first стили |
 | `js/config.js` | Словари: языки, типы источников |
+| `js/i18n.js` | Локаль UI (`ru` / `en`), строки ленты и настроек |
 | `js/theme.js` | Светлая / тёмная тема (`localStorage`) |
 | `js/consent.js` | Баннер согласия; Яндекс.Метрика только после «Принять» |
-| `js/prefs.js` | Скрытые источники и категории (`ones-hidden-sources`, `ones-hidden-types`) |
+| `js/prefs.js` | Скрытые источники, категории и языки (`ones-hidden-sources`, `ones-hidden-types`, `ones-hidden-languages`) |
 | `js/app.js` | Загрузка дня, фильтры, поиск, рендер |
 | `js/settings.js` | Каталог источников и галочки на странице настроек |
 | `package.json` | Playwright: `npm test` |
@@ -59,21 +60,18 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `tests/` | E2E UI-тесты и фикстуры JSON |
 | `favicon.svg` | Иконка вкладки |
 | `apple-touch-icon.png` | Иконка на домашнем экране iOS |
-| `data/index.json` | Список доступных дат |
+| `data/index.json` | Список дат и даты по языкам |
 | `data/sources.json` | Публичный каталог включённых источников |
 | `data/days/*.json` | Новости одного дня |
 | `sources.yaml` | Источники сборщика по секциям site / telegram / video (браузер не читает) |
-| `agent/config.yaml` | Часовой пояс, режим даты, лимиты, модель |
-| `agent/run.py` | Одна команда: сбор → саммари → day JSON |
+| `agent/config.yaml` | Часовой пояс, режим даты, лимиты |
+| `agent/run.py` | Одна команда: сбор → day JSON |
 | `agent/collect.py` | RSS, Telegram `/s/`, диспетчер Infostart и 1C:DN |
 | `agent/collect_infostart.py` | Каталоги Infostart + RSS |
 | `agent/collect_1cdn.py` | HTML TechBlog 1C:DN (RSS блога пустой) |
 | `agent/common.py` | Пути, конфиг, дата, сниппеты |
-| `agent/summarize.py` | Пакет саммари через Gemini |
 | `agent/write_day.py` | day JSON, `index.json`, `sources.json` |
-| `agent/prompts/summarize.md` | Системный промпт Gemini |
 | `agent/requirements.txt` | Зависимости Python 3.12 |
-| `agent/.env.example` | Шаблон `GEMINI_API_KEY` |
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
 | `.github/workflows/pages.yml` | Тесты Playwright, затем деплой статики (белый список файлов) |
@@ -91,7 +89,11 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 ```json
 {
   "site": "OneS News",
-  "dates": ["2026-08-16", "2026-08-15"]
+  "dates": ["2026-08-16", "2026-08-15"],
+  "dates_by_language": {
+    "ru": ["2026-08-16", "2026-08-15"],
+    "en": ["2026-08-15"]
+  }
 }
 ```
 
@@ -99,14 +101,18 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 |------|-----|---------|
 | `site` | string | Имя сайта |
 | `dates` | string[] | Даты `YYYY-MM-DD`, **новые сверху**. Должна существовать `data/days/{date}.json` |
+| `dates_by_language` | object | Код языка → даты, где есть хотя бы одна карточка этого языка (новые сверху) |
 
-**Дата по умолчанию в UI = `dates[0]`.**  
-Отдельного поля `default_date` нет. Лента читает только этот файл, не listing каталога `data/days/`.
+**Язык в UI всегда выбран** (`ru` или `en`): `?lang=` → `ones-language` → `navigator.language` (`en*` → English, иначе русский).  
+**Дата по умолчанию = первая дата в `dates_by_language[язык]`.** Если `?date=` есть в этом списке — открыть её.  
+`dates` — объединение всех day-файлов, запасной путь. Календарь подсвечивает только дни выбранного языка.
+
+Лента читает только этот файл, не listing каталога `data/days/`.
 
 При добавлении дня робот:
 
 1. Создаёт `data/days/YYYY-MM-DD.json`.
-2. Пересобирает `dates` по файлам в `data/days/` (новые сверху).
+2. Пересобирает `dates` и `dates_by_language` по файлам в `data/days/` (новые сверху).
 
 ---
 
@@ -204,17 +210,18 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 
 ## 7. Как работает UI
 
-1. `GET data/index.json` → список дат для календаря (`dates`, новые сверху).
-2. Активная дата = `dates[0]` или `?date=YYYY-MM-DD`, если дата есть в `dates`.
-3. `GET data/days/{date}.json` → `currentDay` в памяти.
-4. Рендер секций по `source_type`.
-5. Скрытые источники (`ones-hidden-sources`) и категории (`ones-hidden-types`) отфильтровываются **до** пикера и счётчиков. Фильтры «источник» и «язык» **не** делают новых запросов: фильтруют уже видимые `currentDay.items` и перерисовывают. Пикер источника строится из уникальных `source_name` этого дня; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
-6. Поиск по заголовку и саммари (в памяти). Недавние запросы — `localStorage` ключ `ones-search-history`.
-7. Клик по ссылке заголовка (и средняя кнопка мыши) помечает карточку прочитанной. Карта id: `ones-read` (до 500 записей, 90 дней).
-8. Тема светлая/тёмная: `js/theme.js`, ключ `ones-theme` (иначе системная preference). Скрипт в `<head>` ставит тему до отрисовки, чтобы не мигала.
-9. Смена даты → новый fetch day-файла; фильтры и строка поиска сбрасываются. Скрытые источники не сбрасываются.
+1. Язык UI и контента — один: пикер в шапке (лента и настройки). Пункта «все языки» нет.
+2. `GET data/index.json` → календарь из `dates_by_language[язык]`.
+3. Активная дата = первая дата этого языка или `?date=YYYY-MM-DD`, если она есть в списке языка.
+4. `GET data/days/{date}.json` → `currentDay` в памяти; на ленте только карточки выбранного языка.
+5. Рендер секций по `source_type`.
+6. Скрытые языки (`ones-hidden-languages`), источники (`ones-hidden-sources`) и категории (`ones-hidden-types`) отфильтровываются **до** пикера и счётчиков. Фильтр «источник» **не** делает новых запросов. Пикер источника строится из уникальных `source_name` этого дня на выбранном языке; в раскрытом списке рядом с именем — число карточек. Плашка источника на карточке включает тот же фильтр. Метки `topics` на карточке только для чтения.
+7. Поиск по заголовку и саммари (в памяти). Недавние запросы — `localStorage` ключ `ones-search-history`.
+8. Клик по ссылке заголовка (и средняя кнопка мыши) помечает карточку прочитанной. Карта id: `ones-read` (до 500 записей, 90 дней).
+9. Тема светлая/тёмная: `js/theme.js`, ключ `ones-theme` (иначе системная preference). Скрипт в `<head>` ставит тему и `html[lang]` до отрисовки.
+10. Смена даты → новый fetch day-файла; строка поиска сбрасывается. Язык и скрытые источники не сбрасываются. Смена языка → календарь перестраивается; если текущая дата без этого языка, открывается свежайшая дата с ним.
 
-`settings.html` («Настройки»): дисклеймер, затем `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются. Галочка у категории (`ones-hidden-types`) или у канала (`ones-hidden-sources`) снимает их с ленты. Ссылка в шапке ленты. `about.html` перенаправляет сюда.
+`settings.html` («Настройки»): тот же пикер языка, дисклеймер, затем `GET data/sources.json` → группировка по `language`, внутри — по `source_type`. Пустые языки и типы скрываются. У языка — галочка на всю группу (`ones-hidden-languages`); по умолчанию включён только язык интерфейса, остальные можно отметить. Смена языка в шапке снова включает эту группу, чтобы лента не оказалась пустой. Галочка у категории (`ones-hidden-types`) или у канала (`ones-hidden-sources`) снимает их с ленты. Ссылка в шапке ленты. `about.html` перенаправляет сюда.
 
 Яндекс.Метрика не вшита в HTML. `js/consent.js` показывает баннер, пока нет выбора в `ones-consent`. Счётчик грузится только после «Принять» (без Вебвизора и ecommerce). «Отклонить» оставляет сайт рабочим. На `settings.html#privacy` выбор можно сменить. `privacy.html` перенаправляет туда.
 
@@ -227,7 +234,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 **Можно / нужно:**
 
 - создавать/обновлять `data/days/YYYY-MM-DD.json`;
-- обновлять `data/index.json` (даты по файлам в `data/days/`, новые сверху);
+- обновлять `data/index.json` (даты и `dates_by_language` по файлам в `data/days/`, новые сверху);
 - обновлять `data/sources.json` из включённых записей `sources.yaml`;
 - править `sources.yaml` и `agent/config.yaml`.
 
@@ -261,25 +268,22 @@ python agent/run.py --date 2026-08-17
 Ручной путь:
 
 1. Записать `data/days/YYYY-MM-DD.json` по схеме.
-2. В `data/index.json` вставить дату первой в `dates`.
+2. В `data/index.json` вставить дату первой в `dates` и в нужные списки `dates_by_language`.
 3. Проверить локально и запушить.
 
 ### Чеклист нового источника
 
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`). Для YouTube можно скопировать отключённый шаблон `Example YouTube` в секции `video` (`enabled: false`) и подставить `channel_id`.
 2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для настроек), не RSS. Фильтр ленты берёт `name`.
-3. `summarize: false` — анонс из RSS/страницы сразу в карточку (как у Habr). `summarize: true` или поле не указано — саммари через Gemini.
-4. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). TechBlog 1C:DN — `fetch: 1c_dn`, `language: en` (HTML-лента `/blog/`, RSS `/blog/rss/` без записей). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
-5. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
+3. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). TechBlog 1C:DN — `fetch: 1c_dn`, `language: en` (HTML-лента `/blog/`, RSS `/blog/rss/` без записей). Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
+4. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
 
 ---
 
-## 10. Сбор дня (скрипт + дешёвая модель)
+## 10. Сбор дня
 
-ИИ **не** ходит по сайтам. Скрипт забирает заголовок, ссылку, автора и короткий snippet.
+ИИ **не** ходит по сайтам. Скрипт забирает заголовок, ссылку, автора и короткий snippet. После unescape и обрезки «Читать далее» snippet идёт в `summary` карточки.
 
-- `summarize: false` у источника — snippet (после unescape и обрезки «Читать далее») идёт в `summary` без Gemini.
-- `summarize: true` — пакет этих записей уходит в Gemini Flash.
 - `max_items` в `agent/config.yaml` — лимит **на источник**, не на весь день.
 
 ```text
@@ -289,7 +293,7 @@ run.py сразу пишет data/sources.json (включённые источ�
         ↓
 collect.py  →  agent/tmp/raw-YYYY-MM-DD.json
         ↓
-записи с summarize:true → Gemini; остальные → очищенный snippet
+очищенный snippet → summary
         ↓
 write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 ```
@@ -298,8 +302,6 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 - `agent/config.yaml`: `timezone`, `date_mode` (`yesterday` | `today` | `explicit`), `explicit_date`
 - CLI `--date YYYY-MM-DD` перекрывает файл
-
-Ключ: `GEMINI_API_KEY` в `agent/.env` (локально) или GitHub Secret `GEMINI_API_KEY` (cron).
 
 Расписание: `.github/workflows/collect.yml` в 03:00 UTC (06:00 МСК). Запас на ПК: `agent/cron/run.ps1`.
 

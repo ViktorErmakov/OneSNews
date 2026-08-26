@@ -93,14 +93,38 @@ function metrikaScript(page) {
 	return page.locator('script[src*="mc.yandex.ru/metrika"]');
 }
 
+async function installLocale(page, locale) {
+	if (locale === false) return;
+	if (locale === 'browser-en') {
+		await page.addInitScript(() => {
+			try {
+				localStorage.removeItem('ones-language');
+			} catch (err) {
+				/* ignore */
+			}
+			Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
+			Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+		});
+		return;
+	}
+	await page.addInitScript((value) => {
+		try {
+			localStorage.setItem('ones-language', value);
+		} catch (err) {
+			/* ignore */
+		}
+	}, locale || 'ru');
+}
+
 async function waitForDay(page) {
-	await expect(page.locator('#day-title')).not.toHaveText('Загрузка…', { timeout: 10000 });
+	await expect(page.locator('#day-title')).not.toHaveText(/^(Загрузка…|Loading…)$/, { timeout: 10000 });
 }
 
 async function openIndex(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
+	await installLocale(page, opts.locale);
 	await page.goto(opts.path || '/');
 	if (opts.wait === 'status') {
 		await expect(page.locator('#status')).toBeVisible({ timeout: 10000 });
@@ -113,14 +137,16 @@ async function openAbout(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
+	await installLocale(page, opts.locale);
 	await page.goto(opts.path || '/about.html');
-	await expect(page.locator('h1')).toHaveText('Настройки');
+	await expect(page.locator('h1')).toHaveText(/Настройки|Settings/);
 }
 
 async function openSettings(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
+	await installLocale(page, opts.locale);
 	if (opts.hiddenSources) {
 		await page.addInitScript((names) => {
 			try {
@@ -132,13 +158,14 @@ async function openSettings(page, options) {
 		}, opts.hiddenSources);
 	}
 	await page.goto(opts.path || '/settings.html');
-	await expect(page.locator('#sources')).not.toHaveText('Загрузка…', { timeout: 10000 });
+	await expect(page.locator('#sources')).not.toHaveText(/Загрузка…|Loading…/, { timeout: 10000 });
 }
 
 async function openPrivacy(page, options) {
 	const opts = options || {};
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
+	await installLocale(page, opts.locale);
 	const path = opts.path || '/settings.html#privacy';
 	await page.goto(path);
 	await expect(page.locator('#privacy')).toBeVisible({ timeout: 10000 });

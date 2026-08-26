@@ -3,9 +3,10 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Настройки — OneS News</title>
+		<title data-i18n="meta.settingsTitle">Настройки — OneS News</title>
 		<meta
 			name="description"
+			data-i18n-content="meta.settingsDescription"
 			content="Настройки OneS News: какие источники показывать на ленте и что хранится в браузере."
 		/>
 		<meta name="color-scheme" content="light dark" />
@@ -20,6 +21,21 @@
 					var cs = document.querySelector('meta[name="color-scheme"]');
 					if (cs) cs.setAttribute('content', t);
 				} catch (e) {}
+				var lang = '';
+				try {
+					var q = new URLSearchParams(location.search).get('lang');
+					if (q === 'ru' || q === 'en') lang = q;
+				} catch (e) {}
+				if (lang !== 'ru' && lang !== 'en') {
+					try {
+						lang = localStorage.getItem('ones-language') || '';
+					} catch (e) {}
+				}
+				if (lang !== 'ru' && lang !== 'en') {
+					var nav = String(navigator.language || navigator.userLanguage || 'ru').toLowerCase();
+					lang = nav.indexOf('en') === 0 ? 'en' : 'ru';
+				}
+				document.documentElement.setAttribute('lang', lang);
 			})();
 		</script>
 		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -27,7 +43,7 @@
 		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
-		<a class="skip-link" href="#main">К содержанию</a>
+		<a class="skip-link" href="#main" data-i18n="skip">К содержанию</a>
 
 		<header class="top">
 			<div class="shell top-inner">
@@ -68,8 +84,26 @@
 						<span class="brand-sub">enterprisehub.dev</span>
 					</span>
 				</a>
-				<nav class="top-nav" aria-label="Оформление">
-					<a class="site-link" href="settings.html" aria-label="Настройки" aria-current="page">
+				<nav class="top-nav" aria-label="Оформление" data-i18n-aria="nav.appearance">
+					<div class="picker picker-compact" id="lang-picker">
+						<button
+							type="button"
+							class="picker-btn"
+							id="lang-picker-btn"
+							aria-haspopup="listbox"
+							aria-expanded="false"
+							aria-controls="lang-picker-list"
+							aria-label="Язык"
+						></button>
+						<ul
+							class="picker-list"
+							id="lang-picker-list"
+							role="listbox"
+							aria-label="Язык"
+							hidden
+						></ul>
+					</div>
+					<a class="site-link" href="settings.html" aria-label="Настройки" aria-current="page" data-i18n-aria="settings">
 						<svg
 							class="site-link-icon"
 							viewBox="0 0 24 24"
@@ -107,86 +141,94 @@
 		</header>
 
 		<main id="main" class="shell about">
-			<h1>Настройки</h1>
+			<h1 data-i18n="page.heading">Настройки</h1>
 			<section id="about">
-				<p>
+				<p data-i18n="page.about1">
 					OneS News собирает новости вокруг мира 1С из открытых источников и публикует ежедневный
 					дайджест со ссылками на первоисточники.
 				</p>
-				<p>
+				<p data-i18n-html="page.about2">
 					Сайт <strong>не принадлежит</strong> фирме «1С», не является её официальным ресурсом и не
 					использует товарные знаки или эмблемы компании. Мы не представляем фирму «1С».
 				</p>
-				<p>
+				<p data-i18n-html="page.about3">
 					На первом этапе материалы ориентированы в первую очередь на <strong>разработчиков</strong>.
 					На ленте можно фильтровать по источнику и языку; новости сгруппированы по типу источника:
 					сайты, Telegram, видеохостинги.
 				</p>
 				<p>
-					Пожелания, идеи по источникам и замечания к дайджесту можно
-					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">написать нам</a>.
+					<span data-i18n="page.about4Prefix">Пожелания, идеи по источникам и замечания к дайджесту можно </span><a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0" data-i18n="page.writeUs">написать нам</a><span data-i18n="page.about4Suffix">.</span>
 				</p>
 			</section>
 
 			<section class="about-sources" aria-labelledby="sources-heading">
-				<h2 id="sources-heading">Источники</h2>
-				<p>
+				<h2 id="sources-heading" data-i18n="page.sources">Источники</h2>
+				<p data-i18n="page.sourcesHow">
 					Свои тексты не пишем: с сайтов берём заголовок и краткое описание, из Telegram —
 					начало поста. Ссылки ведут на сайты и каналы.
 				</p>
-				<p>
-					Галочка у категории выключает все её источники, в том числе новые. Галочка у канала —
-					только его. Без галочки источник скрыт во все дни, выбор запоминается в этом браузере.
-					Фильтр на главной только сужает уже открытый день и сбрасывается при смене даты.
+				<p data-i18n="page.sourcesHelp">
+					Галочка у языка выключает всю его группу. По умолчанию включён только язык интерфейса,
+					остальные можно отметить. Галочка у категории выключает все её источники, в том числе
+					новые. Галочка у канала — только его. Без галочки источник скрыт во все дни, выбор
+					запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и
+					сбрасывается при смене даты.
 				</p>
 				<p class="settings-toolbar">
-					<button type="button" class="settings-show-all" id="sources-show-all" disabled>
+					<button type="button" class="settings-show-all" id="sources-show-all" disabled data-i18n="page.showAll">
 						Показать все
 					</button>
 				</p>
 				<div id="sources">
-					<p class="about-sources-status">Загрузка…</p>
+					<p class="about-sources-status" data-i18n="loading">Загрузка…</p>
 				</div>
 			</section>
 
 			<section id="privacy" class="settings-privacy" aria-labelledby="privacy-heading">
-				<h2 id="privacy-heading">Конфиденциальность</h2>
-				<p>
+				<h2 id="privacy-heading" data-i18n="page.privacy">Конфиденциальность</h2>
+				<p data-i18n="page.privacy1">
 					Учётной записи нет: мы не принимаем и не храним ваши данные на своей стороне.
 				</p>
-				<p>
+				<p data-i18n-html="page.privacy2">
 					В браузере (<code>localStorage</code>) остаются только настройки ленты:
 				</p>
 				<ul>
-					<li>
+					<li data-i18n-html="page.privacyTheme">
 						<strong>Тема</strong> (<code>ones-theme</code>) — светлая или тёмная, если вы нажали
 						переключатель.
 					</li>
-					<li>
+					<li data-i18n-html="page.privacyRead">
 						<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек
 						и время отметки, не больше 500 записей и 90 дней.
 					</li>
-					<li>
+					<li data-i18n-html="page.privacySearch">
 						<strong>Поиск</strong> (<code>ones-search-history</code>) — до восьми недавних запросов.
 					</li>
-					<li>
+					<li data-i18n-html="page.privacyHidden">
 						<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не
 						показывать на ленте.
 					</li>
-					<li>
+					<li data-i18n-html="page.privacyTypes">
 						<strong>Скрытые категории</strong> (<code>ones-hidden-types</code>) — какие типы
 						источников не показывать: сайты, Telegram, видеохостинги.
 					</li>
-					<li>
+					<li data-i18n-html="page.privacyHiddenLangs">
+						<strong>Скрытые языки</strong> (<code>ones-hidden-languages</code>) — какие языковые
+						группы не показывать на ленте.
+					</li>
+					<li data-i18n-html="page.privacyLang">
+						<strong>Язык</strong> (<code>ones-language</code>) — язык ленты, календаря и этой страницы.
+					</li>
+					<li data-i18n-html="page.privacyConsent">
 						<strong>Выбор по аналитике</strong> (<code>ones-consent</code>) — чтобы не спрашивать
 						снова.
 					</li>
 				</ul>
-				<p>
+				<p data-i18n="page.privacyLocal">
 					Их можно стереть в настройках браузера; в режиме инкогнито они не сохранятся. Согласия на
 					эти записи не спрашиваем: это работа ленты.
 				</p>
-				<p>
+				<p data-i18n-html="page.privacyMetrika">
 					По желанию включается
 					<a href="https://metrika.yandex.ru/" rel="noopener noreferrer" target="_blank">Яндекс.Метрика</a>
 					(счётчик 111876187) — <strong>только после кнопки «Принять»</strong>. Вебвизор выключен.
@@ -199,31 +241,32 @@
 				</p>
 
 				<div class="consent-settings" aria-labelledby="consent-settings-title">
-					<h3 id="consent-settings-title">Ваш выбор</h3>
+					<h3 id="consent-settings-title" data-i18n="page.yourChoice">Ваш выбор</h3>
 					<p id="consent-status">Проверяем сохранённый выбор…</p>
 					<div class="consent-actions">
-						<button type="button" class="consent-btn consent-btn-reject" data-consent="reject">
+						<button type="button" class="consent-btn consent-btn-reject" data-consent="reject" data-i18n="consent.disable">
 							Отключить аналитику
 						</button>
-						<button type="button" class="consent-btn consent-btn-accept" data-consent="accept">
+						<button type="button" class="consent-btn consent-btn-accept" data-consent="accept" data-i18n="consent.enable">
 							Включить аналитику
 						</button>
 					</div>
 				</div>
-				<p class="privacy-updated">Страница обновлена 24 августа 2026.</p>
+				<p class="privacy-updated" data-i18n="page.updated">Страница обновлена 24 августа 2026.</p>
 			</section>
 		</main>
 
 		<footer class="footer">
 			<div class="shell footer-inner">
-				<nav class="footer-nav" aria-label="О сайте">
-					<a href="index.html">Лента</a>
-					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">Пожелания</a>
+				<nav class="footer-nav" aria-label="О сайте" data-i18n-aria="nav.about">
+					<a href="index.html" data-i18n="feed">Лента</a>
+					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0" data-i18n="feedback">Пожелания</a>
 				</nav>
 				<p>© OneS News</p>
 			</div>
 		</footer>
 
+		<script src="js/i18n.js"></script>
 		<script src="js/theme.js"></script>
 		<script src="js/consent.js"></script>
 		<script src="js/config.js"></script>

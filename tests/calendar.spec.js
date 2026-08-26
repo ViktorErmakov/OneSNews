@@ -25,19 +25,31 @@ test.describe('Календарь', () => {
 		await expect(page.locator('#date-picker-panel')).toBeHidden();
 	});
 
-	test('переключение месяцев не выходит за опубликованные даты', async ({ page }) => {
+	test('переключение месяцев не выходит за опубликованные даты языка', async ({ page }) => {
 		await openIndex(page);
 		await page.getByRole('button', { name: /^Дата:/ }).click();
 
 		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
 		await expect(page.locator('.calendar-title')).toHaveText('Февраль 2026');
-		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
-		await expect(page.locator('.calendar-title')).toHaveText('Январь 2026');
 		await expect(page.getByRole('button', { name: 'Предыдущий месяц' })).toBeDisabled();
 		await expect(page.getByRole('button', { name: 'Следующий месяц' })).toBeEnabled();
 
-		await expect(page.getByRole('button', { name: '5 января 2026' })).toBeVisible();
+		await expect(page.getByRole('button', { name: '10 февраля 2026' })).toBeVisible();
 		await expect(page.locator('.calendar-day.has-news')).toHaveCount(1);
+	});
+
+	test('на английском календарь не подсвечивает чисто русские дни', async ({ page }) => {
+		await openIndex(page);
+		await page.getByRole('button', { name: /Язык:/ }).click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
+		await waitForDay(page);
+
+		await page.getByRole('button', { name: /Date:|^Дата:/ }).click();
+		await expect(page.locator('.calendar-title')).toHaveText('March 2026');
+		await expect(page.getByRole('button', { name: 'Previous month' })).toBeDisabled();
+		await expect(page.getByRole('button', { name: 'Next month' })).toBeDisabled();
+		await expect(page.locator('.calendar-day.has-news')).toHaveCount(1);
+		await expect(page.locator('.calendar-day.has-news[data-date="2026-03-15"]')).toBeVisible();
 	});
 
 	test('Escape закрывает календарь', async ({ page }) => {

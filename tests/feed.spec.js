@@ -6,17 +6,16 @@ test.describe('Лента', () => {
 		await openIndex(page);
 
 		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
-		await expect(page.locator('#day-count')).toHaveText('5 материалов');
+		await expect(page.locator('#day-count')).toHaveText('3 материала');
 		await expect(page.locator('#section-nav')).toBeVisible();
-		await expect(page.locator('#section-nav a')).toHaveCount(3);
+		await expect(page.locator('#section-nav a')).toHaveCount(2);
 		await expect(page.locator('#section-nav a').nth(0)).toContainText('Сайты');
 		await expect(page.locator('#section-nav a').nth(1)).toContainText('Telegram');
-		await expect(page.locator('#section-nav a').nth(2)).toContainText('Видеохостинги');
 
 		await expect(page.locator('#section-site')).toBeVisible();
 		await expect(page.locator('#section-telegram')).toBeVisible();
-		await expect(page.locator('#section-video')).toBeVisible();
-		await expect(page.locator('article.card')).toHaveCount(5);
+		await expect(page.locator('#section-video')).toHaveCount(0);
+		await expect(page.locator('article.card')).toHaveCount(3);
 
 		const invoice = card(page, '2026-03-15-001');
 		await expect(invoice.locator('.card-title a')).toHaveAttribute(
@@ -29,7 +28,7 @@ test.describe('Лента', () => {
 		await expect(invoice.locator('.card-meta')).toContainText('AlexSvoykin');
 		await expect(invoice.locator('.card-topics')).toHaveText('ERP · БП');
 		await expect(invoice.getByRole('button', { name: /Фильтр по источнику: Infostart/ })).toBeVisible();
-		await expect(invoice.getByRole('button', { name: /Фильтр по языку: Русский/ })).toBeVisible();
+		await expect(invoice.getByRole('button', { name: /Фильтр по языку:/ })).toHaveCount(0);
 	});
 
 	test('скрывает пустое саммари и автора, если он совпадает с источником', async ({ page }) => {
@@ -59,11 +58,11 @@ test.describe('Лента', () => {
 		);
 	});
 
-	test('показывает пустое состояние, если за день нет новостей', async ({ page }) => {
+	test('дата без новостей на языке не открывается, подставляется свежая', async ({ page }) => {
 		await openIndex(page, { path: '/?date=2026-01-05' });
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 5 января 2026');
-		await expect(page.locator('.empty-lead')).toHaveText('Нет новостей за этот день.');
-		await expect(page.locator('.empty-hint')).toContainText('другую дату');
+		await expect(page).toHaveURL(/date=2026-03-15/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 
 	test('берёт дату из адреса или подставляет самую новую', async ({ page }) => {
@@ -91,5 +90,14 @@ test.describe('Лента', () => {
 			'href',
 			/mailto:mopdeus@gmail.com/,
 		);
+	});
+
+	test('язык браузера en открывает английскую ленту', async ({ page }) => {
+		await openIndex(page, { locale: 'browser-en' });
+		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+		await expect(page.locator('#day-title')).toContainText('Digest for');
+		await expect(page.locator('article.card')).toHaveCount(2);
+		await expect(card(page, '2026-03-15-004')).toBeVisible();
+		await expect(card(page, '2026-03-15-001')).toHaveCount(0);
 	});
 });

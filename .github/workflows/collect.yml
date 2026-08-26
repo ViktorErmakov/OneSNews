@@ -27,9 +27,7 @@ jobs:
       - name: Install
         run: pip install -r agent/requirements.txt
 
-      - name: Collect and summarize
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Collect
         run: python agent/run.py
 
       - name: Commit day JSON

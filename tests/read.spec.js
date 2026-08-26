@@ -28,7 +28,7 @@ test.describe('Прочитано', () => {
 	test('помечает карточку прочитанной средней кнопкой мыши', async ({ page }) => {
 		await openIndex(page);
 		page.on('popup', (popup) => popup.close());
-		await card(page, '2026-03-15-004').locator('.card-title a').click({ button: 'middle' });
-		await expect(card(page, '2026-03-15-004')).toHaveClass(/is-read/);
+		await card(page, '2026-03-15-001').locator('.card-title a').click({ button: 'middle' });
+		await expect(card(page, '2026-03-15-001')).toHaveClass(/is-read/);
 	});
 });

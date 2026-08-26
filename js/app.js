@@ -2,44 +2,18 @@
 	'use strict';
 
 	const cfg = window.ONES_CONFIG;
-	const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-	const MONTHS_GEN = [
-		'января',
-		'февраля',
-		'марта',
-		'апреля',
-		'мая',
-		'июня',
-		'июля',
-		'августа',
-		'сентября',
-		'октября',
-		'ноября',
-		'декабря',
-	];
-	const MONTHS_TITLE = [
-		'Январь',
-		'Февраль',
-		'Март',
-		'Апрель',
-		'Май',
-		'Июнь',
-		'Июль',
-		'Август',
-		'Сентябрь',
-		'Октябрь',
-		'Ноябрь',
-		'Декабрь',
-	];
+	const i18n = window.ONES_I18N;
 
 	const state = {
 		currentDay: null,
 		dates: [],
+		allDates: [],
+		datesByLanguage: {},
 		dateSet: new Set(),
 		date: null,
 		calendar: { year: 2026, month: 0 },
 		source: '',
-		language: '',
+		language: (i18n && i18n.locale) || 'ru',
 		query: '',
 		searchHistory: [],
 		readMap: {},
@@ -111,27 +85,22 @@
 		'</svg>';
 
 	function flagSvg(code) {
-		if (code === 'ru') {
-			return (
-				'<svg class="flag-icon" viewBox="0 0 9 6" aria-hidden="true">' +
-				'<rect width="9" height="2" fill="#fff"/>' +
-				'<rect y="2" width="9" height="2" fill="#0039a6"/>' +
-				'<rect y="4" width="9" height="2" fill="#d52b1e"/>' +
-				'</svg>'
-			);
-		}
-		if (code === 'en') {
-			return (
-				'<svg class="flag-icon" viewBox="0 0 60 30" aria-hidden="true">' +
-				'<rect width="60" height="30" fill="#012169"/>' +
-				'<path d="M0 0 L60 30 M60 0 L0 30" stroke="#fff" stroke-width="10"/>' +
-				'<path d="M0 0 L60 30 M60 0 L0 30" stroke="#C8102E" stroke-width="6"/>' +
-				'<path d="M30 0 V30 M0 15 H60" stroke="#fff" stroke-width="16"/>' +
-				'<path d="M30 0 V30 M0 15 H60" stroke="#C8102E" stroke-width="10"/>' +
-				'</svg>'
-			);
-		}
-		return GLOBE_SVG;
+		return i18n ? i18n.flagSvg(code) : GLOBE_SVG;
+	}
+
+	function t(key, vars) {
+		return i18n ? i18n.t(key, vars) : key;
+	}
+
+	function sourceTypes() {
+		return (cfg.SOURCE_TYPES || []).map((section) => ({
+			code: section.code,
+			label: i18n ? i18n.sourceTypeLabel(section.code) : section.label || section.code,
+		}));
+	}
+
+	function localeCode() {
+		return (i18n && i18n.locale) || 'ru';
 	}
 
 	function allDayItems() {
@@ -146,24 +115,36 @@
 		return window.ONES_PREFS ? window.ONES_PREFS.loadHiddenTypes() : new Set();
 	}
 
+	function hiddenLanguageCodes() {
+		if (!window.ONES_PREFS) return new Set();
+		const codes = (cfg.LANGUAGES || []).map((lang) => lang.code);
+		return window.ONES_PREFS.ensureHiddenLanguages(state.language || (i18n && i18n.locale) || 'ru', codes);
+	}
+
 	function dayItems() {
 		const hidden = hiddenSourceNames();
 		const hiddenTypes = hiddenTypeCodes();
+		const hiddenLangs = hiddenLanguageCodes();
 		return allDayItems().filter((item) => {
 			const name = String(item.source_name || '').trim();
 			const type = String(item.source_type || 'other').trim();
+			const language = String(item.language || '').trim();
+			if (hiddenLangs.has(language)) return false;
 			if (hiddenTypes.has(type)) return false;
 			return !hidden.has(name);
 		});
 	}
 
+	function itemsOfCurrentLanguage() {
+		return allDayItems().filter((item) => item.language === state.language);
+	}
+
 	function allSourcesHidden() {
-		return allDayItems().length > 0 && dayItems().length === 0;
+		return itemsOfCurrentLanguage().length > 0 && itemsForSources().length === 0;
 	}
 
 	function availableLanguages() {
-		const present = new Set(dayItems().map((item) => item.language));
-		return cfg.LANGUAGES.filter((lang) => present.has(lang.code));
+		return cfg.LANGUAGES.slice();
 	}
 
 	function itemsForSources() {
@@ -180,13 +161,13 @@
 			counts.set(name, (counts.get(name) || 0) + 1);
 		}
 		return [...counts.entries()]
-			.sort((a, b) => a[0].localeCompare(b[0], 'ru', { sensitivity: 'base' }))
+			.sort((a, b) => a[0].localeCompare(b[0], localeCode(), { sensitivity: 'base' }))
 			.map(([name, count]) => ({ code: name, label: name, count }));
 	}
 
 	function itemTopics(item) {
 		const source = String(item.source_name || '').trim();
-		const sourceKey = source.toLocaleLowerCase('ru');
+		const sourceKey = source.toLocaleLowerCase(localeCode());
 		const raw = Array.isArray(item.topics) && item.topics.length ? item.topics : item.tags;
 		if (!Array.isArray(raw) || !raw.length) return [];
 		const out = [];
@@ -196,7 +177,7 @@
 			if (!label) continue;
 			if (/^habr:\s*/i.test(label)) label = label.replace(/^habr:\s*/i, '').trim();
 			if (!label) continue;
-			const key = label.toLocaleLowerCase('ru');
+			const key = label.toLocaleLowerCase(localeCode());
 			if (key === sourceKey || OLD_DIRECTION_CODES.has(key) || seen.has(key)) continue;
 			seen.add(key);
 			out.push(label);
@@ -205,41 +186,29 @@
 	}
 
 	function languagePickerOptions() {
-		const available = availableLanguages();
-		if (available.length > 1) {
-			return [{ code: '', label: 'Все языки' }].concat(available);
-		}
-		return available;
+		return availableLanguages();
 	}
 
 	function currentLanguageOption() {
 		const options = languagePickerOptions();
-		return options.find((opt) => opt.code === state.language) || options[0] || { code: '', label: 'Все языки' };
+		return (
+			options.find((opt) => opt.code === state.language) ||
+			options[0] || { code: 'ru', label: 'Русский' }
+		);
 	}
 
 	function sourcePickerOptions() {
 		const available = availableSources();
 		if (available.length > 1) {
 			const total = available.reduce((sum, opt) => sum + opt.count, 0);
-			return [{ code: '', label: 'Все', count: total }].concat(available);
+			return [{ code: '', label: t('sourceAll'), count: total }].concat(available);
 		}
 		return available;
 	}
 
 	function currentSourceOption() {
 		const options = sourcePickerOptions();
-		return options.find((opt) => opt.code === state.source) || options[0] || { code: '', label: 'Все' };
-	}
-
-	function syncLanguageToAvailable() {
-		const available = availableLanguages();
-		if (available.length === 1) {
-			state.language = available[0].code;
-			return;
-		}
-		if (state.language && !available.some((lang) => lang.code === state.language)) {
-			state.language = '';
-		}
+		return options.find((opt) => opt.code === state.source) || options[0] || { code: '', label: t('sourceAll') };
 	}
 
 	function syncSourceToAvailable() {
@@ -254,59 +223,36 @@
 	}
 
 	function syncFiltersToDay() {
-		syncLanguageToAvailable();
 		syncSourceToAvailable();
 	}
 
 	function emptyFeedMessage() {
-		const items = dayItems();
-		if (!allDayItems().length) return 'Нет новостей за этот день.';
-		if (!items.length) return 'Вы скрыли источники за этот день.';
+		if (!allDayItems().length || !itemsOfCurrentLanguage().length) return t('empty.noItems');
+		if (!itemsForSources().length) return t('empty.hidden');
 		const afterFilters = itemsAfterFilters();
-		if (!afterFilters.length) {
-			if (state.language) {
-				const inLanguage = items.filter((item) => item.language === state.language);
-				if (!inLanguage.length) {
-					return `Нет новостей на языке «${labelOf(cfg.LANGUAGES, state.language)}» за этот день.`;
-				}
-			}
-			return 'Нет новостей по выбранным фильтрам.';
-		}
+		if (!afterFilters.length) return t('empty.filters');
 		if (state.query.trim()) {
-			return `Ничего не найдено по запросу «${state.query.trim()}».`;
+			return t('empty.query', { query: state.query.trim() });
 		}
-		return 'Нет новостей по выбранным фильтрам.';
+		return t('empty.filters');
 	}
 
 	function emptyFeedHint() {
-		const items = dayItems();
-		if (!allDayItems().length) return 'Выберите другую дату в календаре.';
-		if (!items.length) return '';
+		if (!allDayItems().length || !itemsOfCurrentLanguage().length) return t('empty.noItemsHint');
+		if (!itemsForSources().length) return '';
 		const afterFilters = itemsAfterFilters();
-		if (!afterFilters.length) {
-			if (state.language) {
-				const inLanguage = items.filter((item) => item.language === state.language);
-				if (!inLanguage.length) return 'Смените язык или дату.';
-			}
-			return 'Снимите фильтр источника или языка либо выберите другую дату.';
-		}
-		if (state.query.trim()) return 'Измените слова или сбросьте поиск.';
-		return 'Снимите фильтр источника или языка либо выберите другую дату.';
+		if (!afterFilters.length) return t('empty.filtersHint');
+		if (state.query.trim()) return t('empty.queryHint');
+		return t('empty.filtersHint');
 	}
 
 	function materialsLabel(count) {
-		const n = Number(count) || 0;
-		const mod10 = n % 10;
-		const mod100 = n % 100;
-		let word = 'материалов';
-		if (mod10 === 1 && mod100 !== 11) word = 'материал';
-		else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) word = 'материала';
-		return `${n} ${word}`;
+		return i18n ? i18n.materialsLabel(count) : String(count);
 	}
 
 	function renderEmpty() {
 		const hint = allSourcesHidden()
-			? 'Включите их в <a href="settings.html#sources-heading">списке источников</a>.'
+			? t('empty.hiddenHint')
 			: escapeHtml(emptyFeedHint());
 		return (
 			`<p class="empty">` +
@@ -317,7 +263,7 @@
 	}
 
 	function visibleSections(items) {
-		return cfg.SOURCE_TYPES.filter((section) => items.some((item) => item.source_type === section.code));
+		return sourceTypes().filter((section) => items.some((item) => item.source_type === section.code));
 	}
 
 	function renderSectionNav(sections, counts) {
@@ -350,7 +296,13 @@
 			}
 			return;
 		}
-		els.dayTitle.textContent = state.currentDay.title || state.currentDay.date;
+		els.dayTitle.textContent =
+			(state.currentDay && state.currentDay.date && i18n
+				? i18n.formatDayTitle(state.currentDay.date)
+				: '') ||
+			(state.currentDay && state.currentDay.title) ||
+			(state.currentDay && state.currentDay.date) ||
+			'';
 		if (els.dayCount) {
 			els.dayCount.hidden = false;
 			els.dayCount.textContent = materialsLabel(itemCount);
@@ -449,30 +401,34 @@
 		return params.get('date');
 	}
 
-	function setUrlDate(date) {
+	function queryLang() {
+		const params = new URLSearchParams(window.location.search);
+		const value = params.get('lang');
+		return value === 'ru' || value === 'en' ? value : '';
+	}
+
+	function setUrlState() {
 		const url = new URL(window.location.href);
-		url.searchParams.set('date', date);
+		if (state.date) url.searchParams.set('date', state.date);
+		else url.searchParams.delete('date');
+		if (state.language) url.searchParams.set('lang', state.language);
+		else url.searchParams.delete('lang');
 		window.history.replaceState({}, '', url);
 	}
 
 	function parseIsoDate(iso) {
+		if (i18n && i18n.parseIsoDate) return i18n.parseIsoDate(iso);
 		const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
 		if (!match) return null;
 		return { year: Number(match[1]), month: Number(match[2]) - 1, day: Number(match[3]) };
 	}
 
 	function formatDateLabel(iso) {
-		const parsed = parseIsoDate(iso);
-		if (!parsed) return iso || 'Дата';
-		return `${parsed.day} ${MONTHS_GEN[parsed.month]} ${parsed.year}`;
+		return i18n ? i18n.formatDateLabel(iso) : iso || t('date');
 	}
 
 	function formatDateNumeric(iso) {
-		const parsed = parseIsoDate(iso);
-		if (!parsed) return iso || 'Дата';
-		const day = String(parsed.day).padStart(2, '0');
-		const month = String(parsed.month + 1).padStart(2, '0');
-		return `${day}.${month}.${parsed.year}`;
+		return i18n ? i18n.formatDateNumeric(iso) : iso || t('date');
 	}
 
 	function monthIndex(year, month) {
@@ -662,7 +618,7 @@
 		const current = state.date || state.dates[0] || '';
 		renderPickerButton(
 			els.dateBtn,
-			'Дата',
+			t('date'),
 			CALENDAR_SVG,
 			formatDateNumeric(current),
 			formatDateLabel(current),
@@ -672,30 +628,33 @@
 		const idx = monthIndex(state.calendar.year, state.calendar.month);
 		const canPrev = bounds ? idx > bounds.min : false;
 		const canNext = bounds ? idx < bounds.max : false;
-		const title = `${MONTHS_TITLE[state.calendar.month]} ${state.calendar.year}`;
+		const title = i18n
+			? i18n.monthTitle(state.calendar.year, state.calendar.month)
+			: `${state.calendar.month + 1} ${state.calendar.year}`;
+		const weekdayLabels = i18n ? i18n.weekdays() : [];
 
 		els.datePanel.innerHTML =
 			`<div class="calendar-head">` +
-			`<button type="button" class="calendar-nav" data-cal="prev" aria-label="Предыдущий месяц"${canPrev ? '' : ' disabled'}>‹</button>` +
+			`<button type="button" class="calendar-nav" data-cal="prev" aria-label="${escapeHtml(t('calendarPrev'))}"${canPrev ? '' : ' disabled'}>‹</button>` +
 			`<div class="calendar-title">${escapeHtml(title)}</div>` +
-			`<button type="button" class="calendar-nav" data-cal="next" aria-label="Следующий месяц"${canNext ? '' : ' disabled'}>›</button>` +
+			`<button type="button" class="calendar-nav" data-cal="next" aria-label="${escapeHtml(t('calendarNext'))}"${canNext ? '' : ' disabled'}>›</button>` +
 			`</div>` +
-			`<div class="calendar-weekdays">${WEEKDAYS.map((d) => `<span>${d}</span>`).join('')}</div>` +
+			`<div class="calendar-weekdays">${weekdayLabels.map((d) => `<span>${d}</span>`).join('')}</div>` +
 			`<div class="calendar-grid">${renderCalendarGrid()}</div>`;
 	}
 
 	function renderLangPicker() {
 		if (!els.langPicker) return;
-		const available = availableLanguages();
-		if (!available.length) {
+		const options = languagePickerOptions();
+		if (!options.length) {
 			els.langPicker.hidden = true;
 			if (els.langList) els.langList.innerHTML = '';
 			return;
 		}
 		els.langPicker.hidden = false;
 		const current = currentLanguageOption();
-		renderPickerButton(els.langBtn, 'Язык', flagSvg(current.code), current.label, current.label, true);
-		els.langList.innerHTML = languagePickerOptions()
+		renderPickerButton(els.langBtn, t('language'), flagSvg(current.code), current.label, current.label, true);
+		els.langList.innerHTML = options
 			.map((opt) => optionMarkup(opt.code, flagSvg(opt.code), opt.label, opt.code === state.language))
 			.join('');
 	}
@@ -711,7 +670,7 @@
 
 		els.sourcePicker.hidden = false;
 		const current = currentSourceOption();
-		renderPickerButton(els.sourceBtn, 'Источник', TAG_SVG, current.label, current.label);
+		renderPickerButton(els.sourceBtn, t('source'), TAG_SVG, current.label, current.label);
 		els.sourceList.innerHTML = options
 			.map((opt) =>
 				optionMarkup(opt.code, '', opt.label, opt.code === state.source, opt.count)
@@ -737,18 +696,50 @@
 		renderFeed();
 	}
 
-	function setLanguage(code) {
-		const available = availableLanguages();
-		if (available.length === 1) {
-			state.language = available[0].code;
+	function uniqueDates(dates) {
+		return Array.from(new Set((dates || []).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
+	}
+
+	function applyLanguageDates() {
+		const byLang = state.datesByLanguage[state.language];
+		if (Array.isArray(byLang) && byLang.length) {
+			state.dates = uniqueDates(byLang);
+		} else if (Object.keys(state.datesByLanguage).length) {
+			state.dates = [];
 		} else {
-			state.language = code;
+			state.dates = state.allDates.slice();
 		}
+		state.dateSet = new Set(state.dates);
+	}
+
+	function setLanguage(code) {
+		const next = availableLanguages().some((lang) => lang.code === code) ? code : 'ru';
+		state.language = next;
+		if (window.ONES_PREFS) window.ONES_PREFS.revealLanguage(next);
+		if (i18n) i18n.setLocale(next);
+		applyLanguageDates();
 		closePicker(els.langBtn, els.langList);
-		syncSourceToAvailable();
-		renderLangPicker();
-		renderSourcePicker();
-		renderFeed();
+		const keepDate = state.date && state.dates.includes(state.date);
+		const nextDate = keepDate ? state.date : state.dates[0] || null;
+		if (!nextDate) {
+			state.currentDay = null;
+			state.date = null;
+			setUrlState();
+			syncFilterUi();
+			setStatus(t('status.noDates'), true);
+			renderFeed();
+			return;
+		}
+		if (nextDate === state.date && state.currentDay) {
+			syncSourceToAvailable();
+			setUrlState();
+			syncFilterUi();
+			renderFeed();
+			return;
+		}
+		loadDay(nextDate).catch((err) => {
+			setStatus(err.message || String(err), true);
+		});
 	}
 
 	function toggleFilter(kind, code) {
@@ -759,45 +750,27 @@
 				return;
 			}
 			setSource(state.source === code ? '' : code);
-			return;
-		}
-		if (kind === 'language') {
-			const available = availableLanguages();
-			if (available.length === 1) {
-				setLanguage(available[0].code);
-				return;
-			}
-			setLanguage(state.language === code ? '' : code);
 		}
 	}
 
 	function renderCard(item) {
-		const language = labelOf(cfg.LANGUAGES, item.language);
-		const showLangChip = !state.language && availableLanguages().length > 1;
 		const showSourceChip = !state.source && availableSources().length > 1;
 		const read = isRead(item.id);
 		const terms = searchTerms();
-		const titlePlain = escapeHtml(item.title);
 		const titleHtml = highlightText(item.title, terms);
 		const summaryHtml = highlightText(item.summary, terms);
-		const langChip = showLangChip
-			? `<button type="button" class="chip" data-filter="language" ` +
-				`data-value="${escapeHtml(item.language)}" aria-pressed="false" ` +
-				`title="Фильтр по языку: ${escapeHtml(language)}" ` +
-				`aria-label="Фильтр по языку: ${escapeHtml(language)}">${escapeHtml(language)}</button>`
-			: '';
-		const sourceName = String(item.source_name || '').trim() || 'Источник';
+		const sourceName = String(item.source_name || '').trim() || t('source');
 		const sourceChip = showSourceChip
 			? `<button type="button" class="chip" data-filter="source" ` +
 				`data-value="${escapeHtml(sourceName)}" aria-pressed="false" ` +
-				`title="Фильтр по источнику: ${escapeHtml(sourceName)}" ` +
-				`aria-label="Фильтр по источнику: ${escapeHtml(sourceName)}">${escapeHtml(sourceName)}</button>`
+				`title="${escapeHtml(t('filterSource', { name: sourceName }))}" ` +
+				`aria-label="${escapeHtml(t('filterSource', { name: sourceName }))}">${escapeHtml(sourceName)}</button>`
 			: '';
 		const author = String(item.author || '').trim();
 		const showAuthor =
 			Boolean(author) &&
 			author !== 'Не указан' &&
-			author.toLocaleLowerCase('ru') !== sourceName.toLocaleLowerCase('ru');
+			author.toLocaleLowerCase(localeCode()) !== sourceName.toLocaleLowerCase(localeCode());
 		const authorHtml = showAuthor ? `<span>${escapeHtml(author)}</span>` : '';
 		const topics = itemTopics(item);
 		const topicsHtml = topics.length
@@ -809,14 +782,13 @@
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
-			`aria-label="${titlePlain} (откроется в новой вкладке)">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
+			`aria-label="${escapeHtml(t('opensNewTab', { title: item.title }))}">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
 			summaryBlock +
 			`<div class="card-meta">` +
 			sourceChip +
 			authorHtml +
 			topicsHtml +
-			langChip +
-			`<span class="read-badge">Прочитано</span>` +
+			`<span class="read-badge">${escapeHtml(t('read'))}</span>` +
 			`</div>` +
 			`</article>`
 		);
@@ -843,7 +815,7 @@
 		}
 
 		const parts = [];
-		cfg.SOURCE_TYPES.forEach((section) => {
+		sourceTypes().forEach((section) => {
 			const sectionItems = items.filter((item) => item.source_type === section.code);
 			if (!sectionItems.length) return;
 			const count = sectionItems.length;
@@ -859,18 +831,25 @@
 		els.feed.innerHTML = parts.join('') || renderEmpty();
 	}
 
-	async function listAvailableDates() {
+	async function listAvailableIndex() {
 		const indexRes = await fetch('data/index.json', { cache: 'no-store' });
-		if (!indexRes.ok) throw new Error('Не удалось загрузить data/index.json');
+		if (!indexRes.ok) throw new Error(t('status.indexFail'));
 		const data = await indexRes.json();
-		const dates = Array.isArray(data.dates) ? data.dates : [];
-		return Array.from(new Set(dates.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))));
+		const dates = uniqueDates(Array.isArray(data.dates) ? data.dates : []);
+		const byLanguage = {};
+		const raw = data.dates_by_language;
+		if (raw && typeof raw === 'object') {
+			Object.keys(raw).forEach((code) => {
+				byLanguage[code] = uniqueDates(raw[code]);
+			});
+		}
+		return { dates, byLanguage };
 	}
 
 	async function loadDay(date) {
-		setStatus('Загрузка…');
+		setStatus(t('loading'));
 		const res = await fetch(`data/days/${date}.json`, { cache: 'no-store' });
-		if (!res.ok) throw new Error(`Не удалось загрузить день ${date}`);
+		if (!res.ok) throw new Error(t('status.dayFail', { date: date }));
 		const day = await res.json();
 		state.currentDay = day;
 		state.date = date;
@@ -879,7 +858,7 @@
 		syncSearchInput();
 		closeSearchHistory();
 		setCalendarToDate(date);
-		setUrlDate(date);
+		setUrlState();
 		syncFiltersToDay();
 		renderDatePicker();
 		renderLangPicker();
@@ -1043,7 +1022,7 @@
 					`class="search-history-item${index === 0 ? ' is-active' : ''}">` +
 					`<span class="search-history-query">${escapeHtml(query)}</span>` +
 					`<button type="button" class="search-history-remove" tabindex="-1" data-remove="${escapeHtml(query)}" ` +
-					`aria-label="Удалить запрос «${escapeHtml(query)}»">×</button>` +
+					`aria-label="${escapeHtml(t('search.remove', { query }))}">×</button>` +
 					`</li>`
 				);
 			})
@@ -1292,10 +1271,25 @@
 			if (event.button === 1) markCardReadFromEvent(event);
 		});
 
-		state.dates = await listAvailableDates();
-		state.dateSet = new Set(state.dates);
+		state.allDates = await listAvailableIndex().then((index) => {
+			state.datesByLanguage = index.byLanguage;
+			return index.dates;
+		});
+		if (queryLang()) {
+			state.language = queryLang();
+			if (i18n) i18n.setLocale(state.language, { silent: true });
+		} else if (i18n) {
+			state.language = i18n.locale;
+		}
+		if (window.ONES_PREFS) {
+			window.ONES_PREFS.ensureHiddenLanguages(
+				state.language,
+				(cfg.LANGUAGES || []).map((lang) => lang.code),
+			);
+		}
+		applyLanguageDates();
 		if (!state.dates.length) {
-			setStatus('Нет опубликованных дней в data/days', true);
+			setStatus(t('status.noDates'), true);
 			syncFilterUi();
 			return;
 		}

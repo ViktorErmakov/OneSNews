@@ -3,9 +3,10 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>OneS News</title>
+		<title data-i18n="meta.feedTitle">OneS News</title>
 		<meta
 			name="description"
+			data-i18n-content="meta.feedDescription"
 			content="Ежедневный дайджест новостей вокруг мира 1С — в первую очередь для разработчиков."
 		/>
 		<meta name="color-scheme" content="light dark" />
@@ -20,6 +21,21 @@
 					var cs = document.querySelector('meta[name="color-scheme"]');
 					if (cs) cs.setAttribute('content', t);
 				} catch (e) {}
+				var lang = '';
+				try {
+					var q = new URLSearchParams(location.search).get('lang');
+					if (q === 'ru' || q === 'en') lang = q;
+				} catch (e) {}
+				if (lang !== 'ru' && lang !== 'en') {
+					try {
+						lang = localStorage.getItem('ones-language') || '';
+					} catch (e) {}
+				}
+				if (lang !== 'ru' && lang !== 'en') {
+					var nav = String(navigator.language || navigator.userLanguage || 'ru').toLowerCase();
+					lang = nav.indexOf('en') === 0 ? 'en' : 'ru';
+				}
+				document.documentElement.setAttribute('lang', lang);
 			})();
 		</script>
 		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -27,7 +43,7 @@
 		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
-		<a class="skip-link" href="#main">К содержанию</a>
+		<a class="skip-link" href="#main" data-i18n="skip">К содержанию</a>
 
 		<div class="chrome">
 			<header class="top">
@@ -69,7 +85,7 @@
 							<span class="brand-sub">enterprisehub.dev</span>
 						</span>
 					</a>
-					<nav class="top-nav" aria-label="Оформление">
+					<nav class="top-nav" aria-label="Оформление" data-i18n-aria="nav.appearance">
 						<div class="picker picker-compact" id="lang-picker">
 							<button
 								type="button"
@@ -88,7 +104,7 @@
 								hidden
 							></ul>
 						</div>
-						<a class="site-link" href="settings.html" aria-label="Настройки">
+						<a class="site-link" href="settings.html" aria-label="Настройки" data-i18n-aria="settings">
 							<svg
 								class="site-link-icon"
 								viewBox="0 0 24 24"
@@ -137,12 +153,14 @@
 								aria-expanded="false"
 								aria-controls="date-picker-panel"
 								aria-label="Дата"
+								data-i18n-aria="date"
 							></button>
 							<div
 								class="picker-panel calendar-panel"
 								id="date-picker-panel"
 								role="dialog"
 								aria-label="Календарь"
+								data-i18n-aria="calendar"
 								hidden
 							></div>
 						</div>
@@ -155,12 +173,14 @@
 								aria-expanded="false"
 								aria-controls="source-picker-list"
 								aria-label="Источник"
+								data-i18n-aria="source"
 							></button>
 							<ul
 								class="picker-list"
 								id="source-picker-list"
 								role="listbox"
 								aria-label="Источник"
+								data-i18n-aria="source"
 								hidden
 							></ul>
 						</div>
@@ -176,9 +196,11 @@
 								id="feed-search"
 								name="q"
 								placeholder="Поиск по заголовкам и описаниям"
+								data-i18n-placeholder="search.placeholder"
 								autocomplete="off"
 								enterkeyhint="search"
 								aria-label="Поиск по заголовкам и описаниям"
+								data-i18n-aria="search.placeholder"
 								aria-autocomplete="list"
 								aria-controls="search-history"
 								aria-expanded="false"
@@ -189,6 +211,7 @@
 								id="search-clear"
 								hidden
 								aria-label="Сбросить поиск"
+								data-i18n-aria="search.clear"
 							>
 								×
 							</button>
@@ -198,6 +221,7 @@
 							id="search-history"
 							role="listbox"
 							aria-label="Недавние запросы"
+							data-i18n-aria="search.history"
 							hidden
 						></ul>
 					</div>
@@ -212,21 +236,22 @@
 					<h1 id="day-title">Загрузка…</h1>
 					<p id="day-count" class="day-count" hidden></p>
 				</div>
-				<nav id="section-nav" class="section-nav" aria-label="Разделы дня" hidden></nav>
+				<nav id="section-nav" class="section-nav" aria-label="Разделы дня" data-i18n-aria="sections" hidden></nav>
 			</header>
 			<div id="feed" class="feed"></div>
 		</main>
 
 		<footer class="footer">
 			<div class="shell footer-inner">
-				<nav class="footer-nav" aria-label="О сайте">
-					<a href="settings.html">Настройки</a>
-					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0">Пожелания</a>
+				<nav class="footer-nav" aria-label="О сайте" data-i18n-aria="nav.about">
+					<a href="settings.html" data-i18n="settings">Настройки</a>
+					<a href="mailto:mopdeus@gmail.com?subject=%5BOneS%20News%5D%20%D0%9E%D0%B1%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0" data-i18n="feedback">Пожелания</a>
 				</nav>
 				<p>© OneS News</p>
 			</div>
 		</footer>
 
+		<script src="js/i18n.js"></script>
 		<script src="js/theme.js"></script>
 		<script src="js/consent.js"></script>
 		<script src="js/config.js"></script>

@@ -19,6 +19,6 @@ test.describe('Настройки', () => {
 		);
 		await page.locator('footer').getByRole('link', { name: 'Лента' }).click();
 		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
-		await expect(page.locator('article.card')).toHaveCount(5);
+		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 });

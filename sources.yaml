@@ -5,7 +5,6 @@
 # fetch: rss | telegram_web | youtube_rss | infostart | 1c_dn
 # url: адрес для сборщика (RSS / t.me/s / YouTube RSS, /channel/UC… или @handle; для 1c_dn — https://1c-dn.com/blog/)
 # home: публичная страница источника для about.html
-# summarize: false — писать RSS/анонс сразу в day JSON; true (по умолчанию) — саммари через Gemini
 
 site:
   - name: "Habr 1C"
@@ -14,22 +13,18 @@ site:
     fetch: rss
     language: ru
     enabled: true
-    summarize: false
   - name: "Infostart"
     url: "https://infostart.ru/public/rss/"
     home: "https://infostart.ru/"
     fetch: infostart
     language: ru
     enabled: true
-    summarize: false
   - name: "1C:DN"
     url: "https://1c-dn.com/blog/"
     home: "https://1c-dn.com/blog/"
     fetch: 1c_dn
     language: en
     enabled: true
-    summarize: false
-
 telegram:
   - name: "Никита Федькин"
     url: "https://t.me/nixel2007_thoughts"
@@ -37,105 +32,119 @@ telegram:
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Хатка Бобра"
     url: "https://t.me/evilbeaverHouse"
     home: "https://t.me/evilbeaverHouse"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Стандарты 1С v8std"
     url: "https://t.me/v8std"
     home: "https://t.me/v8std"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Игорь Апресов | Radio Ingvar"
     url: "https://t.me/radio_ingvar"
     home: "https://t.me/radio_ingvar"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Никита Арипов | 1С, DevExp"
     url: "https://t.me/AriN1C"
     home: "https://t.me/AriN1C"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Дмитрий Котов | 1С Заметки"
     url: "https://t.me/top_1c"
     home: "https://t.me/top_1c"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
   - name: "Vanessa Automation"
     url: "https://t.me/VanessaAutomation"
     home: "https://t.me/VanessaAutomation"
     fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
-
-
-video:
   - name: "Желтый клуб"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCO1Vs4ZvpxC7Cke2BIFFDuA"
-    home: "https://www.youtube.com/@yellow_club"
-    fetch: youtube_rss
+    url: "https://t.me/yellowclub_official"
+    home: "https://t.me/yellowclub_official"
+    fetch: telegram_web
     language: ru
     enabled: true
-    summarize: false
+  - name: "1С СППР"
+    url: "https://t.me/SPPR1c"
+    home: "https://t.me/SPPR1c"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+  - name: "1Cnik"
+    url: "https://t.me/by_1cnik"
+    home: "https://t.me/by_1cnik"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+  - name: "wiki 1С + AI"
+    url: "https://t.me/wiki1c"
+    home: "https://t.me/wiki1c"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+  - name: "Владимир Харин | Просто Pro 1С"
+    url: "https://t.me/prosto_pro1c"
+    home: "https://t.me/prosto_pro1c"
+    fetch: telegram_web
+    language: ru
+    enabled: true
+
+video:
   - name: "Okolo_1C"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCFMWCbTS_6UE_uAuCKzjawg"
     home: "https://www.youtube.com/@Okolo_1C"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "Сообщество 1С-разработчиков"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCnr1TQrQXqVyCR3EHR3PcLw"
     home: "https://www.youtube.com/@e1c_community"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "IRONSKILLS - Курсы по 1С"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC124tAuP11GlaGpK3YGHzlw"
     home: "https://www.youtube.com/@ironskills-1c"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "Stas Ganiev"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCiwGR9bwfIc0RM6ft_ZjH9Q"
     home: "https://www.youtube.com/@stasganiev9584"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "БИАТЕХ"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCjFouI0xl_tmKdVgdQq4cNg"
     home: "https://www.youtube.com/@biatechnologies"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "1С:Учебный центр №1"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCY5KNuYZAp2a67pOZGdpdDg"
     home: "https://www.youtube.com/@1c_center"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
   - name: "OdinES"
     url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbJ6vL3zLajcuSBJ1B8-NvQ"
     home: "https://www.youtube.com/@odines_io"
     fetch: youtube_rss
     language: ru
     enabled: true
-    summarize: false
+  - name: "Кунг-фу конфа"
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCX-ErrsWcDfmcwGMYs1v90Q"
+    home: "https://www.youtube.com/@kungfu_conf"
+    fetch: youtube_rss
+    language: ru
+    enabled: true

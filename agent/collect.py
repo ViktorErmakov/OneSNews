@@ -103,7 +103,6 @@ def source_meta(source: dict, raw_labels: list[str] | None = None) -> dict:
 		"source_type": source["source_type"],
 		"topics": unique_labels(raw_labels),
 		"language": source.get("language") or "ru",
-		"summarize": bool(source.get("summarize", True)),
 	}
 
 

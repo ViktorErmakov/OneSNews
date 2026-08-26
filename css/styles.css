@@ -1142,6 +1142,25 @@ a:hover {
 	font-size: 1.05rem;
 }
 
+.settings-lang {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	min-height: 2.2rem;
+	font-weight: 700;
+}
+
+.settings-lang input {
+	flex: 0 0 auto;
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: var(--accent);
+}
+
+.settings-lang label {
+	cursor: pointer;
+}
+
 .about-type-title {
 	margin: 0.55rem 0 0.3rem;
 	font-size: 0.92rem;
@@ -1165,6 +1184,10 @@ a:hover {
 
 .settings-type label {
 	cursor: pointer;
+}
+
+.settings-type:has(input:disabled) {
+	opacity: 0.55;
 }
 
 .about-sources-status {

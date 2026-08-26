@@ -10,6 +10,8 @@ test.describe('Поиск', () => {
 		await expect(page.locator('#feed-search ~ .search-clear, #search-clear')).toBeVisible();
 		await expect(card(page, '2026-03-15-001').locator('mark')).toContainText(/покупателю/i);
 
+		await page.getByRole('button', { name: /Язык:/ }).click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
 		await page.locator('#feed-search').fill('debugging');
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await expect(card(page, '2026-03-15-004')).toBeVisible();
@@ -31,7 +33,7 @@ test.describe('Поиск', () => {
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await page.locator('#search-clear').click();
 		await expect(page.locator('#feed-search')).toHaveValue('');
-		await expect(page.locator('article.card')).toHaveCount(5);
+		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 
 	test('запоминает запросы, позволяет выбрать и удалить их', async ({ page }) => {
@@ -70,6 +72,6 @@ test.describe('Поиск', () => {
 		await expect(input).toHaveValue('покупателю');
 		await input.press('Escape');
 		await expect(input).toHaveValue('');
-		await expect(page.locator('article.card')).toHaveCount(5);
+		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 });
