@@ -59,7 +59,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `playwright.config.js` | Chromium, локальный `serve`, HTML-отчёт |
 | `tests/` | E2E UI-тесты и фикстуры JSON |
 | `favicon.svg` | Иконка вкладки |
-| `apple-touch-icon.png` | Иконка на домашнем экране iOS |
+| `favicon_600.png` | Иконка на домашнем экране iOS |
 | `data/index.json` | Список дат и даты по языкам |
 | `data/sources.json` | Публичный каталог включённых источников |
 | `data/days/*.json` | Новости одного дня |
