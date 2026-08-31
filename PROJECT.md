@@ -75,7 +75,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
 | `.github/workflows/pages.yml` | Тесты Playwright, затем деплой статики (белый список файлов) |
-| `.github/workflows/collect.yml` | Ежедневный сбор (00:01 МСК) |
+| `.github/workflows/collect.yml` | Ежедневный сбор, тесты и деплой (00:01 МСК) |
 | `LICENSE` | Условия использования |
 | `PROJECT.md` | Этот документ (для человека и ИИ) |
 | `README.md` | Короткий старт |
@@ -238,7 +238,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 - обновлять `data/sources.json` из включённых записей `sources.yaml`;
 - править `sources.yaml` и `agent/config.yaml`.
 
-Workflow `.github/workflows/collect.yml` коммитит `data/days/`, `data/index.json` и `data/sources.json`.
+Workflow `.github/workflows/collect.yml` коммитит `data/days/`, `data/index.json` и `data/sources.json`, затем гоняет тесты и деплоит Pages.
 
 **Не трогать без явной просьбы человека:**
 
@@ -309,9 +309,10 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 ## 11. Деплой
 
-- Хостинг: GitHub Pages. Workflow `.github/workflows/pages.yml` сначала гоняет Playwright, затем копирует в `_site` только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/`, `tests/` и `sources.yaml` на сайт не попадают. Падение тестов блокирует деплой; HTML-отчёт — артефакт job `test`.
+- Хостинг: GitHub Pages. В `_site` попадают только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/`, `tests/` и `sources.yaml` на сайт не попадают. Падение тестов блокирует деплой; HTML-отчёт — артефакт job `test`.
 - Домен: `enterprisehub.dev` (`CNAME` + DNS у регистратора на IP GitHub Pages).
-- После push в `main` сайт обновляется Actions.
+- Обычный push в `main` и PR: `.github/workflows/pages.yml` (тесты, затем деплой).
+- Расписание и ручной сбор: `.github/workflows/collect.yml` — collect → test → deploy в одном прогоне (push бота сам по себе деплой не запускает).
 
 Локальный просмотр: любой статический сервер из корня, например `npx --yes serve .`  
 (нужен HTTP: `fetch` JSON не работает с `file://`).
