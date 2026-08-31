@@ -75,7 +75,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
 | `.github/workflows/pages.yml` | Тесты Playwright, затем деплой статики (белый список файлов) |
-| `.github/workflows/collect.yml` | Ежедневный сбор (06:00 МСК) |
+| `.github/workflows/collect.yml` | Ежедневный сбор (00:01 МСК) |
 | `LICENSE` | Условия использования |
 | `PROJECT.md` | Этот документ (для человека и ИИ) |
 | `README.md` | Короткий старт |
@@ -303,7 +303,7 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 - `agent/config.yaml`: `timezone`, `date_mode` (`yesterday` | `today` | `explicit`), `explicit_date`
 - CLI `--date YYYY-MM-DD` перекрывает файл
 
-Расписание: `.github/workflows/collect.yml` в 03:00 UTC (06:00 МСК). Запас на ПК: `agent/cron/run.ps1`.
+Расписание: `.github/workflows/collect.yml` в 21:01 UTC (00:01 МСК). Запас на ПК: `agent/cron/run.ps1`.
 
 ---
 

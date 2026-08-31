@@ -62,7 +62,7 @@ python agent/run.py --collect-only
 
 Сырые дампы сборщика пишутся в `agent/tmp/` и в git не попадают.
 
-Cron на GitHub: workflow `.github/workflows/collect.yml`.
+Cron на GitHub: workflow `.github/workflows/collect.yml` (00:01 МСК).
 
 ## Дисклеймер
 
