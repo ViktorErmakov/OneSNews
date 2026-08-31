@@ -93,13 +93,6 @@ def merge_sources_into_day(
 	return write_day(day, combined)
 
 
-def dates_from_day_files() -> list[str]:
-	DAYS.mkdir(parents=True, exist_ok=True)
-	dates = [path.stem for path in DAYS.glob("*.json") if DAY_FILE_RE.match(path.name)]
-	dates.sort(reverse=True)
-	return dates
-
-
 def dates_by_language_from_day_files() -> dict[str, list[str]]:
 	DAYS.mkdir(parents=True, exist_ok=True)
 	by_lang: dict[str, list[str]] = {}
@@ -145,13 +138,13 @@ def write_sources_catalog() -> Path:
 
 
 def write_index() -> None:
-	index = {"site": "OneS News", "dates": []}
+	index = {"site": "OneS News"}
 	if INDEX.exists():
 		loaded = json.loads(INDEX.read_text(encoding="utf-8"))
 		if isinstance(loaded, dict):
 			index = loaded
 	index["site"] = index.get("site") or "OneS News"
-	index["dates"] = dates_from_day_files()
+	index.pop("dates", None)
 	index["dates_by_language"] = dates_by_language_from_day_files()
 	INDEX.parent.mkdir(parents=True, exist_ok=True)
 	INDEX.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

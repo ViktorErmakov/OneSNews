@@ -4,7 +4,7 @@ const { openIndex, openSettings } = require('./helpers');
 test.describe('Ошибки', () => {
 	test('показывает статус, если в индексе нет дат', async ({ page }) => {
 		await openIndex(page, {
-			index: { site: 'OneS News', dates: [] },
+			index: { site: 'OneS News', dates_by_language: {} },
 			wait: 'status',
 		});
 		const status = page.locator('#status');

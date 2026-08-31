@@ -89,7 +89,6 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 ```json
 {
   "site": "OneS News",
-  "dates": ["2026-08-16", "2026-08-15"],
   "dates_by_language": {
     "ru": ["2026-08-16", "2026-08-15"],
     "en": ["2026-08-15"]
@@ -100,19 +99,18 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | Поле | Тип | Правило |
 |------|-----|---------|
 | `site` | string | Имя сайта |
-| `dates` | string[] | Даты `YYYY-MM-DD`, **новые сверху**. Должна существовать `data/days/{date}.json` |
-| `dates_by_language` | object | Код языка → даты, где есть хотя бы одна карточка этого языка (новые сверху) |
+| `dates_by_language` | object | Код языка → даты `YYYY-MM-DD`, где есть хотя бы одна карточка этого языка (новые сверху). Должна существовать `data/days/{date}.json` |
 
 **Язык в UI всегда выбран** (`ru` или `en`): `?lang=` → `ones-language` → `navigator.language` (`en*` → English, иначе русский).  
 **Дата по умолчанию = первая дата в `dates_by_language[язык]`.** Если `?date=` есть в этом списке — открыть её.  
-`dates` — объединение всех day-файлов, запасной путь. Календарь подсвечивает только дни выбранного языка.
+Календарь подсвечивает только дни выбранного языка.
 
 Лента читает только этот файл, не listing каталога `data/days/`.
 
 При добавлении дня робот:
 
 1. Создаёт `data/days/YYYY-MM-DD.json`.
-2. Пересобирает `dates` и `dates_by_language` по файлам в `data/days/` (новые сверху).
+2. Пересобирает `dates_by_language` по файлам в `data/days/` (новые сверху).
 
 ---
 
@@ -234,7 +232,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 **Можно / нужно:**
 
 - создавать/обновлять `data/days/YYYY-MM-DD.json`;
-- обновлять `data/index.json` (даты и `dates_by_language` по файлам в `data/days/`, новые сверху);
+- обновлять `data/index.json` (`dates_by_language` по файлам в `data/days/`, новые сверху);
 - обновлять `data/sources.json` из включённых записей `sources.yaml`;
 - править `sources.yaml` и `agent/config.yaml`.
 
@@ -268,7 +266,7 @@ python agent/run.py --date 2026-08-17
 Ручной путь:
 
 1. Записать `data/days/YYYY-MM-DD.json` по схеме.
-2. В `data/index.json` вставить дату первой в `dates` и в нужные списки `dates_by_language`.
+2. В `data/index.json` вставить дату первой в нужные списки `dates_by_language`.
 3. Проверить локально и запушить.
 
 ### Чеклист нового источника

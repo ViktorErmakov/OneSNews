@@ -7,7 +7,6 @@
 	const state = {
 		currentDay: null,
 		dates: [],
-		allDates: [],
 		datesByLanguage: {},
 		dateSet: new Set(),
 		date: null,
@@ -702,13 +701,7 @@
 
 	function applyLanguageDates() {
 		const byLang = state.datesByLanguage[state.language];
-		if (Array.isArray(byLang) && byLang.length) {
-			state.dates = uniqueDates(byLang);
-		} else if (Object.keys(state.datesByLanguage).length) {
-			state.dates = [];
-		} else {
-			state.dates = state.allDates.slice();
-		}
+		state.dates = Array.isArray(byLang) ? uniqueDates(byLang) : [];
 		state.dateSet = new Set(state.dates);
 	}
 
@@ -835,7 +828,6 @@
 		const indexRes = await fetch('data/index.json', { cache: 'no-store' });
 		if (!indexRes.ok) throw new Error(t('status.indexFail'));
 		const data = await indexRes.json();
-		const dates = uniqueDates(Array.isArray(data.dates) ? data.dates : []);
 		const byLanguage = {};
 		const raw = data.dates_by_language;
 		if (raw && typeof raw === 'object') {
@@ -843,7 +835,7 @@
 				byLanguage[code] = uniqueDates(raw[code]);
 			});
 		}
-		return { dates, byLanguage };
+		return { byLanguage };
 	}
 
 	async function loadDay(date) {
@@ -1271,10 +1263,7 @@
 			if (event.button === 1) markCardReadFromEvent(event);
 		});
 
-		state.allDates = await listAvailableIndex().then((index) => {
-			state.datesByLanguage = index.byLanguage;
-			return index.dates;
-		});
+		state.datesByLanguage = (await listAvailableIndex()).byLanguage;
 		if (queryLang()) {
 			state.language = queryLang();
 			if (i18n) i18n.setLocale(state.language, { silent: true });
