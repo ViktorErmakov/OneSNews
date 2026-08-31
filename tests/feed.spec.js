@@ -35,7 +35,7 @@ test.describe('Лента', () => {
 		await openIndex(page);
 		const short = card(page, '2026-03-15-003');
 		await expect(short.locator('.card-summary')).toHaveCount(0);
-		await expect(short.locator('.card-meta > span:not(.read-badge):not(.card-topics)')).toHaveCount(0);
+		await expect(short.locator('.card-meta > span:not(.card-topics)')).toHaveCount(0);
 		await expect(short.getByRole('button', { name: /Фильтр по источнику:/ })).toBeVisible();
 
 		const habr = card(page, '2026-03-15-002');

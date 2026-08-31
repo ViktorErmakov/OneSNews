@@ -31,4 +31,24 @@ test.describe('Прочитано', () => {
 		await card(page, '2026-03-15-001').locator('.card-title a').click({ button: 'middle' });
 		await expect(card(page, '2026-03-15-001')).toHaveClass(/is-read/);
 	});
+
+	test('снимает отметку по клику на бейдж и сохраняет это', async ({ page }) => {
+		await openIndex(page);
+		await clickTitle(page, '2026-03-15-001');
+		const invoice = card(page, '2026-03-15-001');
+		const badge = invoice.locator('.read-badge');
+		await expect(invoice).toHaveClass(/is-read/);
+		await expect(badge).toBeVisible();
+		await expect(badge).toHaveAttribute('aria-label', 'Снять отметку «прочитано»');
+
+		await badge.click();
+		await expect(invoice).not.toHaveClass(/is-read/);
+		await expect(badge).toBeHidden();
+
+		const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('ones-read') || '{}'));
+		expect(stored['2026-03-15-001']).toBeUndefined();
+
+		await page.reload();
+		await expect(card(page, '2026-03-15-001')).not.toHaveClass(/is-read/);
+	});
 });

@@ -365,6 +365,13 @@
 		return true;
 	}
 
+	function unmarkRead(id) {
+		if (!id || !isRead(id)) return false;
+		delete state.readMap[id];
+		saveReadMap();
+		return true;
+	}
+
 	function markCardReadFromEvent(event) {
 		const link = event.target.closest && event.target.closest('.card-title a');
 		if (!link || !els.feed.contains(link)) return;
@@ -373,6 +380,17 @@
 		if (!id) return;
 		markRead(id);
 		if (card) card.classList.add('is-read');
+	}
+
+	function unmarkCardFromEvent(event) {
+		const badge = event.target.closest && event.target.closest('.read-badge');
+		if (!badge || !els.feed.contains(badge)) return false;
+		const card = badge.closest('.card');
+		const id = card && card.getAttribute('data-id');
+		if (!id) return false;
+		unmarkRead(id);
+		if (card) card.classList.remove('is-read');
+		return true;
 	}
 
 	function labelOf(list, code) {
@@ -781,7 +799,11 @@
 			sourceChip +
 			authorHtml +
 			topicsHtml +
-			`<span class="read-badge">${escapeHtml(t('read'))}</span>` +
+			`<button type="button" class="read-badge" ` +
+			`aria-label="${escapeHtml(t('unmarkRead'))}">` +
+			`<span class="read-badge-state">${escapeHtml(t('read'))}</span>` +
+			`<span class="read-badge-undo" aria-hidden="true">${escapeHtml(t('readUndo'))}</span>` +
+			`</button>` +
 			`</div>` +
 			`</article>`
 		);
@@ -1253,6 +1275,7 @@
 		});
 
 		els.feed.addEventListener('click', (event) => {
+			if (unmarkCardFromEvent(event)) return;
 			markCardReadFromEvent(event);
 			const chip = event.target.closest('.chip[data-filter]');
 			if (!chip) return;
