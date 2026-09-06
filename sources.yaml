@@ -25,6 +25,12 @@ site:
     fetch: 1c_dn
     language: en
     enabled: true
+  - name: "1С:Зазеркалье"
+    url: "https://wonderland.v8.1c.ru/rss"
+    home: "https://wonderland.v8.1c.ru/"
+    fetch: rss
+    language: ru
+    enabled: true
 telegram:
   - name: "Никита Федькин"
     url: "https://t.me/nixel2007_thoughts"
