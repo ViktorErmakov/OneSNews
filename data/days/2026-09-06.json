@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-06",
+  "title": "Дайджест за 6 сентября 2026",
+  "items": [
+    {
+      "id": "2026-09-06-001",
+      "title": "Зачем выгружать конфигурацию 1С, чтобы спросить нейросеть про код",
+      "summary": "Недавно разговорился с коллегой о том, как он подключает ИИ‑агента к работе с 1С. Задача у него была самая обычная: чужая база, надо собрать отчет и попутно разобраться, откуда в нем берутся числа. Он подробно рассказал свой маршрут, я послушал, и на середине рассказа поймал себя на мысли, что описывает он не решение рабочей задачи, а отдельную логистическую операцию. Маршрут такой: конфигурация выгружается в файлы, выгрузка отдается агенту, агент строит по ней поисковый индекс, и только после этого можно задавать вопросы. На каждое изменение конфигурации выгрузку приходится повторять, иначе…",
+      "url": "https://habr.com/ru/articles/1079062/?utm_campaign=1079062&utm_source=habrahabr&utm_medium=rss",
+      "author": "dsgonnov",
+      "source_name": "Habr 1C",
+      "source_type": "site",
+      "topics": [
+        "1с",
+        "нейросети",
+        "ии-агенты",
+        "mcp"
+      ],
+      "language": "ru"
+    },
+    {
+      "id": "2026-09-06-002",
+      "title": "https://youtu.be/1QNsdr-Qx_I",
+      "summary": "",
+      "url": "https://t.me/radio_ingvar/1689",
+      "author": "Игорь Апресов | Radio Ingvar",
+      "source_name": "Игорь Апресов | Radio Ingvar",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-09-06-003",
+      "title": "🙂 Это, конечно, не Skyrim, но пришло время попробовать Astra 6 и Fable 5.1 на новых задачах.",
+      "summary": "🙂 Это, конечно, не Skyrim, но пришло время попробовать Astra 6 и Fable 5.1 на новых задачах. «Вайбкодер по выходным» зря времени не терял, так что скоро ждите кое-что новенькое :) Догадки принимаю в комментариях... Tg | Max | YouTube | Рутуб | Boosty https://kotov.top",
+      "url": "https://t.me/top_1c/2043",
+      "author": "Дмитрий Котов | 1С Заметки",
+      "source_name": "Дмитрий Котов | 1С Заметки",
+      "source_type": "telegram",
+      "topics": [],
+      "language": "ru"
+    },
+    {
+      "id": "2026-09-06-004",
+      "title": "✝️ Cursor: not available in your region",
+      "summary": "✝️ Cursor: not available in your region Коллегам староверам и ИИ-скептикам пост можно не читать. Вайбкодерам и начинающим практиковать с ИИ 1Сникам (как я) - обязательно к прочтению! У российских и белорусских пользователей Cursor начались массовые проблемы с доступом к AI-функциям редактора. Первым в чате об этом сообщил Сергей. Ему вернули деньги и аннулировали подписку: We detected recent activity associated with your Cursor account from a region where Cursor prevents access to our services. As a result, we canceled your Cursor Pro subscription effective September 4, 2026 and have issued a…",
+      "url": "https://t.me/by_1cnik/624",
+      "author": "1Cnik",
+      "source_name": "1Cnik",
+      "source_type": "telegram",
+      "topics": [
+        "Новости1С"
+      ],
+      "language": "ru"
+    }
+  ]
+}
