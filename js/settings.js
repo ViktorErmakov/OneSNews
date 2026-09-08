@@ -165,6 +165,10 @@
 		syncShowAll();
 	}
 
+	function emitPrefs() {
+		document.dispatchEvent(new CustomEvent('ones-prefs'));
+	}
+
 	function onToggle(event) {
 		const langInput = event.target.closest('input[type="checkbox"][data-lang]');
 		if (langInput) {
@@ -176,6 +180,7 @@
 			prefs.saveHiddenLanguages(hiddenLangs);
 			syncLangUi(lang, langInput.checked);
 			syncShowAll();
+			emitPrefs();
 			return;
 		}
 
@@ -190,6 +195,7 @@
 			prefs.saveHiddenTypes(hiddenTypes);
 			syncTypeUi(type, typeInput.checked);
 			syncShowAll();
+			emitPrefs();
 			return;
 		}
 
@@ -202,6 +208,7 @@
 		else hidden.add(name);
 		prefs.saveHidden(hidden);
 		syncShowAll();
+		emitPrefs();
 	}
 
 	function showAll() {
@@ -220,6 +227,7 @@
 			input.disabled = false;
 		});
 		syncShowAll();
+		emitPrefs();
 	}
 
 	let catalog = [];
@@ -337,13 +345,15 @@
 		});
 	}
 
+	const onFeed = Boolean(document.querySelector('#feed'));
+
 	root.addEventListener('change', onToggle);
 	if (showAllBtn) showAllBtn.addEventListener('click', showAll);
 	document.addEventListener('ones-locale', () => {
 		prefs.revealLanguage(currentLocale());
-		renderLangPicker();
+		if (!onFeed) renderLangPicker();
 		if (catalog.length) render(catalog);
 	});
-	bindLangPicker();
+	if (!onFeed) bindLangPicker();
 	load();
 })();

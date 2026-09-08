@@ -87,9 +87,11 @@ test.describe('Конфиденциальность', () => {
 
 	test('из шапки ленты открываются настройки', async ({ page }) => {
 		await openIndex(page);
-		await page.locator('.top-nav').getByRole('link', { name: 'Настройки' }).click();
-		await expect(page.locator('h1')).toHaveText('Настройки');
+		await page.locator('#settings-open').click();
+		await expect(page.locator('#settings-overlay')).toBeVisible();
+		await expect(page.locator('#settings-heading')).toHaveText('Настройки');
 		await expect(page.locator('#privacy')).toBeVisible();
+		await expect(page).not.toHaveURL(/settings(?:\.html)/);
 	});
 
 	test('privacy.html перенаправляет к разделу конфиденциальности', async ({ page }) => {

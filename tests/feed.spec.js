@@ -84,7 +84,7 @@ test.describe('Лента', () => {
 		const header = page.locator('.top-nav');
 		await expect(header.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
 
-		const footer = page.locator('footer');
+		const footer = page.locator('#feed-footer');
 		await expect(footer.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
 		await expect(footer.getByRole('link', { name: 'Пожелания' })).toHaveAttribute(
 			'href',

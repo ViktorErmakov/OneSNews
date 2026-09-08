@@ -16,6 +16,8 @@
 		query: '',
 		searchHistory: [],
 		readMap: {},
+		feedScrollY: 0,
+		keepFeedScroll: false,
 	};
 
 	const READ_KEY = 'ones-read';
@@ -44,6 +46,15 @@
 		searchInput: document.querySelector('#feed-search'),
 		searchClear: document.querySelector('#search-clear'),
 		searchHistory: document.querySelector('#search-history'),
+		settingsOverlay: document.querySelector('#settings-overlay'),
+		settingsOpen: document.querySelector('#settings-open'),
+		settingsClose: document.querySelector('#settings-close'),
+		settingsHeading: document.querySelector('#settings-heading'),
+		feedMain: document.querySelector('#main'),
+		feedFooter: document.querySelector('#feed-footer'),
+		anotherDay: document.querySelector('#another-day'),
+		anotherDayPrev: document.querySelector('#another-day-prev'),
+		anotherDayNext: document.querySelector('#another-day-next'),
 	};
 
 	const GLOBE_SVG =
@@ -444,6 +455,10 @@
 		return i18n ? i18n.formatDateLabel(iso) : iso || t('date');
 	}
 
+	function formatShortDate(iso) {
+		return i18n && i18n.formatShortDate ? i18n.formatShortDate(iso) : iso || t('date');
+	}
+
 	function formatDateNumeric(iso) {
 		return i18n ? i18n.formatDateNumeric(iso) : iso || t('date');
 	}
@@ -730,8 +745,7 @@
 		if (i18n) i18n.setLocale(next);
 		applyLanguageDates();
 		closePicker(els.langBtn, els.langList);
-		const keepDate = state.date && state.dates.includes(state.date);
-		const nextDate = keepDate ? state.date : state.dates[0] || null;
+		const nextDate = state.dates[0] || null;
 		if (!nextDate) {
 			state.currentDay = null;
 			state.date = null;
@@ -813,6 +827,7 @@
 		if (!state.currentDay) {
 			els.feed.innerHTML = '';
 			renderDayHero(0, [], {});
+			syncAnotherDay();
 			return;
 		}
 
@@ -826,6 +841,7 @@
 
 		if (!items.length) {
 			els.feed.innerHTML = renderEmpty();
+			syncAnotherDay();
 			return;
 		}
 
@@ -844,6 +860,46 @@
 		});
 
 		els.feed.innerHTML = parts.join('') || renderEmpty();
+		syncAnotherDay();
+	}
+
+	function neighborArchiveDate(offset) {
+		const index = state.dates.indexOf(state.date);
+		if (index < 0) return null;
+		const next = index + offset;
+		if (next < 0 || next >= state.dates.length) return null;
+		return state.dates[next];
+	}
+
+	function dateHref(iso) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('date', iso);
+		if (state.language) url.searchParams.set('lang', state.language);
+		return `${url.pathname}?${url.searchParams.toString()}`;
+	}
+
+	function fillDayLink(el, iso) {
+		if (!el) return;
+		if (!iso) {
+			el.hidden = true;
+			el.textContent = '';
+			el.removeAttribute('href');
+			el.removeAttribute('data-date');
+			return;
+		}
+		el.hidden = false;
+		el.textContent = formatShortDate(iso);
+		el.setAttribute('href', dateHref(iso));
+		el.setAttribute('data-date', iso);
+	}
+
+	function syncAnotherDay() {
+		if (!els.anotherDay) return;
+		const older = neighborArchiveDate(1);
+		const newer = neighborArchiveDate(-1);
+		fillDayLink(els.anotherDayPrev, older);
+		fillDayLink(els.anotherDayNext, newer);
+		els.anotherDay.hidden = !older && !newer;
 	}
 
 	async function listAvailableIndex() {
@@ -879,6 +935,7 @@
 		renderSourcePicker();
 		setStatus('');
 		renderFeed();
+		window.scrollTo(0, 0);
 	}
 
 	async function changeDate(date) {
@@ -1218,9 +1275,7 @@
 				closePicker(els.dateBtn, els.datePanel);
 				return;
 			}
-			setCalendarToDate(state.date || state.dates[0]);
-			renderDatePicker();
-			openPicker(els.dateBtn, els.datePanel);
+			openDateCalendar();
 		});
 
 		els.datePanel.addEventListener('click', (event) => {
@@ -1238,9 +1293,7 @@
 		els.dateBtn.addEventListener('keydown', (event) => {
 			if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
-				setCalendarToDate(state.date || state.dates[0]);
-				renderDatePicker();
-				openPicker(els.dateBtn, els.datePanel);
+				openDateCalendar();
 			}
 		});
 
@@ -1253,6 +1306,133 @@
 		});
 	}
 
+	function openDateCalendar() {
+		if (!els.dateBtn || !els.datePanel) return;
+		setCalendarToDate(state.date || state.dates[0]);
+		renderDatePicker();
+		openPicker(els.dateBtn, els.datePanel);
+	}
+
+	function settingsHashFromHref(href) {
+		const value = String(href || '');
+		const index = value.indexOf('#');
+		if (index === -1) return '';
+		return value.slice(index + 1);
+	}
+
+	function isSettingsOpen() {
+		return Boolean(els.settingsOverlay && !els.settingsOverlay.hidden);
+	}
+
+	function setFeedInert(inert) {
+		if (els.feedMain) els.feedMain.inert = inert;
+		if (els.feedFooter) els.feedFooter.inert = inert;
+	}
+
+	function syncSettingsTrigger() {
+		if (!els.settingsOpen) return;
+		const open = isSettingsOpen();
+		els.settingsOpen.setAttribute('aria-expanded', open ? 'true' : 'false');
+		els.settingsOpen.setAttribute('aria-label', open ? t('closeSettings') : t('settings'));
+	}
+
+	function rememberFeedScroll() {
+		if (isSettingsOpen()) return;
+		state.feedScrollY = window.scrollY;
+		state.keepFeedScroll = true;
+	}
+
+	function closeSettingsOverlay() {
+		if (!els.settingsOverlay || els.settingsOverlay.hidden) return;
+		els.settingsOverlay.hidden = true;
+		document.body.classList.remove('settings-open');
+		setFeedInert(false);
+		syncSettingsTrigger();
+		window.scrollTo(0, state.feedScrollY || 0);
+		state.keepFeedScroll = false;
+		if (els.settingsOpen) els.settingsOpen.focus({ preventScroll: true });
+	}
+
+	function openSettingsOverlay(hash) {
+		if (!els.settingsOverlay) return;
+		closeAllPickers();
+		if (!state.keepFeedScroll) state.feedScrollY = window.scrollY;
+		state.keepFeedScroll = false;
+		els.settingsOverlay.hidden = false;
+		document.body.classList.add('settings-open');
+		setFeedInert(true);
+		syncSettingsTrigger();
+		const targetId = String(hash || '').replace(/^#/, '');
+		const target = targetId ? document.getElementById(targetId) : null;
+		if (target) {
+			target.scrollIntoView();
+		} else {
+			els.settingsOverlay.scrollTop = 0;
+		}
+		const focusEl = target || els.settingsHeading;
+		if (focusEl && focusEl.focus) focusEl.focus({ preventScroll: true });
+	}
+
+	function toggleSettingsOverlay() {
+		if (isSettingsOpen()) closeSettingsOverlay();
+		else openSettingsOverlay('');
+	}
+
+	function refreshFeedFromPrefs() {
+		syncSourceToAvailable();
+		renderSourcePicker();
+		renderFeed();
+	}
+
+	function bindSettingsOverlay() {
+		if (!els.settingsOverlay) return;
+
+		els.settingsOverlay.querySelectorAll('[data-close-settings]').forEach((btn) => {
+			btn.addEventListener('click', (event) => {
+				event.preventDefault();
+				closeSettingsOverlay();
+			});
+		});
+
+		document.addEventListener(
+			'pointerdown',
+			(event) => {
+				const link = event.target.closest && event.target.closest('a[href*="settings.html"]');
+				if (!link || link.target === '_blank') return;
+				if (els.settingsOverlay.contains(link)) return;
+				rememberFeedScroll();
+			},
+			true,
+		);
+
+		document.addEventListener('click', (event) => {
+			const link = event.target.closest && event.target.closest('a[href*="settings.html"]');
+			if (!link || link.target === '_blank') return;
+			if (els.settingsOverlay.contains(link)) return;
+			event.preventDefault();
+			if (link === els.settingsOpen || (els.settingsOpen && els.settingsOpen.contains(link))) {
+				toggleSettingsOverlay();
+				return;
+			}
+			if (isSettingsOpen() && !settingsHashFromHref(link.getAttribute('href'))) {
+				closeSettingsOverlay();
+				return;
+			}
+			openSettingsOverlay(settingsHashFromHref(link.getAttribute('href')));
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape' || !isSettingsOpen()) return;
+			event.preventDefault();
+			closeSettingsOverlay();
+		});
+
+		document.addEventListener('ones-prefs', refreshFeedFromPrefs);
+		document.addEventListener('ones-locale', () => {
+			if (isSettingsOpen()) syncSettingsTrigger();
+		});
+	}
+
 	async function init() {
 		loadReadMap();
 		loadSearchHistory();
@@ -1261,6 +1441,18 @@
 		bindSearch();
 		bindListPicker(els.langBtn, els.langList, setLanguage);
 		bindListPicker(els.sourceBtn, els.sourceList, setSource);
+		bindSettingsOverlay();
+		if (els.anotherDay) {
+			els.anotherDay.addEventListener('click', (event) => {
+				const control = event.target.closest('#another-day-prev, #another-day-next');
+				if (!control || control.hidden) return;
+				const iso = control.getAttribute('data-date');
+				if (!iso) return;
+				event.preventDefault();
+				event.stopPropagation();
+				changeDate(iso);
+			});
+		}
 
 		document.addEventListener('click', (event) => {
 			const target = event.target;
@@ -1298,6 +1490,7 @@
 				state.language,
 				(cfg.LANGUAGES || []).map((lang) => lang.code),
 			);
+			if (queryLang()) window.ONES_PREFS.revealLanguage(state.language);
 		}
 		applyLanguageDates();
 		if (!state.dates.length) {

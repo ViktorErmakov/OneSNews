@@ -125,6 +125,15 @@ async function openIndex(page, options) {
 	await installAppMocks(page, opts);
 	await installConsent(page, opts.consent);
 	await installLocale(page, opts.locale);
+	if (opts.hiddenLanguages) {
+		await page.addInitScript((codes) => {
+			try {
+				localStorage.setItem('ones-hidden-languages', JSON.stringify(codes));
+			} catch (err) {
+				/* ignore */
+			}
+		}, opts.hiddenLanguages);
+	}
 	await page.goto(opts.path || '/');
 	if (opts.wait === 'status') {
 		await expect(page.locator('#status')).toBeVisible({ timeout: 10000 });

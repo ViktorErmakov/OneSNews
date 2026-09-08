@@ -15,7 +15,7 @@ test.describe('Календарь', () => {
 
 		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
 		await expect(page.locator('.calendar-title')).toHaveText('Февраль 2026');
-		await page.getByRole('button', { name: '10 февраля 2026' }).click();
+		await page.locator('.calendar-day[data-date="2026-02-10"]').click();
 		await waitForDay(page);
 
 		await expect(page).toHaveURL(/date=2026-02-10/);
@@ -23,6 +23,22 @@ test.describe('Календарь', () => {
 		await expect(page.locator('#feed-search')).toHaveValue('');
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await expect(page.locator('#date-picker-panel')).toBeHidden();
+	});
+
+	test('после выбора другой даты прокрутка вверху', async ({ page }) => {
+		await openIndex(page);
+		await page.evaluate(() => {
+			document.body.style.minHeight = '4000px';
+			window.scrollTo(0, 640);
+		});
+		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+
+		await page.getByRole('button', { name: /^Дата:/ }).click();
+		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
+		await page.locator('.calendar-day[data-date="2026-02-10"]').click();
+		await waitForDay(page);
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		expect(await page.evaluate(() => window.scrollY)).toBe(0);
 	});
 
 	test('переключение месяцев не выходит за опубликованные даты языка', async ({ page }) => {
@@ -34,7 +50,7 @@ test.describe('Календарь', () => {
 		await expect(page.getByRole('button', { name: 'Предыдущий месяц' })).toBeDisabled();
 		await expect(page.getByRole('button', { name: 'Следующий месяц' })).toBeEnabled();
 
-		await expect(page.getByRole('button', { name: '10 февраля 2026' })).toBeVisible();
+		await expect(page.locator('.calendar-day[data-date="2026-02-10"]')).toBeVisible();
 		await expect(page.locator('.calendar-day.has-news')).toHaveCount(1);
 	});
 

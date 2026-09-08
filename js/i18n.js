@@ -19,6 +19,7 @@
 			skip: 'К содержанию',
 			nav: { appearance: 'Оформление', about: 'О сайте' },
 			settings: 'Настройки',
+			closeSettings: 'Закрыть настройки',
 			language: 'Язык',
 			date: 'Дата',
 			calendar: 'Календарь',
@@ -134,6 +135,7 @@
 			skip: 'Skip to content',
 			nav: { appearance: 'Appearance', about: 'About' },
 			settings: 'Settings',
+			closeSettings: 'Close settings',
 			language: 'Language',
 			date: 'Date',
 			calendar: 'Calendar',
@@ -405,6 +407,16 @@
 		return `${parsed.day} ${months[parsed.month]} ${parsed.year}`;
 	}
 
+	function formatShortDate(iso) {
+		const parsed = parseIsoDate(iso);
+		if (!parsed) return iso || '';
+		const months = MONTHS_GEN[locale] || MONTHS_GEN.ru;
+		if (locale === 'en') {
+			return `${months[parsed.month]} ${parsed.day}`;
+		}
+		return `${parsed.day} ${months[parsed.month]}`;
+	}
+
 	function formatDayTitle(iso) {
 		return t('dayTitle', { date: formatLongDate(iso) });
 	}
@@ -517,6 +529,7 @@
 		flagSvg: flagSvg,
 		formatDayTitle: formatDayTitle,
 		formatDateLabel: formatDateLabel,
+		formatShortDate: formatShortDate,
 		formatDateNumeric: formatDateNumeric,
 		monthTitle: monthTitle,
 		weekdays: weekdays,

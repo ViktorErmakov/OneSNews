@@ -250,6 +250,24 @@ a:hover {
 	stroke-linejoin: round;
 }
 
+.site-link .site-link-x {
+	display: none;
+}
+
+body.settings-open #settings-open {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+body.settings-open #settings-open .site-link-gear {
+	display: none;
+}
+
+body.settings-open #settings-open .site-link-x {
+	display: block;
+}
+
 .theme-toggle {
 	display: inline-flex;
 	align-items: center;
@@ -1144,6 +1162,7 @@ a:hover {
 }
 
 .footer-inner a,
+.footer-nav .settings-close,
 .about a {
 	color: var(--ink);
 	font-weight: 600;
@@ -1151,8 +1170,19 @@ a:hover {
 }
 
 .footer-inner a:hover,
+.footer-nav .settings-close:hover,
 .about a:hover {
 	color: var(--accent);
+}
+
+.footer-nav .settings-close {
+	appearance: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
 }
 
 .about {
@@ -1444,4 +1474,69 @@ a:hover {
 	.card {
 		padding: 1.15rem 1.2rem;
 	}
+}
+
+.another-day {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: -0.5rem 0 1.75rem;
+}
+
+.another-day[hidden] {
+	display: none;
+}
+
+.another-day-date {
+	margin: 0;
+	padding: 0;
+	font: inherit;
+	font-size: 0.92rem;
+	color: var(--accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.another-day-next {
+	margin-left: auto;
+}
+
+.another-day-date:hover {
+	color: var(--accent-hover);
+}
+
+.another-day-date:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+
+.settings-overlay {
+	position: fixed;
+	top: var(--chrome-h);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 25;
+	overflow: auto;
+	overscroll-behavior: contain;
+	background:
+		radial-gradient(circle at top left, var(--glow), transparent 42%),
+		linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 55%, var(--bg-bottom) 100%);
+}
+
+.settings-overlay[hidden] {
+	display: none;
+}
+
+body.settings-open {
+	overflow: hidden;
+}
+
+body.settings-open .filters-bar {
+	display: none;
+}
+
+body.settings-open .chrome {
+	z-index: 30;
 }
