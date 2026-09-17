@@ -16,7 +16,9 @@ test.describe('Настройки', () => {
 
 		await expect(langs.nth(0).locator('.about-type-title')).toHaveText(['Сайты', 'Telegram']);
 		await expect(langs.nth(1).locator('.about-type-title')).toHaveText(['Сайты', 'Видеохостинги']);
+		await expect(langs.nth(1).locator('.settings-host')).toHaveText('YouTube');
 		await expect(langs.nth(1).locator('input[data-type]').first()).toBeDisabled();
+		await expect(langs.nth(1).locator('input[data-group]')).toBeDisabled();
 		await expect(langs.nth(1).locator('input[data-source]').first()).toBeDisabled();
 
 		const habr = page.getByRole('link', { name: 'Habr 1C' });
@@ -30,6 +32,7 @@ test.describe('Настройки', () => {
 		);
 
 		await expect(page.locator('.about-sources')).toContainText('Галочка у языка');
+		await expect(page.locator('.about-sources')).toContainText('группы видеохостинга');
 		await expect(page.locator('.about-sources')).toContainText('Фильтр на главной');
 		await expect(page.getByRole('checkbox', { name: 'Сайты' }).first()).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Telegram' })).toBeChecked();
@@ -60,6 +63,28 @@ test.describe('Настройки', () => {
 		);
 	});
 
+	test('снятие галочки группы видеохостинга скрывает её каналы на ленте', async ({ page }) => {
+		await openSettings(page);
+		await page.locator('input[data-lang="en"]').check();
+		await page.getByRole('checkbox', { name: 'YouTube', exact: true }).uncheck();
+		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-hidden-source-groups') || '[]'))).toEqual([
+			'YouTube',
+		]);
+		await expect(page.getByRole('checkbox', { name: 'Example YouTube' })).toBeDisabled();
+		await expect(page.getByRole('button', { name: 'Показать все' })).toBeEnabled();
+
+		await page.goto('/');
+		await waitForDay(page);
+		await page.locator('#lang-picker-btn').click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
+		await waitForDay(page);
+		await page.waitForFunction(() => window.ONES_CATALOG && window.ONES_CATALOG.groups['Example YouTube']);
+		await expect(page.locator('article.card')).toHaveCount(1);
+		await expect(card(page, '2026-03-15-004')).toHaveCount(0);
+		await expect(card(page, '2026-03-15-005')).toBeVisible();
+		await expect(page.locator('#section-video')).toHaveCount(0);
+	});
+
 	test('снятие галочки категории скрывает все её источники на ленте', async ({ page }) => {
 		await openSettings(page);
 		await page.getByRole('checkbox', { name: 'Telegram' }).uncheck();
@@ -80,12 +105,17 @@ test.describe('Настройки', () => {
 		await openSettings(page);
 		await page.getByRole('checkbox', { name: 'Infostart' }).uncheck();
 		await page.getByRole('checkbox', { name: 'Telegram' }).uncheck();
+		await page.locator('input[data-lang="en"]').check();
+		await page.getByRole('checkbox', { name: 'YouTube', exact: true }).uncheck();
 		await page.getByRole('button', { name: 'Показать все' }).click();
 		await expect(page.getByRole('checkbox', { name: 'Infostart' })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Telegram' })).toBeChecked();
+		await expect(page.getByRole('checkbox', { name: 'YouTube', exact: true })).toBeChecked();
 		await expect(page.getByRole('checkbox', { name: 'Игорь Апресов | Radio Ingvar' })).toBeEnabled();
+		await expect(page.getByRole('checkbox', { name: 'Example YouTube' })).toBeEnabled();
 		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-sources'))).toBeNull();
 		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-types'))).toBeNull();
+		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-source-groups'))).toBeNull();
 		expect(await page.evaluate(() => localStorage.getItem('ones-hidden-languages'))).toBe('[]');
 		await expect(page.locator('input[data-lang="en"]')).toBeChecked();
 		await expect(page.getByRole('button', { name: 'Показать все' })).toBeDisabled();
@@ -148,6 +178,7 @@ test.describe('Настройки', () => {
 		await page.locator('input[data-lang="en"]').check();
 		const english = page.locator('.about-lang').nth(1);
 		await expect(english.locator('input[data-type]').first()).toBeEnabled();
+		await expect(english.locator('input[data-group]')).toBeEnabled();
 		await expect(page.getByRole('checkbox', { name: 'Example YouTube' })).toBeEnabled();
 		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-hidden-languages') || '[]'))).toEqual([]);
 

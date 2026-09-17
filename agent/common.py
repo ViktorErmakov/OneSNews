@@ -46,13 +46,27 @@ def load_config() -> dict:
 	return data
 
 
+def iter_section_sources(block, source_type: str):
+	if source_type == "video" and isinstance(block, dict):
+		for group_name, srcs in block.items():
+			if not isinstance(srcs, list):
+				continue
+			group = str(group_name or "").strip()
+			for src in srcs:
+				yield src, group
+		return
+	if isinstance(block, list):
+		for src in block:
+			yield src, ""
+
+
 def load_sources(*, include_disabled: bool = False) -> list[dict]:
 	raw = yaml.safe_load(SOURCES.read_text(encoding="utf-8")) or {}
 	if not isinstance(raw, dict):
 		raise ValueError("sources.yaml must be a mapping of sections")
 	items: list[dict] = []
 	for section, source_type in SECTION_TO_TYPE.items():
-		for src in raw.get(section) or []:
+		for src, group in iter_section_sources(raw.get(section), source_type):
 			if not isinstance(src, dict):
 				continue
 			if not include_disabled and not src.get("enabled", True):
@@ -60,6 +74,8 @@ def load_sources(*, include_disabled: bool = False) -> list[dict]:
 			entry = dict(src)
 			entry["source_type"] = source_type
 			entry["fetch"] = (entry.get("fetch") or "rss").strip()
+			if group:
+				entry["group"] = group
 			items.append(entry)
 	return items
 

@@ -131,16 +131,31 @@
 		return window.ONES_PREFS.ensureHiddenLanguages(state.language || (i18n && i18n.locale) || 'ru', codes);
 	}
 
+	function hiddenSourceGroups() {
+		return window.ONES_PREFS ? window.ONES_PREFS.loadHiddenGroups() : new Set();
+	}
+
+	function sourceGroup(name) {
+		const catalog = window.ONES_CATALOG;
+		if (!catalog || !catalog.groups) return '';
+		return catalog.groups[name] || '';
+	}
+
 	function dayItems() {
 		const hidden = hiddenSourceNames();
 		const hiddenTypes = hiddenTypeCodes();
 		const hiddenLangs = hiddenLanguageCodes();
+		const hiddenGroups = hiddenSourceGroups();
 		return allDayItems().filter((item) => {
 			const name = String(item.source_name || '').trim();
 			const type = String(item.source_type || 'other').trim();
 			const language = String(item.language || '').trim();
 			if (hiddenLangs.has(language)) return false;
 			if (hiddenTypes.has(type)) return false;
+			if (type === 'video') {
+				const group = sourceGroup(name);
+				if (group && hiddenGroups.has(group)) return false;
+			}
 			return !hidden.has(name);
 		});
 	}
@@ -165,14 +180,21 @@
 
 	function availableSources() {
 		const counts = new Map();
+		const types = new Map();
 		for (const item of itemsForSources()) {
 			const name = String(item.source_name || '').trim();
 			if (!name) continue;
 			counts.set(name, (counts.get(name) || 0) + 1);
+			if (!types.has(name)) types.set(name, String(item.source_type || 'other').trim() || 'other');
 		}
 		return [...counts.entries()]
 			.sort((a, b) => a[0].localeCompare(b[0], localeCode(), { sensitivity: 'base' }))
-			.map(([name, count]) => ({ code: name, label: name, count }));
+			.map(([name, count]) => ({
+				code: name,
+				label: name,
+				count,
+				source_type: types.get(name) || 'other',
+			}));
 	}
 
 	function itemTopics(item) {
@@ -605,7 +627,8 @@
 		panel.hidden = false;
 		btn.setAttribute('aria-expanded', 'true');
 		const selected =
-			panel.querySelector('[aria-selected="true"], .calendar-day.is-selected') ||
+			panel.querySelector('[role="option"][aria-selected="true"], .calendar-day.is-selected') ||
+			panel.querySelector('[role="option"]') ||
 			panel.querySelector('.calendar-day.has-news') ||
 			panel.firstElementChild;
 		if (selected) selected.focus();
@@ -693,8 +716,8 @@
 
 	function renderSourcePicker() {
 		if (!els.sourcePicker) return;
-		const options = sourcePickerOptions();
-		if (!options.length) {
+		const available = availableSources();
+		if (!available.length) {
 			els.sourcePicker.hidden = true;
 			if (els.sourceList) els.sourceList.innerHTML = '';
 			return;
@@ -703,11 +726,31 @@
 		els.sourcePicker.hidden = false;
 		const current = currentSourceOption();
 		renderPickerButton(els.sourceBtn, t('source'), TAG_SVG, current.label, current.label);
-		els.sourceList.innerHTML = options
-			.map((opt) =>
-				optionMarkup(opt.code, '', opt.label, opt.code === state.source, opt.count)
-			)
-			.join('');
+		const parts = [];
+		if (available.length > 1) {
+			const total = available.reduce((sum, opt) => sum + opt.count, 0);
+			parts.push(optionMarkup('', '', t('sourceAll'), state.source === '', total));
+		}
+		const known = sourceTypes();
+		const knownCodes = new Set(known.map((type) => type.code));
+		const extraCodes = [
+			...new Set(available.map((opt) => opt.source_type).filter((code) => !knownCodes.has(code))),
+		].sort();
+		const extra = extraCodes.map((code) => ({
+			code,
+			label: i18n ? i18n.sourceTypeLabel(code) : code,
+		}));
+		for (const type of known.concat(extra)) {
+			const ofType = available.filter((opt) => opt.source_type === type.code);
+			if (!ofType.length) continue;
+			parts.push(
+				`<li role="presentation" class="picker-group-label">${escapeHtml(type.label)}</li>`,
+			);
+			for (const opt of ofType) {
+				parts.push(optionMarkup(opt.code, '', opt.label, opt.code === state.source, opt.count));
+			}
+		}
+		els.sourceList.innerHTML = parts.join('');
 	}
 
 	function syncFilterUi() {
@@ -925,6 +968,7 @@
 		state.date = date;
 		rememberSearch(state.query);
 		state.query = '';
+		state.source = '';
 		syncSearchInput();
 		closeSearchHistory();
 		setCalendarToDate(date);
@@ -1428,6 +1472,7 @@
 		});
 
 		document.addEventListener('ones-prefs', refreshFeedFromPrefs);
+		document.addEventListener('ones-catalog', refreshFeedFromPrefs);
 		document.addEventListener('ones-locale', () => {
 			if (isSettingsOpen()) syncSettingsTrigger();
 		});

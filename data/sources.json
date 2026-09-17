@@ -100,49 +100,64 @@
       "name": "Okolo_1C",
       "home": "https://www.youtube.com/@Okolo_1C",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "Сообщество 1С-разработчиков",
       "home": "https://www.youtube.com/@e1c_community",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "IRONSKILLS - Курсы по 1С",
       "home": "https://www.youtube.com/@ironskills-1c",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "Stas Ganiev",
       "home": "https://www.youtube.com/@stasganiev9584",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "БИАТЕХ",
       "home": "https://www.youtube.com/@biatechnologies",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "1С:Учебный центр №1",
       "home": "https://www.youtube.com/@1c_center",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "OdinES",
       "home": "https://www.youtube.com/@odines_io",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
     },
     {
       "name": "Кунг-фу конфа",
       "home": "https://www.youtube.com/@kungfu_conf",
       "source_type": "video",
-      "language": "ru"
+      "language": "ru",
+      "group": "YouTube"
+    },
+    {
+      "name": "Infostart (youtube)",
+      "home": "https://www.youtube.com/@InfostartRu",
+      "source_type": "video",
+      "language": "ru",
+      "group": "YouTube"
     }
   ]
 }

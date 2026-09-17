@@ -28,6 +28,7 @@
 			"name": "Example YouTube",
 			"home": "https://www.youtube.com/channel/CHANNEL_ID",
 			"source_type": "video",
+			"group": "YouTube",
 			"language": "en"
 		}
 	]

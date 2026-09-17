@@ -1,5 +1,6 @@
 # Источники для сборщика (браузер этот файл не читает).
 # Секции совпадают с блоками на сайте: site / telegram / video.
+# video — словарь групп (YouTube, позже Rutube и т.д.); ключ группы — подпись в настройках.
 #
 # language: ru | en
 # fetch: rss | telegram_web | youtube_rss | infostart | 1c_dn
@@ -106,51 +107,58 @@ telegram:
     enabled: true
 
 video:
-  - name: "Okolo_1C"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCFMWCbTS_6UE_uAuCKzjawg"
-    home: "https://www.youtube.com/@Okolo_1C"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "Сообщество 1С-разработчиков"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCnr1TQrQXqVyCR3EHR3PcLw"
-    home: "https://www.youtube.com/@e1c_community"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "IRONSKILLS - Курсы по 1С"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC124tAuP11GlaGpK3YGHzlw"
-    home: "https://www.youtube.com/@ironskills-1c"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "Stas Ganiev"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCiwGR9bwfIc0RM6ft_ZjH9Q"
-    home: "https://www.youtube.com/@stasganiev9584"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "БИАТЕХ"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCjFouI0xl_tmKdVgdQq4cNg"
-    home: "https://www.youtube.com/@biatechnologies"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "1С:Учебный центр №1"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCY5KNuYZAp2a67pOZGdpdDg"
-    home: "https://www.youtube.com/@1c_center"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "OdinES"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbJ6vL3zLajcuSBJ1B8-NvQ"
-    home: "https://www.youtube.com/@odines_io"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
-  - name: "Кунг-фу конфа"
-    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCX-ErrsWcDfmcwGMYs1v90Q"
-    home: "https://www.youtube.com/@kungfu_conf"
-    fetch: youtube_rss
-    language: ru
-    enabled: true
+  YouTube:
+    - name: "Okolo_1C"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCFMWCbTS_6UE_uAuCKzjawg"
+      home: "https://www.youtube.com/@Okolo_1C"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "Сообщество 1С-разработчиков"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCnr1TQrQXqVyCR3EHR3PcLw"
+      home: "https://www.youtube.com/@e1c_community"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "IRONSKILLS - Курсы по 1С"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC124tAuP11GlaGpK3YGHzlw"
+      home: "https://www.youtube.com/@ironskills-1c"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "Stas Ganiev"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCiwGR9bwfIc0RM6ft_ZjH9Q"
+      home: "https://www.youtube.com/@stasganiev9584"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "БИАТЕХ"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCjFouI0xl_tmKdVgdQq4cNg"
+      home: "https://www.youtube.com/@biatechnologies"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "1С:Учебный центр №1"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCY5KNuYZAp2a67pOZGdpdDg"
+      home: "https://www.youtube.com/@1c_center"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "OdinES"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbJ6vL3zLajcuSBJ1B8-NvQ"
+      home: "https://www.youtube.com/@odines_io"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "Кунг-фу конфа"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCX-ErrsWcDfmcwGMYs1v90Q"
+      home: "https://www.youtube.com/@kungfu_conf"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
+    - name: "Infostart (youtube)"
+      url: "https://www.youtube.com/@InfostartRu"
+      home: "https://www.youtube.com/@InfostartRu"
+      fetch: youtube_rss
+      language: ru
+      enabled: true

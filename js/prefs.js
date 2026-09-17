@@ -4,6 +4,7 @@
 
 	const SOURCES_KEY = 'ones-hidden-sources';
 	const TYPES_KEY = 'ones-hidden-types';
+	const GROUPS_KEY = 'ones-hidden-source-groups';
 	const LANGS_KEY = 'ones-hidden-languages';
 
 	function loadStringSet(key) {
@@ -55,6 +56,20 @@
 		return loadHiddenTypes().has(key);
 	}
 
+	function loadHiddenGroups() {
+		return loadStringSet(GROUPS_KEY);
+	}
+
+	function saveHiddenGroups(names) {
+		saveStringSet(GROUPS_KEY, names);
+	}
+
+	function isGroupHidden(name) {
+		const key = String(name || '').trim();
+		if (!key) return false;
+		return loadHiddenGroups().has(key);
+	}
+
 	function loadHiddenLanguages() {
 		return loadStringSet(LANGS_KEY);
 	}
@@ -99,6 +114,7 @@
 	global.ONES_PREFS = {
 		HIDDEN_KEY: SOURCES_KEY,
 		HIDDEN_TYPES_KEY: TYPES_KEY,
+		HIDDEN_GROUPS_KEY: GROUPS_KEY,
 		HIDDEN_LANGS_KEY: LANGS_KEY,
 		loadHidden: loadHidden,
 		saveHidden: saveHidden,
@@ -106,6 +122,9 @@
 		loadHiddenTypes: loadHiddenTypes,
 		saveHiddenTypes: saveHiddenTypes,
 		isTypeHidden: isTypeHidden,
+		loadHiddenGroups: loadHiddenGroups,
+		saveHiddenGroups: saveHiddenGroups,
+		isGroupHidden: isGroupHidden,
 		loadHiddenLanguages: loadHiddenLanguages,
 		saveHiddenLanguages: saveHiddenLanguages,
 		ensureHiddenLanguages: ensureHiddenLanguages,

@@ -77,4 +77,18 @@ test.describe('Календарь', () => {
 		await expect(page.locator('#date-picker-panel')).toBeHidden();
 		await expect(dateBtn).toBeFocused();
 	});
+
+	test('смена дня сбрасывает фильтр источника', async ({ page }) => {
+		await openIndex(page, { path: '/?date=2026-02-10' });
+		await expect(page.getByRole('button', { name: /Источник: Infostart/ })).toBeVisible();
+
+		await page.getByRole('button', { name: /^Дата:/ }).click();
+		await page.getByRole('button', { name: 'Следующий месяц' }).click();
+		await page.locator('.calendar-day[data-date="2026-03-15"]').click();
+		await waitForDay(page);
+
+		await expect(page).toHaveURL(/date=2026-03-15/);
+		await expect(page.locator('article.card')).toHaveCount(3);
+		await expect(page.getByRole('button', { name: /Источник: Все/ })).toBeVisible();
+	});
 });

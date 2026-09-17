@@ -71,8 +71,42 @@
 		return (
 			prefs.loadHidden().size === 0 &&
 			prefs.loadHiddenTypes().size === 0 &&
+			prefs.loadHiddenGroups().size === 0 &&
 			prefs.loadHiddenLanguages().size === 0
 		);
+	}
+
+	function groupsFor(items) {
+		const seen = [];
+		const present = new Set();
+		for (const item of items) {
+			const group = String(item.group || '').trim();
+			if (!group || present.has(group)) continue;
+			present.add(group);
+			seen.push(group);
+		}
+		return seen;
+	}
+
+	function langOnFor(input) {
+		return Boolean(input.closest('.about-lang')?.querySelector('input[data-lang]')?.checked);
+	}
+
+	function sourceInputDisabled(input, langOn, typeOn) {
+		const group = input.getAttribute('data-source-group') || '';
+		const groupOn = !group || !prefs.loadHiddenGroups().has(group);
+		return !langOn || !typeOn || !groupOn;
+	}
+
+	function publishCatalog(sources) {
+		const groups = {};
+		for (const src of sources) {
+			const name = String(src.name || '').trim();
+			const group = String(src.group || '').trim();
+			if (name && group) groups[name] = group;
+		}
+		window.ONES_CATALOG = { sources: sources, groups: groups };
+		document.dispatchEvent(new CustomEvent('ones-catalog'));
 	}
 
 	function syncShowAll() {
@@ -84,9 +118,22 @@
 		root.querySelectorAll('input[data-type="' + type + '"]').forEach((input) => {
 			input.checked = typeOn;
 		});
+		root.querySelectorAll('input[data-group-type="' + type + '"]').forEach((input) => {
+			input.disabled = !langOnFor(input) || !typeOn;
+		});
 		root.querySelectorAll('input[data-source-type="' + type + '"]').forEach((input) => {
-			const langOn = input.closest('.about-lang')?.querySelector('input[data-lang]')?.checked;
-			input.disabled = !langOn || !typeOn;
+			input.disabled = sourceInputDisabled(input, langOnFor(input), typeOn);
+		});
+	}
+
+	function syncGroupUi(group, groupOn) {
+		root.querySelectorAll('input[data-group="' + group + '"]').forEach((input) => {
+			input.checked = groupOn;
+		});
+		root.querySelectorAll('input[data-source-group="' + group + '"]').forEach((input) => {
+			const type = input.getAttribute('data-source-type') || '';
+			const typeOn = !prefs.loadHiddenTypes().has(type);
+			input.disabled = sourceInputDisabled(input, langOnFor(input), typeOn);
 		});
 	}
 
@@ -96,10 +143,15 @@
 		scope.querySelectorAll('input[data-type]').forEach((input) => {
 			input.disabled = !langOn;
 		});
+		scope.querySelectorAll('input[data-group]').forEach((input) => {
+			const type = input.getAttribute('data-group-type') || '';
+			const typeOn = !prefs.loadHiddenTypes().has(type);
+			input.disabled = !langOn || !typeOn;
+		});
 		scope.querySelectorAll('input[data-source]').forEach((input) => {
 			const type = input.getAttribute('data-source-type') || '';
 			const typeOn = !prefs.loadHiddenTypes().has(type);
-			input.disabled = !langOn || !typeOn;
+			input.disabled = sourceInputDisabled(input, langOn, typeOn);
 		});
 	}
 
@@ -111,9 +163,31 @@
 
 		const hidden = prefs.loadHidden();
 		const hiddenTypes = prefs.loadHiddenTypes();
+		const hiddenGroups = prefs.loadHiddenGroups();
 		const hiddenLangs = prefs.ensureHiddenLanguages(currentLocale(), languageCodes());
 		const parts = [];
 		let index = 0;
+
+		function pushSource(src, type, langOn, typeOn) {
+			const name = String(src.name || src.home || '').trim();
+			const group = String(src.group || '').trim();
+			const id = `source-${index}`;
+			index += 1;
+			const checked = hidden.has(name) ? '' : ' checked';
+			const groupOn = !group || !hiddenGroups.has(group);
+			const disabled = langOn && typeOn && groupOn ? '' : ' disabled';
+			const groupAttr = group ? ` data-source-group="${escapeHtml(group)}"` : '';
+			parts.push(
+				'<li class="settings-source">' +
+					`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}" ` +
+					`data-source-type="${escapeHtml(type)}"${groupAttr}${checked}${disabled} ` +
+					`aria-labelledby="${id}-name">` +
+					`<a id="${id}-name" href="${escapeHtml(src.home)}" target="_blank" rel="noopener noreferrer">` +
+					`${escapeHtml(name || src.home)}${EXTERNAL_SVG}</a>` +
+					'</li>',
+			);
+		}
+
 		for (const lang of languageOrder(sources)) {
 			const byLang = sources.filter((item) => item.language === lang.code);
 			if (!byLang.length) continue;
@@ -127,6 +201,7 @@
 					`<label for="${langId}">${escapeHtml(lang.label)}</label>` +
 					`</h3>`,
 			);
+			parts.push('<div class="settings-lang-body">');
 			for (const type of typesFor(byLang)) {
 				const byType = byLang.filter((item) => (item.source_type || 'other') === type.code);
 				if (!byType.length) continue;
@@ -140,25 +215,42 @@
 						`<label for="${typeId}">${escapeHtml(type.label)}</label>` +
 						`</h4>`,
 				);
-				parts.push('<ul class="settings-source-list">');
-				for (const src of byType) {
-					const name = String(src.name || src.home || '').trim();
-					const id = `source-${index}`;
-					index += 1;
-					const checked = hidden.has(name) ? '' : ' checked';
-					const disabled = langOn && typeOn ? '' : ' disabled';
-					parts.push(
-						'<li class="settings-source">' +
-							`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}" ` +
-							`data-source-type="${escapeHtml(type.code)}"${checked}${disabled} ` +
-							`aria-labelledby="${id}-name">` +
-							`<a id="${id}-name" href="${escapeHtml(src.home)}" target="_blank" rel="noopener noreferrer">` +
-							`${escapeHtml(name || src.home)}${EXTERNAL_SVG}</a>` +
-							'</li>',
-					);
+				parts.push('<div class="settings-type-body">');
+				const typeGroups = type.code === 'video' ? groupsFor(byType) : [];
+				if (typeGroups.length) {
+					const ungrouped = byType.filter((item) => !String(item.group || '').trim());
+					for (const group of typeGroups) {
+						const groupId = `group-${index}`;
+						index += 1;
+						const groupOn = !hiddenGroups.has(group);
+						const groupChecked = groupOn ? ' checked' : '';
+						const groupDisabled = langOn && typeOn ? '' : ' disabled';
+						parts.push(
+							`<h5 class="about-host-title settings-host">` +
+								`<input type="checkbox" id="${groupId}" data-group="${escapeHtml(group)}" ` +
+								`data-group-type="${escapeHtml(type.code)}"${groupChecked}${groupDisabled}>` +
+								`<label for="${groupId}">${escapeHtml(group)}</label>` +
+								`</h5>`,
+						);
+						parts.push('<ul class="settings-source-list settings-source-list-nested">');
+						for (const src of byType.filter((item) => String(item.group || '').trim() === group)) {
+							pushSource(src, type.code, langOn, typeOn);
+						}
+						parts.push('</ul>');
+					}
+					if (ungrouped.length) {
+						parts.push('<ul class="settings-source-list">');
+						for (const src of ungrouped) pushSource(src, type.code, langOn, typeOn);
+						parts.push('</ul>');
+					}
+				} else {
+					parts.push('<ul class="settings-source-list">');
+					for (const src of byType) pushSource(src, type.code, langOn, typeOn);
+					parts.push('</ul>');
 				}
-				parts.push('</ul>');
+				parts.push('</div>');
 			}
+			parts.push('</div>');
 			parts.push('</section>');
 		}
 		root.innerHTML = parts.join('');
@@ -199,6 +291,21 @@
 			return;
 		}
 
+		const groupInput = event.target.closest('input[type="checkbox"][data-group]');
+		if (groupInput) {
+			if (groupInput.disabled) return;
+			const group = String(groupInput.getAttribute('data-group') || '').trim();
+			if (!group) return;
+			const hiddenGroups = prefs.loadHiddenGroups();
+			if (groupInput.checked) hiddenGroups.delete(group);
+			else hiddenGroups.add(group);
+			prefs.saveHiddenGroups(hiddenGroups);
+			syncGroupUi(group, groupInput.checked);
+			syncShowAll();
+			emitPrefs();
+			return;
+		}
+
 		const input = event.target.closest('input[type="checkbox"][data-source]');
 		if (!input || input.disabled) return;
 		const name = String(input.getAttribute('data-source') || '').trim();
@@ -214,11 +321,16 @@
 	function showAll() {
 		prefs.saveHidden([]);
 		prefs.saveHiddenTypes([]);
+		prefs.saveHiddenGroups([]);
 		prefs.saveHiddenLanguages([]);
 		root.querySelectorAll('input[type="checkbox"][data-lang]').forEach((input) => {
 			input.checked = true;
 		});
 		root.querySelectorAll('input[type="checkbox"][data-type]').forEach((input) => {
+			input.checked = true;
+			input.disabled = false;
+		});
+		root.querySelectorAll('input[type="checkbox"][data-group]').forEach((input) => {
 			input.checked = true;
 			input.disabled = false;
 		});
@@ -238,8 +350,10 @@
 			if (!res.ok) throw new Error(t('page.sourcesFail'));
 			const data = await res.json();
 			catalog = Array.isArray(data.sources) ? data.sources.filter((item) => item && item.home) : [];
+			publishCatalog(catalog);
 			render(catalog);
 		} catch (err) {
+			publishCatalog([]);
 			setMessage(t('page.sourcesFail'), true);
 		}
 	}

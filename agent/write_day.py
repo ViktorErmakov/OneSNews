@@ -122,14 +122,16 @@ def write_sources_catalog() -> Path:
 		if not home:
 			logger.warning("Skip catalog source %s: no home URL", name)
 			continue
-		catalog.append(
-			{
-				"name": src.get("name") or "",
-				"home": home,
-				"source_type": src.get("source_type") or "other",
-				"language": src.get("language") or "ru",
-			}
-		)
+		entry = {
+			"name": src.get("name") or "",
+			"home": home,
+			"source_type": src.get("source_type") or "other",
+			"language": src.get("language") or "ru",
+		}
+		group = str(src.get("group") or "").strip()
+		if group:
+			entry["group"] = group
+		catalog.append(entry)
 	SOURCES_JSON.parent.mkdir(parents=True, exist_ok=True)
 	payload = {"sources": catalog}
 	SOURCES_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

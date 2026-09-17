@@ -10,6 +10,7 @@ test.describe('Фильтры', () => {
 		await expect(options.first()).toHaveAttribute('data-value', '');
 		await expect(options.first()).toContainText('Все');
 		await expect(options.first().locator('.picker-count')).toHaveText('3');
+		await expect(page.locator('#source-picker-list .picker-group-label')).toHaveText(['Сайты', 'Telegram']);
 
 		await page.locator('#source-picker-list [data-value="Infostart"]').click();
 		await expect(page.locator('article.card')).toHaveCount(1);
@@ -38,6 +39,7 @@ test.describe('Фильтры', () => {
 		const sourceOptions = page.locator('#source-picker-list [role="option"]');
 		await expect(sourceOptions).toHaveCount(3);
 		await expect(sourceOptions.first().locator('.picker-count')).toHaveText('2');
+		await expect(page.locator('#source-picker-list .picker-group-label')).toHaveText(['Sites', 'Video hosts']);
 	});
 
 	test('чипы на карточке включают фильтр источника', async ({ page }) => {

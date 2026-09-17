@@ -92,7 +92,7 @@
 				sourcesHow:
 					'Свои тексты не пишем: с сайтов берём заголовок и краткое описание, из Telegram — начало поста. Ссылки ведут на сайты и каналы.',
 				sourcesHelp:
-					'Галочка у языка выключает всю его группу. По умолчанию включён только язык интерфейса, остальные можно отметить. Галочка у категории выключает все её источники, в том числе новые. Галочка у канала — только его. Без галочки источник скрыт во все дни, выбор запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и сбрасывается при смене даты.',
+					'Галочка у языка выключает всю его группу. По умолчанию включён только язык интерфейса, остальные можно отметить. Галочка у категории выключает все её источники, в том числе новые. Галочка у группы видеохостинга выключает все её каналы, в том числе новые. Галочка у канала — только его. Без галочки источник скрыт во все дни, выбор запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и сбрасывается при смене даты.',
 				showAll: 'Показать все',
 				privacy: 'Конфиденциальность',
 				privacy1: 'Учётной записи нет: мы не принимаем и не храним ваши данные на своей стороне.',
@@ -107,6 +107,8 @@
 					'<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не показывать на ленте.',
 				privacyTypes:
 					'<strong>Скрытые категории</strong> (<code>ones-hidden-types</code>) — какие типы источников не показывать: сайты, Telegram, видеохостинги.',
+				privacyGroups:
+					'<strong>Скрытые группы источников</strong> (<code>ones-hidden-source-groups</code>) — какие группы видеохостингов не показывать, например YouTube.',
 				privacyHiddenLangs:
 					'<strong>Скрытые языки</strong> (<code>ones-hidden-languages</code>) — какие языковые группы не показывать на ленте.',
 				privacyLang:
@@ -207,7 +209,7 @@
 				sourcesHow:
 					'We do not write our own copy: from sites we take the title and a short description, from Telegram — the start of the post. Links go to the sites and channels.',
 				sourcesHelp:
-					'A language checkbox turns off that whole group. By default only the interface language is on; you can tick others to read them too. A category checkbox turns off all of its sources, including new ones. A channel checkbox affects only that channel. Unchecked sources stay hidden on every day; the choice is remembered in this browser. The home-page filter only narrows the open day and resets when the date changes.',
+					'A language checkbox turns off that whole group. By default only the interface language is on; you can tick others to read them too. A category checkbox turns off all of its sources, including new ones. A video-host group checkbox turns off all of its channels, including new ones. A channel checkbox affects only that channel. Unchecked sources stay hidden on every day; the choice is remembered in this browser. The home-page filter only narrows the open day and resets when the date changes.',
 				showAll: 'Show all',
 				privacy: 'Privacy',
 				privacy1: 'There is no account: we do not collect or store your data on our side.',
@@ -222,6 +224,8 @@
 					'<strong>Hidden sources</strong> (<code>ones-hidden-sources</code>) — which channels not to show on the feed.',
 				privacyTypes:
 					'<strong>Hidden categories</strong> (<code>ones-hidden-types</code>) — which source types not to show: sites, Telegram, video hosts.',
+				privacyGroups:
+					'<strong>Hidden source groups</strong> (<code>ones-hidden-source-groups</code>) — which video-host groups not to show, for example YouTube.',
 				privacyHiddenLangs:
 					'<strong>Hidden languages</strong> (<code>ones-hidden-languages</code>) — which language groups not to show on the feed.',
 				privacyLang:
