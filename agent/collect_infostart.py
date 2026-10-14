@@ -62,14 +62,37 @@ COPYRIGHT_RE = re.compile(
 )
 
 
+CHALLENGE_COOKIE_RE = re.compile(rb'document\.cookie\s*=\s*"([A-Za-z0-9_]+)=([^;"]+)')
+_challenge_cookies: dict[str, str] = {}
+
+
 class InfostartContractError(Exception):
 	"""Listing HTML no longer matches the expected catalog contract."""
 
 
+def http_get(url: str, accept: str, timeout: int = 30) -> tuple[int, bytes, str]:
+	"""GET with Infostart anti-bot handling: 429 + JS that sets a cookie and reloads."""
+	for attempt in range(2):
+		headers = {"User-Agent": USER_AGENT, "Accept": accept}
+		if _challenge_cookies:
+			headers["Cookie"] = "; ".join(f"{k}={v}" for k, v in _challenge_cookies.items())
+		try:
+			with urlopen(Request(url, headers=headers), timeout=timeout) as resp:  # noqa: S310
+				return int(resp.status), resp.read(), resp.headers.get("Content-Type") or ""
+		except HTTPError as exc:
+			if exc.code != 429 or attempt:
+				raise
+			m = CHALLENGE_COOKIE_RE.search(exc.read() or b"")
+			if not m:
+				raise
+			name, value = m.group(1).decode(), m.group(2).decode()
+			_challenge_cookies[name] = value
+			logger.info("infostart: anti-bot challenge, retry with cookie %s url=%s", name, url)
+	raise AssertionError("unreachable")
+
+
 def http_get_html(url: str, timeout: int = 30) -> tuple[int, bytes, str]:
-	req = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,*/*"})
-	with urlopen(req, timeout=timeout) as resp:  # noqa: S310
-		return int(resp.status), resp.read(), resp.headers.get("Content-Type") or ""
+	return http_get(url, "text/html,application/xhtml+xml,*/*", timeout)
 
 
 def decode_html(data: bytes, content_type: str = "") -> str:
@@ -319,9 +342,7 @@ def rss_author_and_snippet(entry: dict, snippet_chars: int) -> tuple[str, str]:
 
 def collect_rss_articles(rss_url: str, start: date, end: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
 	try:
-		req = Request(rss_url, headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml,*/*"})
-		with urlopen(req, timeout=30) as resp:  # noqa: S310
-			xml_bytes = resp.read()
+		_status, xml_bytes, _ctype = http_get(rss_url, "application/rss+xml,*/*")
 	except (HTTPError, URLError) as exc:
 		logger.warning("infostart: RSS fetch failed %s: %s", rss_url, exc)
 		return []
