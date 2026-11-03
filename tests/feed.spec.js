@@ -92,10 +92,10 @@ test.describe('Лента', () => {
 		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
 	});
 
-	test('?date= важнее запомненной даты языка', async ({ page }) => {
+	test('запомненная дата языка важнее ?date=', async ({ page }) => {
 		await openIndex(page, { path: '/?date=2026-03-15', lastDate: { ru: '2026-02-10' } });
-		await expect(page).toHaveURL(/date=2026-03-15/);
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
 	});
 
 	test('дата чужого языка не подставляется', async ({ page }) => {

@@ -500,9 +500,9 @@
 	}
 
 	function pickAvailableDate(preferred, language) {
-		if (preferred && state.dates.includes(preferred)) return preferred;
 		const remembered = storedDate(language || state.language);
 		if (remembered && state.dates.includes(remembered)) return remembered;
+		if (preferred && state.dates.includes(preferred)) return preferred;
 		return state.dates[0] || null;
 	}
 
