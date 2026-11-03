@@ -1015,6 +1015,30 @@
 		return { byLanguage };
 	}
 
+	async function refreshCalendarIndex(options) {
+		const preferQuery = Boolean(options && options.preferQuery);
+		state.datesByLanguage = (await listAvailableIndex()).byLanguage;
+		applyLanguageDates();
+		if (!state.dates.length) {
+			state.currentDay = null;
+			state.date = null;
+			setUrlState();
+			syncFilterUi();
+			setStatus(t('status.noDates'), true);
+			renderFeed();
+			return;
+		}
+		let nextDate;
+		if (preferQuery) {
+			nextDate = pickAvailableDate(queryDate());
+		} else if (state.date && state.dates.includes(state.date)) {
+			nextDate = state.date;
+		} else {
+			nextDate = pickAvailableDate(null);
+		}
+		await loadDay(nextDate);
+	}
+
 	async function loadDay(date) {
 		setStatus(t('loading'));
 		const res = await fetch(`data/days/${date}.json`, { cache: 'no-store' });
@@ -1580,7 +1604,6 @@
 			if (event.button === 1) markCardReadFromEvent(event);
 		});
 
-		state.datesByLanguage = (await listAvailableIndex()).byLanguage;
 		if (queryLang()) {
 			state.language = queryLang();
 			if (i18n) i18n.setLocale(state.language, { silent: true });
@@ -1594,18 +1617,16 @@
 			);
 			if (queryLang()) window.ONES_PREFS.revealLanguage(state.language);
 		}
-		applyLanguageDates();
-		if (!state.dates.length) {
-			setStatus(t('status.noDates'), true);
-			syncFilterUi();
-			return;
-		}
 
-		const initial = pickAvailableDate(queryDate());
-		state.date = initial;
-		setCalendarToDate(initial);
-		syncFilterUi();
-		await loadDay(initial);
+		await refreshCalendarIndex({ preferQuery: true });
+
+		window.addEventListener('pageshow', (event) => {
+			if (!event.persisted) return;
+			refreshCalendarIndex().catch((err) => {
+				console.error(err);
+				setStatus(err.message || String(err), true);
+			});
+		});
 	}
 
 	init().catch((err) => {

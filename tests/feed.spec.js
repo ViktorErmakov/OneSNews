@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { openIndex, card } = require('./helpers');
+const { openIndex, card, waitForDay } = require('./helpers');
 
 test.describe('Лента', () => {
 	test('показывает заголовок дня, счётчик, секции и карточки', async ({ page }) => {
@@ -128,5 +128,48 @@ test.describe('Лента', () => {
 		await expect(page.locator('article.card')).toHaveCount(2);
 		await expect(card(page, '2026-03-15-004')).toBeVisible();
 		await expect(card(page, '2026-03-15-001')).toHaveCount(0);
+	});
+
+	test('pageshow persisted перечитывает индекс и оставляет запомненный день', async ({ page }) => {
+		await openIndex(page, {
+			path: '/?date=2026-02-10',
+			lastDate: { ru: '2026-02-10' },
+			index: {
+				site: 'OneS News',
+				dates_by_language: {
+					ru: ['2026-02-10'],
+					en: ['2026-03-15'],
+				},
+			},
+		});
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#another-day-next')).toBeHidden();
+
+		await page.unroute(/\/data\/index\.json(?:\?|$)/);
+		await page.route(/\/data\/index\.json(?:\?|$)/, (route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					site: 'OneS News',
+					dates_by_language: {
+						ru: ['2026-03-15', '2026-02-10'],
+						en: ['2026-03-15'],
+					},
+				}),
+			}),
+		);
+
+		await page.evaluate(() => {
+			const event = new Event('pageshow');
+			Object.defineProperty(event, 'persisted', { value: true });
+			window.dispatchEvent(event);
+		});
+		await waitForDay(page);
+
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+		await expect(page.locator('#another-day-next')).toHaveText('15 марта');
+		await expect(page.locator('#another-day-next')).toBeVisible();
 	});
 });
