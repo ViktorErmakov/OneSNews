@@ -134,6 +134,21 @@ async function openIndex(page, options) {
 			}
 		}, opts.hiddenLanguages);
 	}
+	if (opts.lastDate) {
+		await page.addInitScript((value) => {
+			try {
+				const map =
+					typeof value === 'string'
+						? { ru: value }
+						: value && typeof value === 'object'
+							? value
+							: {};
+				localStorage.setItem('ones-last-date', JSON.stringify(map));
+			} catch (err) {
+				/* ignore */
+			}
+		}, opts.lastDate);
+	}
 	await page.goto(opts.path || '/');
 	if (opts.wait === 'status') {
 		await expect(page.locator('#status')).toBeVisible({ timeout: 10000 });

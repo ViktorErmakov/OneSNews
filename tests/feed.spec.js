@@ -65,12 +65,41 @@ test.describe('Лента', () => {
 		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 
-	test('берёт дату из адреса или подставляет самую новую', async ({ page }) => {
+	test('берёт дату из адреса и запоминает её для языка', async ({ page }) => {
 		await openIndex(page, { path: '/?date=2026-02-10' });
 		await expect(page).toHaveURL(/date=2026-02-10/);
 		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-last-date') || '{}'))).toEqual({
+			ru: '2026-02-10',
+		});
+	});
 
-		await openIndex(page, { path: '/?date=1999-01-01' });
+	test('без ?date= открывает запомненную дату языка, если она есть в календаре', async ({ page }) => {
+		await openIndex(page, { lastDate: { ru: '2026-02-10' } });
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+	});
+
+	test('невалидный ?date= откатывается к запомненной дате языка', async ({ page }) => {
+		await openIndex(page, { path: '/?date=1999-01-01', lastDate: { ru: '2026-02-10' } });
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+	});
+
+	test('невалидная запомненная дата языка игнорируется, открывается свежая', async ({ page }) => {
+		await openIndex(page, { lastDate: { ru: '1999-01-01' } });
+		await expect(page).toHaveURL(/date=2026-03-15/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+	});
+
+	test('?date= важнее запомненной даты языка', async ({ page }) => {
+		await openIndex(page, { path: '/?date=2026-03-15', lastDate: { ru: '2026-02-10' } });
+		await expect(page).toHaveURL(/date=2026-03-15/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+	});
+
+	test('дата чужого языка не подставляется', async ({ page }) => {
+		await openIndex(page, { lastDate: { en: '2026-02-10', ru: '2026-03-15' } });
 		await expect(page).toHaveURL(/date=2026-03-15/);
 		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
 	});

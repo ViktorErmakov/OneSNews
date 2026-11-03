@@ -101,9 +101,10 @@ test.describe('Язык в адресе', () => {
 });
 
 test.describe('Смена языка', () => {
-	test('открывает свежайшую дату нового языка', async ({ page }) => {
+	test('открывает запомненную дату нового языка', async ({ page }) => {
 		await openIndex(page, {
 			path: '/?date=2026-02-10',
+			lastDate: { en: '2026-03-15' },
 			index: {
 				site: 'OneS News',
 				dates_by_language: {
@@ -112,6 +113,21 @@ test.describe('Смена языка', () => {
 				},
 			},
 		});
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await page.getByRole('button', { name: /Язык:/ }).click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
+		await waitForDay(page);
+		await expect(page).toHaveURL(/date=2026-03-15/);
+		await expect(page).toHaveURL(/lang=en/);
+		await expect(card(page, '2026-03-15-004')).toBeVisible();
+		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-last-date') || '{}'))).toMatchObject({
+			ru: '2026-02-10',
+			en: '2026-03-15',
+		});
+	});
+
+	test('без запомненной даты нового языка открывает свежайшую', async ({ page }) => {
+		await openIndex(page, { path: '/?date=2026-02-10' });
 		await expect(page).toHaveURL(/date=2026-02-10/);
 		await page.getByRole('button', { name: /Язык:/ }).click();
 		await page.locator('#lang-picker-list [data-value="en"]').click();

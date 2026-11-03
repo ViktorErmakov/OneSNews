@@ -103,6 +103,8 @@
 					'<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек и время отметки, не больше 500 записей и 90 дней.',
 				privacySearch:
 					'<strong>Поиск</strong> (<code>ones-search-history</code>) — до восьми недавних запросов.',
+				privacyDate:
+					'<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты отдельно для каждого языка.',
 				privacyHidden:
 					'<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не показывать на ленте.',
 				privacyTypes:
@@ -220,6 +222,8 @@
 					'<strong>Read marks</strong> (<code>ones-read</code>) — ids of opened cards and the time of the mark, at most 500 entries and 90 days.',
 				privacySearch:
 					'<strong>Search</strong> (<code>ones-search-history</code>) — up to eight recent queries.',
+				privacyDate:
+					'<strong>Date</strong> (<code>ones-last-date</code>) — the last day you opened on the feed, stored separately for each language.',
 				privacyHidden:
 					'<strong>Hidden sources</strong> (<code>ones-hidden-sources</code>) — which channels not to show on the feed.',
 				privacyTypes:

@@ -63,6 +63,7 @@ test.describe('Конфиденциальность', () => {
 		await openPrivacy(page, { consent: 'none' });
 		await expect(page.locator('main.about')).toContainText('ones-read');
 		await expect(page.locator('main.about')).toContainText('ones-search-history');
+		await expect(page.locator('main.about')).toContainText('ones-last-date');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-sources');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-types');
 		await expect(page.locator('main.about')).toContainText('ones-hidden-source-groups');

@@ -25,6 +25,7 @@
 	const READ_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 	const SEARCH_HISTORY_KEY = 'ones-search-history';
 	const SEARCH_HISTORY_MAX = 8;
+	const LAST_DATE_KEY = 'ones-last-date';
 
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
@@ -451,6 +452,60 @@
 		return params.get('date');
 	}
 
+	function loadLastDates() {
+		try {
+			const raw = localStorage.getItem(LAST_DATE_KEY);
+			if (!raw) return {};
+			if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+				const legacy = {};
+				legacy[state.language || 'ru'] = raw;
+				try {
+					localStorage.setItem(LAST_DATE_KEY, JSON.stringify(legacy));
+				} catch (err) {
+					/* ignore */
+				}
+				return legacy;
+			}
+			const parsed = JSON.parse(raw);
+			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+			const map = {};
+			Object.keys(parsed).forEach((code) => {
+				const value = parsed[code];
+				if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+					map[code] = value;
+				}
+			});
+			return map;
+		} catch (err) {
+			return {};
+		}
+	}
+
+	function storedDate(language) {
+		const code = language || state.language;
+		if (!code) return '';
+		return loadLastDates()[code] || '';
+	}
+
+	function rememberDate(date, language) {
+		const code = language || state.language;
+		if (!code || !date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+		try {
+			const map = loadLastDates();
+			map[code] = date;
+			localStorage.setItem(LAST_DATE_KEY, JSON.stringify(map));
+		} catch (err) {
+			/* ignore */
+		}
+	}
+
+	function pickAvailableDate(preferred, language) {
+		if (preferred && state.dates.includes(preferred)) return preferred;
+		const remembered = storedDate(language || state.language);
+		if (remembered && state.dates.includes(remembered)) return remembered;
+		return state.dates[0] || null;
+	}
+
 	function queryLang() {
 		const params = new URLSearchParams(window.location.search);
 		const value = params.get('lang');
@@ -788,7 +843,7 @@
 		if (i18n) i18n.setLocale(next);
 		applyLanguageDates();
 		closePicker(els.langBtn, els.langList);
-		const nextDate = state.dates[0] || null;
+		const nextDate = pickAvailableDate(null);
 		if (!nextDate) {
 			state.currentDay = null;
 			state.date = null;
@@ -799,6 +854,7 @@
 			return;
 		}
 		if (nextDate === state.date && state.currentDay) {
+			rememberDate(nextDate);
 			syncSourceToAvailable();
 			setUrlState();
 			syncFilterUi();
@@ -966,6 +1022,7 @@
 		const day = await res.json();
 		state.currentDay = day;
 		state.date = date;
+		rememberDate(date);
 		rememberSearch(state.query);
 		state.query = '';
 		state.source = '';
@@ -1544,8 +1601,7 @@
 			return;
 		}
 
-		const requested = queryDate();
-		const initial = requested && state.dates.includes(requested) ? requested : state.dates[0];
+		const initial = pickAvailableDate(queryDate());
 		state.date = initial;
 		setCalendarToDate(initial);
 		syncFilterUi();
