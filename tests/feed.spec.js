@@ -172,4 +172,53 @@ test.describe('Лента', () => {
 		await expect(page.locator('#another-day-next')).toHaveText('15 марта');
 		await expect(page.locator('#another-day-next')).toBeVisible();
 	});
+
+	test('возврат на вкладку перечитывает индекс и оставляет запомненный день', async ({ page }) => {
+		await openIndex(page, {
+			path: '/?date=2026-02-10',
+			lastDate: { ru: '2026-02-10' },
+			index: {
+				site: 'OneS News',
+				dates_by_language: {
+					ru: ['2026-02-10'],
+					en: ['2026-03-15'],
+				},
+			},
+		});
+		await expect(page.locator('#another-day-next')).toBeHidden();
+
+		await page.unroute(/\/data\/index\.json(?:\?|$)/);
+		await page.route(/\/data\/index\.json(?:\?|$)/, (route) =>
+			route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					site: 'OneS News',
+					dates_by_language: {
+						ru: ['2026-03-15', '2026-02-10'],
+						en: ['2026-03-15'],
+					},
+				}),
+			}),
+		);
+
+		await page.evaluate(() => {
+			const proto = Document.prototype;
+			const original = Object.getOwnPropertyDescriptor(proto, 'visibilityState');
+			const setState = (value) => {
+				Object.defineProperty(proto, 'visibilityState', {
+					configurable: true,
+					get: () => value,
+				});
+				document.dispatchEvent(new Event('visibilitychange'));
+			};
+			setState('hidden');
+			setState('visible');
+			if (original) Object.defineProperty(proto, 'visibilityState', original);
+		});
+
+		await expect(page.locator('#another-day-next')).toHaveText('15 марта');
+		await expect(page).toHaveURL(/date=2026-02-10/);
+		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+	});
 });

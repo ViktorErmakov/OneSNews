@@ -1001,8 +1001,19 @@
 		els.anotherDay.hidden = !older && !newer;
 	}
 
+	function fetchFresh(url) {
+		const bust = `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
+		return fetch(bust, {
+			cache: 'no-store',
+			headers: {
+				'Cache-Control': 'no-cache',
+				Pragma: 'no-cache',
+			},
+		});
+	}
+
 	async function listAvailableIndex() {
-		const indexRes = await fetch('data/index.json', { cache: 'no-store' });
+		const indexRes = await fetchFresh('data/index.json');
 		if (!indexRes.ok) throw new Error(t('status.indexFail'));
 		const data = await indexRes.json();
 		const byLanguage = {};
@@ -1036,12 +1047,54 @@
 		} else {
 			nextDate = pickAvailableDate(null);
 		}
+		const keepOpen = !preferQuery && nextDate === state.date && state.currentDay;
+		if (keepOpen) {
+			syncFilterUi();
+			syncAnotherDay();
+			setStatus('');
+			return;
+		}
 		await loadDay(nextDate);
+	}
+
+	let calendarRefresh = null;
+	let pageWasHidden = false;
+
+	function requestCalendarRefresh() {
+		if (calendarRefresh) return calendarRefresh;
+		calendarRefresh = refreshCalendarIndex()
+			.catch((err) => {
+				console.error(err);
+				setStatus(err.message || String(err), true);
+			})
+			.finally(() => {
+				calendarRefresh = null;
+			});
+		return calendarRefresh;
+	}
+
+	function bindLiveCalendar() {
+		window.addEventListener('pageshow', (event) => {
+			if (!event.persisted) return;
+			requestCalendarRefresh();
+		});
+		document.addEventListener('resume', () => {
+			requestCalendarRefresh();
+		});
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'hidden') {
+				pageWasHidden = true;
+				return;
+			}
+			if (!pageWasHidden) return;
+			pageWasHidden = false;
+			requestCalendarRefresh();
+		});
 	}
 
 	async function loadDay(date) {
 		setStatus(t('loading'));
-		const res = await fetch(`data/days/${date}.json`, { cache: 'no-store' });
+		const res = await fetchFresh(`data/days/${date}.json`);
 		if (!res.ok) throw new Error(t('status.dayFail', { date: date }));
 		const day = await res.json();
 		state.currentDay = day;
@@ -1618,15 +1671,8 @@
 			if (queryLang()) window.ONES_PREFS.revealLanguage(state.language);
 		}
 
+		bindLiveCalendar();
 		await refreshCalendarIndex({ preferQuery: true });
-
-		window.addEventListener('pageshow', (event) => {
-			if (!event.persisted) return;
-			refreshCalendarIndex().catch((err) => {
-				console.error(err);
-				setStatus(err.message || String(err), true);
-			});
-		});
 	}
 
 	init().catch((err) => {
