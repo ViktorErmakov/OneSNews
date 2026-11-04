@@ -3,8 +3,8 @@
 # video — словарь групп (YouTube, позже Rutube и т.д.); ключ группы — подпись в настройках.
 #
 # language: ru | en
-# fetch: rss | telegram_web | youtube_rss | infostart | 1c_dn
-# url: адрес для сборщика (RSS / t.me/s / YouTube RSS, /channel/UC… или @handle; для 1c_dn — https://1c-dn.com/blog/)
+# fetch: rss | telegram_web | youtube_rss | infostart | 1c_dn | 1ci_kb_docs
+# url: адрес для сборщика (RSS / t.me/s / YouTube RSS, /channel/UC… или @handle; для 1c_dn — https://1c-dn.com/blog/; для 1ci_kb_docs — индекс Whats_New)
 # home: публичная страница источника для about.html
 
 site:
@@ -24,6 +24,12 @@ site:
     url: "https://1c-dn.com/blog/"
     home: "https://1c-dn.com/blog/"
     fetch: 1c_dn
+    language: en
+    enabled: true
+  - name: "1C:Drive Docs Digest"
+    url: "https://kb.1ci.com/1C_Drive/Whats_New_in_Documentation/"
+    home: "https://kb.1ci.com/1C_Drive/Whats_New_in_Documentation/?language=en"
+    fetch: 1ci_kb_docs
     language: en
     enabled: true
   - name: "1С:Зазеркалье"

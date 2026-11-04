@@ -66,9 +66,11 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `sources.yaml` | Источники сборщика по секциям site / telegram / video (видео — вложенные группы; браузер не читает) |
 | `agent/config.yaml` | Часовой пояс, режим даты, лимиты |
 | `agent/run.py` | Одна команда: сбор → day JSON |
-| `agent/collect.py` | RSS, Telegram `/s/`, диспетчер Infostart и 1C:DN |
+| `agent/collect.py` | RSS, Telegram `/s/`, диспетчер Infostart, 1C:DN и 1ci_kb_docs |
 | `agent/collect_infostart.py` | Каталоги Infostart + RSS |
 | `agent/collect_1cdn.py` | HTML TechBlog 1C:DN (RSS блога пустой) |
+| `agent/collect_1ci_kb.py` | Квартальные дайджесты Docs на kb.1ci.com (`fetch: 1ci_kb_docs`) |
+| `agent/state/` | Курсоры сборщиков (например last_quarter для 1ci_kb_docs); коммитится вместе с day JSON |
 | `agent/common.py` | Пути, конфиг, дата, сниппеты |
 | `agent/write_day.py` | day JSON, `index.json`, `sources.json` |
 | `agent/requirements.txt` | Зависимости Python 3.12 |
@@ -281,7 +283,7 @@ python agent/run.py --date 2026-08-17
 
 1. Добавить запись в нужную секцию `sources.yaml` (`site` / `telegram` / `video`). Для YouTube можно скопировать отключённый шаблон `Example YouTube` в секции `video` (`enabled: false`) и подставить `channel_id`.
 2. Указать `url`, `home`, `fetch`, `language`, `enabled: true`. `home` — публичная страница источника (для настроек), не RSS. Фильтр ленты берёт `name`.
-3. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). TechBlog 1C:DN — `fetch: 1c_dn`, `language: en` (HTML-лента `/blog/`, RSS `/blog/rss/` без записей). 1С:Зазеркалье — обычный `fetch: rss` (`https://wonderland.v8.1c.ru/rss`), отдельный скрипт не нужен. Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
+3. Для сайта/YouTube — RSS; для публичного Telegram — `https://t.me/s/username` и `fetch: telegram_web` (скрипт листает `?before=`, берёт только оригинальные посты канала без чужих репостов). Заголовок — первая строка или предложение, до 100 символов; текст карточки — до `snippet_chars` (600), без дубля если весь пост уже в заголовке. Infostart — `fetch: infostart` (логика в `agent/collect_infostart.py`). TechBlog 1C:DN — `fetch: 1c_dn`, `language: en` (HTML-лента `/blog/`, RSS `/blog/rss/` без записей). 1C:Drive Docs Digest — `fetch: 1ci_kb_docs`, `language: en` (квартальные страницы kb.1ci.com; курсор `agent/state/1ci_drive_whats_new.json`, в карточку только заголовок Digest и первый абзац). 1С:Зазеркалье — обычный `fetch: rss` (`https://wonderland.v8.1c.ru/rss`), отдельный скрипт не нужен. Все включённые источники собирает `python agent/run.py`. Диапазон дат: `python agent/run.py --from-date YYYY-MM-DD --to-date YYYY-MM-DD` (новые карточки источника дописываются, чужие источники в файле дня не затираются).
 4. Прогнать `python agent/run.py --collect-only --date ...` и проверить `agent/tmp/raw-*.json`. Каталог `data/sources.json` обновляется в начале прогона даже без новостей за день.
 
 ---

@@ -58,6 +58,9 @@ def process_day(day: date, items: list[dict], args: argparse.Namespace, *, merge
 		return 0
 	items = [apply_direct_summary(item) for item in items]
 	write_collected_day(day, items, merge=merge)
+	from collect_1ci_kb import commit_cursor_from_items
+
+	commit_cursor_from_items(items)
 	return 0
 
 
