@@ -553,15 +553,23 @@ def collect_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int)
 		from collect_1ci_kb import collect_1ci_kb_source
 
 		return collect_1ci_kb_source(source, target, tz, snippet_chars)
+	if fetch == "1ci_kb_rn":
+		from collect_1ci_rn import collect_1ci_rn_source
+
+		return collect_1ci_rn_source(source, target, tz, snippet_chars)
 	raise ValueError(f"Unknown fetch type: {fetch}")
 
 
 def log_source_failure(name: str, exc: BaseException) -> None:
 	from collect_1cdn import OnesDnContractError
 	from collect_1ci_kb import OnesCiKbContractError
+	from collect_1ci_rn import OnesCiRnContractError
 	from collect_infostart import InfostartContractError
 
-	if isinstance(exc, (InfostartContractError, OnesDnContractError, OnesCiKbContractError)):
+	if isinstance(
+		exc,
+		(InfostartContractError, OnesDnContractError, OnesCiKbContractError, OnesCiRnContractError),
+	):
 		logger.error("Skip %s: %s", name, exc)
 		return
 	logger.exception("Failed %s", name)
@@ -618,6 +626,10 @@ def collect_range(start: date, end: date) -> dict[date, list[dict]]:
 				from collect_1ci_kb import collect_1ci_kb_range
 
 				buckets = collect_1ci_kb_range(source, start, end, tz, snippet_chars)
+			elif fetch == "1ci_kb_rn":
+				from collect_1ci_rn import collect_1ci_rn_range
+
+				buckets = collect_1ci_rn_range(source, start, end, tz, snippet_chars)
 			elif fetch == "rss":
 				buckets = collect_rss_range(source, start, end, tz, snippet_chars)
 			elif fetch == "youtube_rss":

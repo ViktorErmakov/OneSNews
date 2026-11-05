@@ -61,6 +61,17 @@
       "source_type": "telegram",
       "topics": [],
       "language": "ru"
+    },
+    {
+      "id": "2026-11-04-006",
+      "title": "1C:Drive 1.6.8.7",
+      "summary": "Prepaid expenses. Now 1C:Drive supports the prepaid expenses functionality. This helps companies account for advance payments for future services, such as annual software subscriptions or insurance policies. 1C:Drive allows to:",
+      "url": "https://kb.1ci.com/1C_Drive/Release_Notes/1C_Drive/1.6.X/1_6_8_7/",
+      "author": "1C:Drive Release Notes",
+      "source_name": "1C:Drive Release Notes",
+      "source_type": "site",
+      "topics": [],
+      "language": "en"
     }
   ]
 }
