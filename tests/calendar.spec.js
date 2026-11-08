@@ -19,7 +19,7 @@ test.describe('Календарь', () => {
 		await waitForDay(page);
 
 		await expect(page).toHaveURL(/date=2026-02-10/);
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 10 февраля 2026');
 		await expect(page.locator('#feed-search')).toHaveValue('');
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await expect(page.locator('#date-picker-panel')).toBeHidden();

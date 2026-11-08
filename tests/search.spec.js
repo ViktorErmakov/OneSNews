@@ -4,6 +4,8 @@ const { openIndex, card } = require('./helpers');
 test.describe('Поиск', () => {
 	test('фильтрует по заголовку и саммари и подсвечивает совпадения', async ({ page }) => {
 		await openIndex(page);
+		await expect(page.locator('#search-toggle')).toBeHidden();
+		await expect(page.locator('#search-box')).toBeVisible();
 		await page.locator('#feed-search').fill('покупателю');
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await expect(card(page, '2026-03-15-001')).toBeVisible();
@@ -58,6 +60,41 @@ test.describe('Поиск', () => {
 		await page.locator('#search-history [data-remove="покупателю"]').click();
 		const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('ones-search-history') || '[]'));
 		expect(stored).toEqual([]);
+	});
+
+	test('на узком экране кнопка показывает поле и убирает его из вёрстки', async ({ page }) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await openIndex(page);
+
+		const toggle = page.locator('#search-toggle');
+		await expect(toggle).toHaveAccessibleName('Поиск');
+		const box = page.locator('#search-box');
+		const filters = page.locator('.filters-bar');
+		await expect(toggle).toBeVisible();
+		await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+		await expect(box).toBeHidden();
+
+		const closed = await filters.boundingBox();
+		await toggle.click();
+		await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		await expect(box).toBeVisible();
+		await expect(page.locator('#feed-search')).toBeFocused();
+		const opened = await filters.boundingBox();
+		expect(opened.height).toBeGreaterThan(closed.height + 20);
+
+		await page.locator('#feed-search').fill('покупателю');
+		await expect(page.locator('article.card')).toHaveCount(1);
+		await toggle.click();
+		await expect(box).toBeHidden();
+		await expect(page.locator('article.card')).toHaveCount(1);
+		await expect(toggle).toHaveClass(/has-query/);
+		const closedAgain = await filters.boundingBox();
+		expect(closedAgain.height).toBeLessThan(opened.height - 20);
+
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await expect(toggle).toBeHidden();
+		await expect(box).toBeVisible();
+		await expect(page.locator('#feed-search')).toHaveValue('покупателю');
 	});
 
 	test('Escape сначала закрывает историю, затем очищает запрос', async ({ page }) => {

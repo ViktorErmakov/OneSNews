@@ -300,7 +300,7 @@ def to_raw_item(row: dict, source: dict, target: date, tz: ZoneInfo, snippet_cha
 		"snippet": clip(strip_html(row.get("snippet") or ""), snippet_chars),
 		"release_version": row.get("version") or "",
 		"release_line": row.get("line") or "",
-		**source_meta(source, []),
+		**source_meta(source),
 	}
 
 

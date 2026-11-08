@@ -86,6 +86,21 @@
 						</span>
 					</a>
 					<nav class="top-nav" aria-label="Оформление" data-i18n-aria="nav.appearance">
+						<button
+							type="button"
+							class="search-toggle"
+							id="search-toggle"
+							aria-pressed="false"
+							aria-expanded="false"
+							aria-controls="search-box"
+							aria-label="Поиск"
+							data-i18n-aria="search.toggle"
+						>
+							<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<circle cx="10.5" cy="10.5" r="6.5" />
+								<path d="M15.5 15.5 L20 20" />
+							</svg>
+						</button>
 						<div class="picker picker-compact" id="lang-picker">
 							<button
 								type="button"
@@ -249,10 +264,6 @@
 		<main id="main" class="shell">
 			<p id="status" class="status" hidden></p>
 			<header class="day-hero">
-				<div class="day-hero-row">
-					<h1 id="day-title">Загрузка…</h1>
-					<p id="day-count" class="day-count" hidden></p>
-				</div>
 				<nav id="section-nav" class="section-nav" aria-label="Разделы дня" data-i18n-aria="sections" hidden></nav>
 			</header>
 			<div id="feed" class="feed"></div>
@@ -271,6 +282,19 @@
 				<p>© OneS News</p>
 			</div>
 		</footer>
+
+		<button type="button" class="to-top" id="to-top" hidden aria-label="Наверх" data-i18n-aria="toTop">
+			<svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+				<path
+					d="M2.5 7.5 L6 4 L9.5 7.5"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.6"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</svg>
+		</button>
 
 		<div
 			id="settings-overlay"

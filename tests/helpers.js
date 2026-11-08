@@ -117,7 +117,7 @@ async function installLocale(page, locale) {
 }
 
 async function waitForDay(page) {
-	await expect(page.locator('#day-title')).not.toHaveText(/^(Загрузка…|Loading…)$/, { timeout: 10000 });
+	await expect(page.locator('#feed .section, #feed .empty').first()).toBeVisible({ timeout: 10000 });
 }
 
 async function openIndex(page, options) {

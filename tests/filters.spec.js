@@ -15,7 +15,8 @@ test.describe('Фильтры', () => {
 		await page.locator('#source-picker-list [data-value="Infostart"]').click();
 		await expect(page.locator('article.card')).toHaveCount(1);
 		await expect(card(page, '2026-03-15-001')).toBeVisible();
-		await expect(page.locator('#day-count')).toHaveText('1 материал');
+		await expect(page.locator('#section-nav')).toBeHidden();
+		await expect(page.locator('.section-title')).toHaveText('Сайты');
 		await expect(page.locator('#source-picker-list')).toBeHidden();
 		await expect(page.getByRole('button', { name: /Источник: Infostart/ })).toBeVisible();
 	});

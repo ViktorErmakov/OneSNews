@@ -18,7 +18,7 @@ test.describe('Настройки', () => {
 			'index.html',
 		);
 		await page.locator('footer').getByRole('link', { name: 'Лента' }).click();
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 15 марта 2026');
 		await expect(page.locator('article.card')).toHaveCount(3);
 	});
 });

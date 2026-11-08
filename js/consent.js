@@ -95,10 +95,23 @@
 		return document.querySelector('#consent-banner');
 	}
 
+	let consentObserver = null;
+
+	function syncConsentHeight() {
+		const el = bannerEl();
+		const height = el ? el.offsetHeight : 0;
+		document.documentElement.style.setProperty('--consent-h', height + 'px');
+	}
+
 	function hideBanner() {
 		const el = bannerEl();
 		if (el) el.remove();
+		if (consentObserver) {
+			consentObserver.disconnect();
+			consentObserver = null;
+		}
 		document.body.classList.remove('has-consent-banner');
+		document.documentElement.style.setProperty('--consent-h', '0px');
 	}
 
 	function showBanner() {
@@ -127,6 +140,11 @@
 			'</div>';
 		document.body.appendChild(el);
 		document.body.classList.add('has-consent-banner');
+		syncConsentHeight();
+		if (window.ResizeObserver) {
+			consentObserver = new ResizeObserver(syncConsentHeight);
+			consentObserver.observe(el);
+		}
 	}
 
 	function syncSettings() {

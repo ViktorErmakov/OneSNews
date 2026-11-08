@@ -201,7 +201,7 @@ def to_raw_item(row: dict, source: dict, target: date, tz: ZoneInfo, snippet_cha
 		"published_at": published.isoformat(),
 		"snippet": clip(strip_html(row.get("snippet") or ""), snippet_chars),
 		"digest_quarter": row.get("quarter") or "",
-		**source_meta(source, []),
+		**source_meta(source),
 	}
 
 

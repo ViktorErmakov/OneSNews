@@ -130,16 +130,11 @@ def parse_listing_html(html: str, url: str) -> list[dict]:
 	return rows
 
 
-def article_snippet(html: str, snippet_chars: int) -> tuple[str, list[str]]:
+def article_snippet(html: str, snippet_chars: int) -> str:
 	soup = BeautifulSoup(html, "lxml")
-	topics: list[str] = []
-	for a in soup.select(".breadcrumb a[href*='industry=']"):
-		label = a.get_text(" ", strip=True)
-		if label:
-			topics.append(label)
 	root = soup.select_one(".post-page .text") or soup.select_one(".article-content .text")
 	if root is None:
-		return "", topics
+		return ""
 	parts: list[str] = []
 	for child in root.find_all(["p", "li"], recursive=True):
 		if child.find_parent("blockquote") is not None:
@@ -151,7 +146,7 @@ def article_snippet(html: str, snippet_chars: int) -> tuple[str, list[str]]:
 		joined = " ".join(parts)
 		if len(joined) >= snippet_chars:
 			break
-	return clip(strip_html(" ".join(parts)), snippet_chars), topics
+	return clip(strip_html(" ".join(parts)), snippet_chars)
 
 
 def fetch_html(url: str) -> str:
@@ -173,11 +168,9 @@ def enrich_row(row: dict, snippet_chars: int) -> None:
 	except Exception as exc:  # noqa: BLE001
 		logger.warning("1c-dn: skip snippet %s: %s", row["url"], exc)
 		return
-	snippet, topics = article_snippet(html, snippet_chars)
+	snippet = article_snippet(html, snippet_chars)
 	if snippet:
 		row["snippet"] = snippet
-	if topics:
-		row["topics"] = topics
 
 
 def collect_listing(
@@ -204,7 +197,6 @@ def collect_listing(
 					**row,
 					"published": listing_datetime(day, tz),
 					"snippet": "",
-					"topics": [],
 				}
 			)
 		oldest = min(page_days) if page_days else None
@@ -228,7 +220,7 @@ def to_raw_item(row: dict, source: dict, snippet_chars: int) -> dict:
 		"author": author,
 		"published_at": published.isoformat() if published else None,
 		"snippet": clip(strip_html(row.get("snippet") or ""), snippet_chars),
-		**source_meta(source, row.get("topics") or []),
+		**source_meta(source),
 	}
 
 

@@ -9,7 +9,7 @@ import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urljoin
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
@@ -116,13 +116,20 @@ def pagen_number(url: str) -> int:
 	return int(m.group(1)) if m else 1
 
 
+def with_page(url: str, page: int) -> str:
+	"""Same catalog address with only the page number changed."""
+	parts = urlsplit(url)
+	query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "PAGEN_1"]
+	if page > 1:
+		query.append(("PAGEN_1", str(page)))
+	return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), ""))
+
+
 def next_catalog_url(soup: BeautifulSoup, current_url: str) -> str | None:
-	wanted = pagen_number(current_url) + 1
-	for a in soup.select("a[href*='PAGEN_1=']"):
-		href = str(a.get("href") or "")
-		if pagen_number(href) == wanted:
-			return urljoin(current_url, href)
-	return None
+	"""Next page of this catalog. Pager links must not add or drop filters."""
+	if soup.select_one("a[href*='PAGEN_1=']") is None:
+		return None
+	return with_page(current_url, pagen_number(current_url) + 1)
 
 
 def parse_catalog_date(text: str, today: date) -> date | None:
@@ -192,12 +199,86 @@ def accept_url(url: str, blob: str) -> bool:
 	return False
 
 
+def _mojibake_pair(text: str, index: int) -> bool:
+	"""UTF-8 lead D0/D1 read as cp1251 is Р or С, followed by a continuation byte."""
+	if index + 1 >= len(text) or text[index] not in "РС":
+		return False
+	try:
+		raw = text[index + 1].encode("cp1251")
+	except UnicodeError:
+		return False
+	return len(raw) == 1 and 0x80 <= raw[0] <= 0xBF
+
+
+def looks_mojibake(text: str) -> bool:
+	found = 0
+	i = 0
+	while i < len(text) - 1:
+		if _mojibake_pair(text, i):
+			found += 1
+			if found >= 3:
+				return True
+			i += 2
+			continue
+		found = 0
+		i += 1
+	return False
+
+
+def readable_text(text: str) -> str | None:
+	"""Keep normal text. Rebuild UTF-8 that was decoded as windows-1251. Drop the rest."""
+	raw = text or ""
+	if not raw.strip():
+		return ""
+	if not looks_mojibake(raw):
+		return raw
+	try:
+		repaired = raw.encode("cp1251").decode("utf-8")
+	except UnicodeError:
+		return None
+	if looks_mojibake(repaired):
+		return None
+	return repaired
+
+
 def clean_infostart_snippet(text: str, snippet_chars: int) -> str:
 	text = strip_html(text or "")
 	text = re.sub(r"©\s*\S+", " ", text)
 	text = re.sub(r"(?i)версия для печати\.?", " ", text)
 	text = re.sub(r"\s+", " ", text).strip()
 	return clip(text, snippet_chars)
+
+
+def card_links(card: Tag) -> list[str]:
+	seen: set[str] = set()
+	out: list[str] = []
+	for anchor in card.select("a[href]"):
+		href = abs_url(str(anchor.get("href") or ""))
+		if not href or href in seen:
+			continue
+		seen.add(href)
+		out.append(href)
+	return out
+
+
+def record_problem(problems: list[dict], **fields: object) -> None:
+	problems.append(fields)
+	logger.warning(
+		"infostart: problem reason=%s url=%s page=%s",
+		fields.get("reason") or "",
+		fields.get("url") or "",
+		fields.get("page") or "",
+	)
+
+
+def write_problems(start: date, end: date, problems: list[dict]) -> None:
+	TMP.mkdir(parents=True, exist_ok=True)
+	name = f"infostart-problems-{start.isoformat()}"
+	if end != start:
+		name += f"--{end.isoformat()}"
+	path = TMP / f"{name}.json"
+	path.write_text(json.dumps(problems, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+	logger.info("infostart: wrote %s parse problems to %s", len(problems), path)
 
 
 def parse_card(card: Tag, today: date, tz: ZoneInfo) -> dict | None:
@@ -254,10 +335,12 @@ def collect_catalog(
 	end: date,
 	tz: ZoneInfo,
 	today: date,
+	problems: list[dict],
 ) -> tuple[list[dict], bool]:
 	"""Return cards with start <= date <= end; stop after pages older than start."""
 	collected: list[dict] = []
 	prev_urls: list[str] | None = None
+	prev_page_url: str | None = None
 	prev_oldest: date | None = None
 	saw_older = False
 	broken_fields = 0
@@ -275,12 +358,29 @@ def collect_catalog(
 			raw = parse_card(card, today, tz)
 			if raw is None or not raw.get("url") or not raw.get("title"):
 				broken_fields += 1
+				links = card_links(card)
+				record_problem(
+					problems,
+					reason="no_title_link" if raw is None else "empty_title_or_url",
+					page=url,
+					url=links[0] if links else "",
+					links=links[:12],
+					text=card.get_text(" ", strip=True)[:300],
+				)
 				continue
 			parsed_ok += 1
 			page_urls.append(raw["url"])
 			day = raw["published"].date() if raw["published"] else None
 			if day is None:
 				broken_fields += 1
+				record_problem(
+					problems,
+					reason="no_date",
+					page=url,
+					url=raw.get("url") or "",
+					title=raw.get("title") or "",
+					date_text=raw.get("date_text") or "",
+				)
 				continue
 			page_dates.append(day)
 			if start <= day <= end:
@@ -304,13 +404,16 @@ def collect_catalog(
 			gap_from = newest + timedelta(days=1)
 			gap_to = prev_oldest - timedelta(days=1)
 			if gap_from <= end and gap_to >= start:
-				logger.warning(
-					"infostart: catalog date gap %s .. %s on %s",
-					gap_from.isoformat(),
-					gap_to.isoformat(),
-					url,
+				record_problem(
+					problems,
+					reason="date_gap",
+					page=url,
+					previous_page=prev_page_url or "",
+					gap_from=gap_from.isoformat(),
+					gap_to=gap_to.isoformat(),
 				)
 		prev_urls = page_urls
+		prev_page_url = url
 		prev_oldest = oldest
 		logger.info("infostart: %s page %s cards=%s kept=%s", url, page, len(cards), kept_here)
 		if saw_older:
@@ -370,19 +473,35 @@ def collect_rss_articles(rss_url: str, start: date, end: date, tz: ZoneInfo, sni
 	return items
 
 
-def to_raw_item(row: dict, source: dict, snippet_chars: int) -> dict | None:
+def to_raw_item(
+	row: dict,
+	source: dict,
+	snippet_chars: int,
+	problems: list[dict] | None = None,
+) -> dict | None:
 	url = row.get("url") or ""
 	author = strip_html(row.get("author") or "") or "Не указан"
 	if is_editorial_author(author):
 		return None
 	if not accept_url(url, row.get("blob") or ""):
 		return None
+	title = readable_text(row.get("title") or "")
+	snippet_src = row.get("snippet") or ""
+	if snippet_src:
+		snippet = readable_text(snippet_src)
+	else:
+		snippet = title or ""
+	if title is None or snippet is None:
+		record_problem(
+			problems if problems is not None else [],
+			reason="unreadable",
+			url=url,
+			title=row.get("title") or "",
+		)
+		return None
 	published = row.get("published")
-	snippet = row.get("snippet") or ""
-	if not snippet:
-		snippet = row.get("title") or ""
 	return {
-		"title": strip_html(row.get("title") or "") or "Без названия",
+		"title": strip_html(title) or "Без названия",
 		"url": url,
 		"author": author,
 		"published_at": published.isoformat() if isinstance(published, datetime) else None,
@@ -410,52 +529,68 @@ def collect_infostart_range(
 ) -> dict[date, list[dict]]:
 	today = datetime.now(tz).date()
 	html_rows: list[dict] = []
+	problems: list[dict] = []
 	contract_error: InfostartContractError | None = None
-	for catalog in CATALOGS:
-		try:
-			rows, _older = collect_catalog(catalog, start, end, tz, today)
-			html_rows.extend(rows)
-		except InfostartContractError as exc:
-			logger.error("%s", exc)
-			contract_error = exc
+	try:
+		for catalog in CATALOGS:
+			try:
+				rows, _older = collect_catalog(catalog, start, end, tz, today, problems)
+				html_rows.extend(rows)
+			except InfostartContractError as exc:
+				logger.error("%s", exc)
+				record_problem(
+					problems,
+					reason="catalog_contract",
+					page=catalog,
+					url=catalog,
+					detail=str(exc),
+				)
+				contract_error = exc
 
-	by_url: dict[str, dict] = {}
-	for row in html_rows:
-		item = to_raw_item(row, source, snippet_chars)
-		if item:
-			by_url[item["url"]] = item
+		by_url: dict[str, dict] = {}
+		for row in html_rows:
+			item = to_raw_item(row, source, snippet_chars, problems)
+			if item:
+				by_url[item["url"]] = item
 
-	rss_url = source.get("url") or "https://infostart.ru/public/rss/"
-	rss_rows = collect_rss_articles(rss_url, start, end, tz, snippet_chars)
-	for row in rss_rows:
-		url = row["url"]
-		if url in by_url:
-			if not by_url[url].get("snippet") and row.get("snippet"):
-				by_url[url]["snippet"] = row["snippet"]
-			continue
-		logger.warning("infostart: RSS article missing from catalogs url=%s", url)
-		item = to_raw_item({**row, "blob": ""}, source, snippet_chars)
-		if item:
-			by_url[url] = item
+		rss_url = source.get("url") or "https://infostart.ru/public/rss/"
+		rss_rows = collect_rss_articles(rss_url, start, end, tz, snippet_chars)
+		for row in rss_rows:
+			url = row["url"]
+			if url in by_url:
+				if not by_url[url].get("snippet") and row.get("snippet"):
+					by_url[url]["snippet"] = row["snippet"]
+				continue
+			record_problem(
+				problems,
+				reason="rss_not_in_catalog",
+				url=url,
+				title=row.get("title") or "",
+			)
+			item = to_raw_item({**row, "blob": ""}, source, snippet_chars, problems)
+			if item:
+				by_url[url] = item
 
-	buckets: dict[date, list[dict]] = {}
-	for item in by_url.values():
-		day = _item_day(item)
-		if day is None or day < start or day > end:
-			continue
-		buckets.setdefault(day, []).append(item)
-	for day, group in buckets.items():
-		group.sort(key=lambda it: it.get("published_at") or "", reverse=True)
-		logger.info("infostart: %s items for %s", len(group), day.isoformat())
-	if not buckets and contract_error is not None:
-		raise contract_error
-	if not buckets:
-		logger.info(
-			"infostart: 0 items after filter for %s..%s",
-			start.isoformat(),
-			end.isoformat(),
-		)
-	return buckets
+		buckets: dict[date, list[dict]] = {}
+		for item in by_url.values():
+			day = _item_day(item)
+			if day is None or day < start or day > end:
+				continue
+			buckets.setdefault(day, []).append(item)
+		for day, group in buckets.items():
+			group.sort(key=lambda it: it.get("published_at") or "", reverse=True)
+			logger.info("infostart: %s items for %s", len(group), day.isoformat())
+		if not buckets and contract_error is not None:
+			raise contract_error
+		if not buckets:
+			logger.info(
+				"infostart: 0 items after filter for %s..%s",
+				start.isoformat(),
+				end.isoformat(),
+			)
+		return buckets
+	finally:
+		write_problems(start, end, problems)
 
 
 def collect_infostart_source(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:

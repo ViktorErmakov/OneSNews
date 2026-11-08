@@ -52,10 +52,9 @@ class OnesDnListingTests(unittest.TestCase):
 
 
 class OnesDnArticleTests(unittest.TestCase):
-	def test_skips_disclaimer_and_reads_topic(self) -> None:
+	def test_skips_disclaimer(self) -> None:
 		html = (FIXTURES / "ones-dn-article.html").read_text(encoding="utf-8")
-		snippet, topics = article_snippet(html, 600)
-		self.assertEqual(topics, ["How-to technical articles"])
+		snippet = article_snippet(html, 600)
 		self.assertTrue(snippet.startswith("Let's dive straight in"))
 		self.assertIn("sales managers", snippet)
 		self.assertNotIn("Disclaimer", snippet)

@@ -26,6 +26,7 @@
 			source: 'Источник',
 			sourceAll: 'Все',
 			search: {
+				toggle: 'Поиск',
 				placeholder: 'Поиск по заголовкам и описаниям',
 				clear: 'Сбросить поиск',
 				history: 'Недавние запросы',
@@ -34,17 +35,16 @@
 			loading: 'Загрузка…',
 			sections: 'Разделы дня',
 			feed: 'Лента',
+			toTop: 'Наверх',
 			feedback: 'Пожелания',
 			read: 'Прочитано',
 			readUndo: 'Отменить',
 			unmarkRead: 'Снять отметку «прочитано»',
 			opensNewTab: '{title} (откроется в новой вкладке)',
 			filterSource: 'Фильтр по источнику: {name}',
-			dayTitle: 'Дайджест за {date}',
 			calendarPrev: 'Предыдущий месяц',
 			calendarNext: 'Следующий месяц',
 			weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-			materials: { one: '{n} материал', few: '{n} материала', many: '{n} материалов' },
 			empty: {
 				noItems: 'Нет новостей за этот день.',
 				noItemsHint: 'Выберите другую дату в календаре.',
@@ -146,6 +146,7 @@
 			source: 'Source',
 			sourceAll: 'All',
 			search: {
+				toggle: 'Search',
 				placeholder: 'Search titles and summaries',
 				clear: 'Clear search',
 				history: 'Recent searches',
@@ -154,17 +155,16 @@
 			loading: 'Loading…',
 			sections: 'Sections of the day',
 			feed: 'Feed',
+			toTop: 'Back to top',
 			feedback: 'Feedback',
 			read: 'Read',
 			readUndo: 'Undo',
 			unmarkRead: 'Remove read mark',
 			opensNewTab: '{title} (opens in a new tab)',
 			filterSource: 'Filter by source: {name}',
-			dayTitle: 'Digest for {date}',
 			calendarPrev: 'Previous month',
 			calendarNext: 'Next month',
 			weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
-			materials: { one: '{n} item', few: '{n} items', many: '{n} items' },
 			empty: {
 				noItems: 'No news for this day.',
 				noItemsHint: 'Pick another date in the calendar.',
@@ -425,10 +425,6 @@
 		return `${parsed.day} ${months[parsed.month]}`;
 	}
 
-	function formatDayTitle(iso) {
-		return t('dayTitle', { date: formatLongDate(iso) });
-	}
-
 	function formatDateLabel(iso) {
 		return formatLongDate(iso) || t('date');
 	}
@@ -449,20 +445,6 @@
 	function weekdays() {
 		const list = t('weekdays');
 		return Array.isArray(list) ? list : STRINGS.ru.weekdays;
-	}
-
-	function materialsLabel(count) {
-		const n = Number(count) || 0;
-		let form = 'many';
-		if (locale === 'en') {
-			form = n === 1 ? 'one' : 'many';
-		} else {
-			const mod10 = n % 10;
-			const mod100 = n % 100;
-			if (mod10 === 1 && mod100 !== 11) form = 'one';
-			else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) form = 'few';
-		}
-		return t('materials.' + form, { n: n });
 	}
 
 	function sourceTypeLabel(code) {
@@ -535,13 +517,11 @@
 		resolveLocale: resolveLocale,
 		fromQuery: fromQuery,
 		flagSvg: flagSvg,
-		formatDayTitle: formatDayTitle,
 		formatDateLabel: formatDateLabel,
 		formatShortDate: formatShortDate,
 		formatDateNumeric: formatDateNumeric,
 		monthTitle: monthTitle,
 		weekdays: weekdays,
-		materialsLabel: materialsLabel,
 		sourceTypeLabel: sourceTypeLabel,
 		parseIsoDate: parseIsoDate,
 		get locale() {

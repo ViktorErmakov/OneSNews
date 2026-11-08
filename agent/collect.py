@@ -40,7 +40,6 @@ TG_SKIP_TEXT = frozenset(
 		"view in telegram",
 	}
 )
-HASHTAG_RE = re.compile(r"#([^\s#]+)", re.UNICODE)
 VERSION_RE = re.compile(r"\b\d+\.\d+(?:\.\d+)*\b")
 ABBREV_RE = re.compile(r"(?i)\b(?:т\.е|т\.д|т\.п|т\.к|т\.н)\.")
 URL_RE = re.compile(r"https?://\S+")
@@ -82,41 +81,12 @@ def local_name(el) -> str:
 	return el.tag.split("}", 1)[-1] if "}" in el.tag else el.tag
 
 
-def unique_labels(raw_labels: list[str] | None = None) -> list[str]:
-	seen: set[str] = set()
-	out: list[str] = []
-	for value in raw_labels or []:
-		label = re.sub(r"\s+", " ", str(value).strip())
-		if not label:
-			continue
-		key = label.casefold()
-		if key in seen:
-			continue
-		seen.add(key)
-		out.append(label)
-	return out
-
-
-def source_meta(source: dict, raw_labels: list[str] | None = None) -> dict:
+def source_meta(source: dict) -> dict:
 	return {
 		"source_name": source.get("name") or "",
 		"source_type": source["source_type"],
-		"topics": unique_labels(raw_labels),
 		"language": source.get("language") or "ru",
 	}
-
-
-def read_categories(parent) -> list[str]:
-	labels: list[str] = []
-	for child in list(parent):
-		if local_name(child) != "category":
-			continue
-		text = "".join(child.itertext()).strip()
-		term = (child.attrib.get("term") or "").strip()
-		label = text or term
-		if label:
-			labels.append(label)
-	return labels
 
 
 def collect_rss(source: dict, target: date, tz: ZoneInfo, snippet_chars: int) -> list[dict]:
@@ -141,7 +111,6 @@ def collect_rss_range(
 		published: datetime | None,
 		snippet: str,
 		meta_source: dict,
-		categories: list[str] | None = None,
 	) -> None:
 		day = local_date(published, tz)
 		if day is None or day < start or day > end:
@@ -153,7 +122,7 @@ def collect_rss_range(
 				"author": strip_html(author) or "Не указан",
 				"published_at": published.isoformat() if published else None,
 				"snippet": clip(strip_html(snippet), snippet_chars),
-				**source_meta(meta_source, categories),
+				**source_meta(meta_source),
 			}
 		)
 
@@ -173,7 +142,7 @@ def collect_rss_range(
 			published = parse_datetime(
 				item.findtext("pubDate") or item.findtext("published") or item.findtext("updated")
 			)
-			add_item(title, link or guid, author, published, desc, source, read_categories(item))
+			add_item(title, link or guid, author, published, desc, source)
 		return buckets
 
 	for entry in root.findall(f"{ATOM}entry") or root.findall("entry"):
@@ -208,7 +177,6 @@ def collect_rss_range(
 			published,
 			summary,
 			{**source, "name": source.get("name") or "Atom"},
-			read_categories(entry),
 		)
 	return buckets
 
@@ -326,7 +294,7 @@ def parse_youtube_atom(
 				"author": strip_html(author) or source.get("name") or "Не указан",
 				"published_at": published.isoformat() if published else None,
 				"snippet": clip(strip_html(description), snippet_chars),
-				**source_meta(source, []),
+				**source_meta(source),
 			}
 		)
 	return buckets
@@ -426,15 +394,6 @@ def telegram_plain_text(text_el) -> str:
 	return "\n".join(line for line in lines if line)
 
 
-def telegram_hashtags(text: str) -> list[str]:
-	labels: list[str] = []
-	for raw in HASHTAG_RE.findall(text or ""):
-		label = raw.rstrip(".,;:!?)»\"'")
-		if label:
-			labels.append(label)
-	return unique_labels(labels)
-
-
 def telegram_message_ids(wraps) -> list[int]:
 	ids: list[int] = []
 	for wrap in wraps:
@@ -514,7 +473,7 @@ def collect_telegram_web_range(
 					"author": author,
 					"published_at": published.isoformat() if published else None,
 					"snippet": snippet,
-					**source_meta(source_for_meta, telegram_hashtags(body)),
+					**source_meta(source_for_meta),
 				}
 			)
 

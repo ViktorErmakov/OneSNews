@@ -39,7 +39,7 @@ test.describe('Оверлей настроек', () => {
 		await expect(page.locator('#settings-overlay')).toBeVisible();
 		await page.locator('#settings-close').click();
 		await expect(page.locator('#settings-overlay')).toBeHidden();
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 15 марта 2026');
 	});
 
 	test('повторный тап по шестерёнке закрывает панель', async ({ page }) => {
@@ -59,7 +59,7 @@ test.describe('Соседние дни', () => {
 		await page.locator('#another-day-prev').click();
 		await waitForDay(page);
 		await expect(page).toHaveURL(/date=2026-02-10/);
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 10 февраля 2026');
+		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 10 февраля 2026');
 		await expect(page.locator('#another-day-prev')).toBeHidden();
 		await expect(page.locator('#another-day-next')).toHaveText('15 марта');
 	});
@@ -71,7 +71,7 @@ test.describe('Соседние дни', () => {
 		await page.locator('#another-day-next').click();
 		await waitForDay(page);
 		await expect(page).toHaveURL(/date=2026-03-15/);
-		await expect(page.locator('#day-title')).toHaveText('Дайджест за 15 марта 2026');
+		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 15 марта 2026');
 	});
 
 	test('в середине архива видны обе даты', async ({ page }) => {
