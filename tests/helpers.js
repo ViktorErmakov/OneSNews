@@ -134,6 +134,16 @@ async function openIndex(page, options) {
 			}
 		}, opts.hiddenLanguages);
 	}
+	if (opts.feedLanguage) {
+		await page.addInitScript((value) => {
+			try {
+				if (value === 'all') localStorage.setItem('ones-feed-language', 'all');
+				else localStorage.removeItem('ones-feed-language');
+			} catch (err) {
+				/* ignore */
+			}
+		}, opts.feedLanguage);
+	}
 	if (opts.lastDate) {
 		await page.addInitScript((value) => {
 			try {

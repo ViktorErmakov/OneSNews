@@ -28,6 +28,11 @@
 	const SEARCH_HISTORY_KEY = 'ones-search-history';
 	const SEARCH_HISTORY_MAX = 8;
 	const LAST_DATE_KEY = 'ones-last-date';
+	const wideFeedQuery = window.matchMedia('(min-width: 75rem)');
+
+	function calendarPinned() {
+		return Boolean(wideFeedQuery.matches);
+	}
 
 	const els = {
 		datePicker: document.querySelector('#date-picker'),
@@ -43,6 +48,8 @@
 		feed: document.querySelector('#feed'),
 		status: document.querySelector('#status'),
 		chrome: document.querySelector('.chrome'),
+		filtersBar: document.querySelector('.filters-bar'),
+		feedTools: document.querySelector('.feed-tools'),
 		searchToggle: document.querySelector('#search-toggle'),
 		searchBox: document.querySelector('#search-box'),
 		searchInput: document.querySelector('#feed-search'),
@@ -161,6 +168,7 @@
 	}
 
 	function itemsOfCurrentLanguage() {
+		if (!state.language) return allDayItems();
 		return allDayItems().filter((item) => item.language === state.language);
 	}
 
@@ -197,15 +205,20 @@
 			}));
 	}
 
+	function languageLabel(code) {
+		const found = (cfg.LANGUAGES || []).find((lang) => lang.code === code);
+		return found ? found.label : String(code || '');
+	}
+
 	function languagePickerOptions() {
-		return availableLanguages();
+		return [{ code: '', label: t('languageAll') }].concat(availableLanguages());
 	}
 
 	function currentLanguageOption() {
 		const options = languagePickerOptions();
 		return (
 			options.find((opt) => opt.code === state.language) ||
-			options[0] || { code: 'ru', label: 'Русский' }
+			options[0] || { code: '', label: t('languageAll') }
 		);
 	}
 
@@ -330,17 +343,26 @@
 		return true;
 	}
 
+	function applyChromeHeight() {
+		const headerH = els.chrome ? els.chrome.offsetHeight : 0;
+		document.documentElement.style.setProperty('--chrome-h', `${headerH}px`);
+		const toolsH = calendarPinned() && els.feedTools ? els.feedTools.offsetHeight : 0;
+		if (toolsH) document.documentElement.style.setProperty('--tools-h', `${toolsH}px`);
+		const filtersH = calendarPinned() ? 0 : els.filtersBar ? els.filtersBar.offsetHeight : 0;
+		document.documentElement.style.setProperty('--scroll-pad', `${headerH + filtersH}px`);
+	}
+
 	function bindChromeHeight() {
-		if (!els.chrome) return;
-		const apply = () => {
-			document.documentElement.style.setProperty('--chrome-h', `${els.chrome.offsetHeight}px`);
-		};
+		if (!els.chrome && !els.filtersBar && !els.feedTools) return;
 		if (window.ResizeObserver) {
-			new ResizeObserver(apply).observe(els.chrome);
+			const observer = new ResizeObserver(applyChromeHeight);
+			if (els.chrome) observer.observe(els.chrome);
+			if (els.filtersBar) observer.observe(els.filtersBar);
+			if (els.feedTools) observer.observe(els.feedTools);
 		} else {
-			window.addEventListener('resize', apply);
+			window.addEventListener('resize', applyChromeHeight);
 		}
-		apply();
+		applyChromeHeight();
 	}
 
 	function loadReadMap() {
@@ -445,7 +467,7 @@
 			if (!raw) return {};
 			if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
 				const legacy = {};
-				legacy[state.language || 'ru'] = raw;
+				legacy[dateStorageKey()] = raw;
 				try {
 					localStorage.setItem(LAST_DATE_KEY, JSON.stringify(legacy));
 				} catch (err) {
@@ -468,18 +490,20 @@
 		}
 	}
 
+	function dateStorageKey(language) {
+		const code = language === undefined ? state.language : language;
+		return code || 'all';
+	}
+
 	function storedDate(language) {
-		const code = language || state.language;
-		if (!code) return '';
-		return loadLastDates()[code] || '';
+		return loadLastDates()[dateStorageKey(language)] || '';
 	}
 
 	function rememberDate(date, language) {
-		const code = language || state.language;
-		if (!code || !date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+		if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
 		try {
 			const map = loadLastDates();
-			map[code] = date;
+			map[dateStorageKey(language)] = date;
 			localStorage.setItem(LAST_DATE_KEY, JSON.stringify(map));
 		} catch (err) {
 			/* ignore */
@@ -487,7 +511,7 @@
 	}
 
 	function pickAvailableDate(preferred, language) {
-		const remembered = storedDate(language || state.language);
+		const remembered = storedDate(language);
 		if (remembered && state.dates.includes(remembered)) return remembered;
 		if (preferred && state.dates.includes(preferred)) return preferred;
 		return state.dates[0] || null;
@@ -496,16 +520,35 @@
 	function queryLang() {
 		const params = new URLSearchParams(window.location.search);
 		const value = params.get('lang');
-		return value === 'ru' || value === 'en' ? value : '';
+		if (value === 'ru' || value === 'en' || value === 'all') return value;
+		return '';
+	}
+
+	function isLanguageCode(code) {
+		return availableLanguages().some((lang) => lang.code === code);
+	}
+
+	function revealAllLanguages() {
+		if (!window.ONES_PREFS || !window.ONES_PREFS.revealLanguages) return;
+		window.ONES_PREFS.revealLanguages((cfg.LANGUAGES || []).map((lang) => lang.code));
+	}
+
+	function persistFeedLanguage() {
+		if (!window.ONES_PREFS || !window.ONES_PREFS.saveFeedLanguage) return;
+		window.ONES_PREFS.saveFeedLanguage(state.language ? '' : 'all');
 	}
 
 	function setUrlState() {
 		const url = new URL(window.location.href);
 		if (state.date) url.searchParams.set('date', state.date);
 		else url.searchParams.delete('date');
+		syncLangParam(url);
+		window.history.replaceState({}, '', url);
+	}
+
+	function syncLangParam(url) {
 		if (state.language) url.searchParams.set('lang', state.language);
 		else url.searchParams.delete('lang');
-		window.history.replaceState({}, '', url);
 	}
 
 	function parseIsoDate(iso) {
@@ -646,6 +689,11 @@
 	}
 
 	function closePicker(btn, panel) {
+		if (panel === els.datePanel && calendarPinned()) {
+			panel.hidden = false;
+			btn.setAttribute('aria-expanded', 'true');
+			return;
+		}
 		panel.hidden = true;
 		btn.setAttribute('aria-expanded', 'false');
 	}
@@ -738,6 +786,10 @@
 			`</div>` +
 			`<div class="calendar-weekdays">${weekdayLabels.map((d) => `<span>${d}</span>`).join('')}</div>` +
 			`<div class="calendar-grid">${renderCalendarGrid()}</div>`;
+		if (calendarPinned()) {
+			els.datePanel.hidden = false;
+			els.dateBtn.setAttribute('aria-expanded', 'true');
+		}
 	}
 
 	function renderLangPicker() {
@@ -818,16 +870,33 @@
 	}
 
 	function applyLanguageDates() {
-		const byLang = state.datesByLanguage[state.language];
-		state.dates = Array.isArray(byLang) ? uniqueDates(byLang) : [];
+		if (state.language) {
+			const byLang = state.datesByLanguage[state.language];
+			state.dates = Array.isArray(byLang) ? uniqueDates(byLang) : [];
+		} else {
+			const hidden = hiddenLanguageCodes();
+			const merged = [];
+			Object.keys(state.datesByLanguage).forEach((code) => {
+				if (hidden.has(code)) return;
+				const list = state.datesByLanguage[code];
+				if (Array.isArray(list)) merged.push(...list);
+			});
+			state.dates = uniqueDates(merged).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
+		}
 		state.dateSet = new Set(state.dates);
 	}
 
 	function setLanguage(code) {
-		const next = availableLanguages().some((lang) => lang.code === code) ? code : 'ru';
+		const next = isLanguageCode(code) ? code : '';
 		state.language = next;
-		if (window.ONES_PREFS) window.ONES_PREFS.revealLanguage(next);
-		if (i18n) i18n.setLocale(next);
+		if (next) {
+			if (window.ONES_PREFS) window.ONES_PREFS.revealLanguage(next);
+			if (i18n) i18n.setLocale(next);
+		} else {
+			revealAllLanguages();
+		}
+		persistFeedLanguage();
+		document.dispatchEvent(new CustomEvent('ones-feed-language'));
 		applyLanguageDates();
 		closePicker(els.langBtn, els.langList);
 		const nextDate = pickAvailableDate(null);
@@ -854,6 +923,10 @@
 	}
 
 	function toggleFilter(kind, code) {
+		if (kind === 'language') {
+			if (code) setLanguage(code);
+			return;
+		}
 		if (kind === 'source') {
 			const available = availableSources();
 			if (available.length === 1) {
@@ -877,11 +950,23 @@
 				`title="${escapeHtml(t('filterSource', { name: sourceName }))}" ` +
 				`aria-label="${escapeHtml(t('filterSource', { name: sourceName }))}">${escapeHtml(sourceName)}</button>`
 			: '';
+		const itemLanguage = String(item.language || '').trim();
+		const itemLanguageLabel = languageLabel(itemLanguage);
+		const languageChip =
+			!state.language && itemLanguage
+				? `<button type="button" class="chip chip-lang" data-filter="language" ` +
+					`data-value="${escapeHtml(itemLanguage)}" aria-pressed="false" ` +
+					`title="${escapeHtml(t('filterLanguage', { name: itemLanguageLabel }))}" ` +
+					`aria-label="${escapeHtml(t('filterLanguage', { name: itemLanguageLabel }))}">` +
+					`${flagSvg(itemLanguage)}<span>${escapeHtml(itemLanguageLabel)}</span></button>`
+				: '';
 		const author = String(item.author || '').trim();
-		const showAuthor =
-			Boolean(author) &&
-			author !== 'Не указан' &&
-			author.toLocaleLowerCase(localeCode()) !== sourceName.toLocaleLowerCase(localeCode());
+		const authorKey = author.toLocaleLowerCase(localeCode());
+		const catalogName = String(item.source_name || '').trim();
+		const repeatsSource = catalogName
+			? authorKey.includes(catalogName.toLocaleLowerCase(localeCode()))
+			: authorKey === sourceName.toLocaleLowerCase(localeCode());
+		const showAuthor = Boolean(author) && author !== 'Не указан' && !repeatsSource;
 		const authorHtml = showAuthor ? `<span>${escapeHtml(author)}</span>` : '';
 		const summaryBlock = String(item.summary || '').trim()
 			? `<p class="card-summary">${summaryHtml}</p>`
@@ -893,6 +978,7 @@
 			summaryBlock +
 			`<div class="card-meta">` +
 			sourceChip +
+			languageChip +
 			authorHtml +
 			`<button type="button" class="read-badge" ` +
 			`aria-label="${escapeHtml(t('unmarkRead'))}">` +
@@ -960,7 +1046,7 @@
 	function dateHref(iso) {
 		const url = new URL(window.location.href);
 		url.searchParams.set('date', iso);
-		if (state.language) url.searchParams.set('lang', state.language);
+		syncLangParam(url);
 		return `${url.pathname}?${url.searchParams.toString()}`;
 	}
 
@@ -1463,9 +1549,21 @@
 		});
 	}
 
+	function syncCalendarPin() {
+		if (!els.dateBtn || !els.datePanel) return;
+		if (calendarPinned()) {
+			els.datePanel.hidden = false;
+			els.dateBtn.setAttribute('aria-expanded', 'true');
+			return;
+		}
+		els.datePanel.hidden = true;
+		els.dateBtn.setAttribute('aria-expanded', 'false');
+	}
+
 	function bindDatePicker() {
 		els.dateBtn.addEventListener('click', (event) => {
 			event.stopPropagation();
+			if (calendarPinned()) return;
 			if (isPickerOpen(els.datePanel)) {
 				closePicker(els.dateBtn, els.datePanel);
 				return;
@@ -1493,11 +1591,10 @@
 		});
 
 		els.datePanel.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape') {
-				event.preventDefault();
-				closePicker(els.dateBtn, els.datePanel);
-				els.dateBtn.focus();
-			}
+			if (event.key !== 'Escape' || calendarPinned()) return;
+			event.preventDefault();
+			closePicker(els.dateBtn, els.datePanel);
+			els.dateBtn.focus();
 		});
 	}
 
@@ -1593,6 +1690,28 @@
 	}
 
 	function refreshFeedFromPrefs() {
+		if (!state.language) {
+			const previous = state.date;
+			applyLanguageDates();
+			renderDatePicker();
+			if (previous && !state.dates.includes(previous)) {
+				const nextDate = pickAvailableDate(null);
+				if (!nextDate) {
+					state.currentDay = null;
+					state.date = null;
+					setUrlState();
+					syncFilterUi();
+					setStatus(t('status.noDates'), true);
+					renderFeed();
+					return;
+				}
+				loadDay(nextDate).catch((err) => {
+					setStatus(err.message || String(err), true);
+				});
+				return;
+			}
+			syncAnotherDay();
+		}
 		syncSourceToAvailable();
 		renderSourcePicker();
 		renderFeed();
@@ -1653,6 +1772,17 @@
 		loadSearchHistory();
 		bindChromeHeight();
 		bindDatePicker();
+		if (wideFeedQuery.addEventListener) {
+			wideFeedQuery.addEventListener('change', () => {
+				syncCalendarPin();
+				applyChromeHeight();
+			});
+		} else {
+			wideFeedQuery.addListener(() => {
+				syncCalendarPin();
+				applyChromeHeight();
+			});
+		}
 		bindSearch();
 		bindListPicker(els.langBtn, els.langList, setLanguage);
 		bindListPicker(els.sourceBtn, els.sourceList, setSource);
@@ -1704,18 +1834,27 @@
 			if (event.button === 1) markCardReadFromEvent(event);
 		});
 
-		if (queryLang()) {
-			state.language = queryLang();
+		const requestedLang = queryLang();
+		const savedAll =
+			!requestedLang && window.ONES_PREFS && window.ONES_PREFS.loadFeedLanguage() === 'all';
+		if (requestedLang === 'ru' || requestedLang === 'en') {
+			state.language = requestedLang;
 			if (i18n) i18n.setLocale(state.language, { silent: true });
+		} else if (requestedLang === 'all' || savedAll) {
+			state.language = '';
 		} else if (i18n) {
 			state.language = i18n.locale;
 		}
 		if (window.ONES_PREFS) {
-			window.ONES_PREFS.ensureHiddenLanguages(
-				state.language,
-				(cfg.LANGUAGES || []).map((lang) => lang.code),
-			);
-			if (queryLang()) window.ONES_PREFS.revealLanguage(state.language);
+			const codes = (cfg.LANGUAGES || []).map((lang) => lang.code);
+			const uiLocale = state.language || (i18n && i18n.locale) || 'ru';
+			window.ONES_PREFS.ensureHiddenLanguages(uiLocale, codes);
+			if (requestedLang === 'ru' || requestedLang === 'en') {
+				window.ONES_PREFS.revealLanguage(state.language);
+			} else if (requestedLang === 'all') {
+				revealAllLanguages();
+			}
+			persistFeedLanguage();
 		}
 
 		bindLiveCalendar();

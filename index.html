@@ -20,6 +20,8 @@
 					document.documentElement.setAttribute('data-theme', t);
 					var cs = document.querySelector('meta[name="color-scheme"]');
 					if (cs) cs.setAttribute('content', t);
+					var cols = localStorage.getItem('ones-columns');
+					document.documentElement.setAttribute('data-columns', cols === 'single' ? 'single' : 'multi');
 				} catch (e) {}
 				var lang = '';
 				try {
@@ -47,7 +49,7 @@
 
 		<div class="chrome">
 			<header class="top">
-				<div class="shell top-inner">
+				<div class="top-inner">
 					<a class="brand" href="index.html">
 						<svg
 							class="brand-mark"
@@ -151,6 +153,22 @@
 						</a>
 						<button
 							type="button"
+							class="columns-toggle"
+							id="columns-toggle"
+							aria-pressed="true"
+							aria-label="Карточки в одну колонку"
+						>
+							<svg class="columns-icon columns-icon-single" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<rect x="7" y="4" width="10" height="16" rx="1.5" />
+							</svg>
+							<svg class="columns-icon columns-icon-multi" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<rect x="3.5" y="4" width="4.5" height="16" rx="1" />
+								<rect x="10" y="4" width="4" height="16" rx="1" />
+								<rect x="16" y="4" width="4.5" height="16" rx="1" />
+							</svg>
+						</button>
+						<button
+							type="button"
 							class="theme-toggle"
 							id="theme-toggle"
 							aria-pressed="false"
@@ -172,51 +190,32 @@
 					</nav>
 				</div>
 			</header>
+		</div>
 
-			<div class="filters-bar">
+		<div class="page">
+			<aside class="filters-bar">
 				<div class="shell filters-inner">
-					<div class="filters-row">
-						<div class="picker" id="date-picker">
-							<button
-								type="button"
-								class="picker-btn"
-								id="date-picker-btn"
-								aria-haspopup="dialog"
-								aria-expanded="false"
-								aria-controls="date-picker-panel"
-								aria-label="Дата"
-								data-i18n-aria="date"
-							></button>
-							<div
-								class="picker-panel calendar-panel"
-								id="date-picker-panel"
-								role="dialog"
-								aria-label="Календарь"
-								data-i18n-aria="calendar"
-								hidden
-							></div>
-						</div>
-						<div class="picker" id="source-picker">
-							<button
-								type="button"
-								class="picker-btn"
-								id="source-picker-btn"
-								aria-haspopup="listbox"
-								aria-expanded="false"
-								aria-controls="source-picker-list"
-								aria-label="Источник"
-								data-i18n-aria="source"
-							></button>
-							<ul
-								class="picker-list"
-								id="source-picker-list"
-								role="listbox"
-								aria-label="Источник"
-								data-i18n-aria="source"
-								hidden
-							></ul>
-						</div>
+					<div class="picker" id="date-picker">
+						<button
+							type="button"
+							class="picker-btn"
+							id="date-picker-btn"
+							aria-haspopup="dialog"
+							aria-expanded="false"
+							aria-controls="date-picker-panel"
+							aria-label="Дата"
+							data-i18n-aria="date"
+						></button>
+						<div
+							class="picker-panel calendar-panel"
+							id="date-picker-panel"
+							role="dialog"
+							aria-label="Календарь"
+							data-i18n-aria="calendar"
+							hidden
+						></div>
 					</div>
+					<div class="feed-tools">
 					<div class="search-row" id="search-box" role="search">
 						<div class="search-field">
 							<svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -257,21 +256,42 @@
 							hidden
 						></ul>
 					</div>
+						<div class="picker" id="source-picker">
+							<button
+								type="button"
+								class="picker-btn"
+								id="source-picker-btn"
+								aria-haspopup="listbox"
+								aria-expanded="false"
+								aria-controls="source-picker-list"
+								aria-label="Источник"
+								data-i18n-aria="source"
+							></button>
+							<ul
+								class="picker-list"
+								id="source-picker-list"
+								role="listbox"
+								aria-label="Источник"
+								data-i18n-aria="source"
+								hidden
+							></ul>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
+			</aside>
 
-		<main id="main" class="shell">
-			<p id="status" class="status" hidden></p>
-			<header class="day-hero">
-				<nav id="section-nav" class="section-nav" aria-label="Разделы дня" data-i18n-aria="sections" hidden></nav>
-			</header>
-			<div id="feed" class="feed"></div>
-			<nav class="another-day" id="another-day" hidden>
-				<a class="another-day-date" id="another-day-prev" hidden href="#"></a>
-				<a class="another-day-date another-day-next" id="another-day-next" hidden href="#"></a>
-			</nav>
-		</main>
+			<main id="main" class="shell">
+				<p id="status" class="status" hidden></p>
+				<header class="day-hero">
+					<nav id="section-nav" class="section-nav" aria-label="Разделы дня" data-i18n-aria="sections" hidden></nav>
+				</header>
+				<div id="feed" class="feed"></div>
+				<nav class="another-day" id="another-day" hidden>
+					<a class="another-day-date" id="another-day-prev" hidden href="#"></a>
+					<a class="another-day-date another-day-next" id="another-day-next" hidden href="#"></a>
+				</nav>
+			</main>
+		</div>
 
 		<footer class="footer" id="feed-footer">
 			<div class="shell footer-inner">
@@ -362,6 +382,10 @@
 							<strong>Тема</strong> (<code>ones-theme</code>) — светлая или тёмная, если вы нажали
 							переключатель.
 						</li>
+						<li data-i18n-html="page.privacyColumns">
+							<strong>Колонки</strong> (<code>ones-columns</code>) — карточки ленты в одну колонку или в
+							несколько, если вы переключили раскладку.
+						</li>
 						<li data-i18n-html="page.privacyRead">
 							<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек
 							и время отметки, не больше 500 записей и 90 дней.
@@ -371,7 +395,7 @@
 						</li>
 						<li data-i18n-html="page.privacyDate">
 							<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты
-							отдельно для каждого языка.
+							отдельно для каждого языка и для режима «все языки».
 						</li>
 						<li data-i18n-html="page.privacyHidden">
 							<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не
@@ -390,7 +414,9 @@
 							группы не показывать на ленте.
 						</li>
 						<li data-i18n-html="page.privacyLang">
-							<strong>Язык</strong> (<code>ones-language</code>) — язык ленты, календаря и этой страницы.
+							<strong>Язык</strong> (<code>ones-language</code>) — язык интерфейса.
+							<code>ones-feed-language</code> со значением <code>all</code> оставляет ленту без выбора
+							языка: видны оба.
 						</li>
 						<li data-i18n-html="page.privacyConsent">
 							<strong>Выбор по аналитике</strong> (<code>ones-consent</code>) — чтобы не спрашивать
@@ -441,6 +467,7 @@
 
 		<script src="js/i18n.js"></script>
 		<script src="js/theme.js"></script>
+		<script src="js/columns.js"></script>
 		<script src="js/consent.js"></script>
 		<script src="js/config.js"></script>
 		<script src="js/prefs.js"></script>

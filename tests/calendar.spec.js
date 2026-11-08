@@ -22,7 +22,7 @@ test.describe('Календарь', () => {
 		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 10 февраля 2026');
 		await expect(page.locator('#feed-search')).toHaveValue('');
 		await expect(page.locator('article.card')).toHaveCount(1);
-		await expect(page.locator('#date-picker-panel')).toBeHidden();
+		await expect(page.locator('#date-picker-panel')).toBeVisible();
 	});
 
 	test('после выбора другой даты прокрутка вверху', async ({ page }) => {
@@ -68,9 +68,21 @@ test.describe('Календарь', () => {
 		await expect(page.locator('.calendar-day.has-news[data-date="2026-03-15"]')).toBeVisible();
 	});
 
-	test('Escape закрывает календарь', async ({ page }) => {
+	test('Escape не закрывает календарь на широком экране', async ({ page }) => {
 		await openIndex(page);
 		const dateBtn = page.getByRole('button', { name: /^Дата:/ });
+		await expect(page.locator('#date-picker-panel')).toBeVisible();
+		await dateBtn.click();
+		await expect(page.locator('#date-picker-panel')).toBeVisible();
+		await page.locator('#date-picker-panel').press('Escape');
+		await expect(page.locator('#date-picker-panel')).toBeVisible();
+	});
+
+	test('на узком экране Escape закрывает календарь', async ({ page }) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await openIndex(page);
+		const dateBtn = page.getByRole('button', { name: /^Дата:/ });
+		await expect(page.locator('#date-picker-panel')).toBeHidden();
 		await dateBtn.click();
 		await expect(page.locator('#date-picker-panel')).toBeVisible();
 		await page.locator('#date-picker-panel').press('Escape');

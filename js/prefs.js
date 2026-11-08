@@ -6,6 +6,7 @@
 	const TYPES_KEY = 'ones-hidden-types';
 	const GROUPS_KEY = 'ones-hidden-source-groups';
 	const LANGS_KEY = 'ones-hidden-languages';
+	const FEED_LANG_KEY = 'ones-feed-language';
 
 	function loadStringSet(key) {
 		try {
@@ -111,11 +112,39 @@
 		return loadHiddenLanguages().has(key);
 	}
 
+	function loadFeedLanguage() {
+		try {
+			return localStorage.getItem(FEED_LANG_KEY) === 'all' ? 'all' : '';
+		} catch (err) {
+			return '';
+		}
+	}
+
+	function saveFeedLanguage(mode) {
+		try {
+			if (mode === 'all') localStorage.setItem(FEED_LANG_KEY, 'all');
+			else localStorage.removeItem(FEED_LANG_KEY);
+		} catch (err) {
+			/* ignore quota / private mode */
+		}
+	}
+
+	function revealLanguages(codes) {
+		const hidden = loadHiddenLanguages();
+		(codes || []).forEach((code) => {
+			const key = String(code || '').trim();
+			if (key) hidden.delete(key);
+		});
+		saveHiddenLanguages(hidden);
+		return hidden;
+	}
+
 	global.ONES_PREFS = {
 		HIDDEN_KEY: SOURCES_KEY,
 		HIDDEN_TYPES_KEY: TYPES_KEY,
 		HIDDEN_GROUPS_KEY: GROUPS_KEY,
 		HIDDEN_LANGS_KEY: LANGS_KEY,
+		FEED_LANG_KEY: FEED_LANG_KEY,
 		loadHidden: loadHidden,
 		saveHidden: saveHidden,
 		isHidden: isHidden,
@@ -129,6 +158,9 @@
 		saveHiddenLanguages: saveHiddenLanguages,
 		ensureHiddenLanguages: ensureHiddenLanguages,
 		revealLanguage: revealLanguage,
+		revealLanguages: revealLanguages,
 		isLanguageHidden: isLanguageHidden,
+		loadFeedLanguage: loadFeedLanguage,
+		saveFeedLanguage: saveFeedLanguage,
 	};
 })(window);

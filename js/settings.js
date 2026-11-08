@@ -366,14 +366,27 @@
 	const langBtn = document.querySelector('#lang-picker-btn');
 	const langList = document.querySelector('#lang-picker-list');
 
+	function feedShowsAll() {
+		return Boolean(prefs && prefs.loadFeedLanguage && prefs.loadFeedLanguage() === 'all');
+	}
+
 	function renderLangPicker() {
 		if (!langBtn || !langList || !i18n) return;
-		const current = (cfg.LANGUAGES || []).find((lang) => lang.code === i18n.locale) || cfg.LANGUAGES[0];
+		const allSelected = feedShowsAll();
+		const current = allSelected
+			? { code: '', label: t('languageAll') }
+			: (cfg.LANGUAGES || []).find((lang) => lang.code === i18n.locale) || cfg.LANGUAGES[0];
 		langBtn.innerHTML = i18n.flagSvg(current.code) + CARET_SVG;
 		langBtn.setAttribute('aria-label', t('language') + ': ' + current.label);
-		langList.innerHTML = (cfg.LANGUAGES || [])
+		const allOption =
+			`<li role="option" tabindex="-1" data-value="" ` +
+			`aria-selected="${allSelected}" class="${allSelected ? 'is-active' : ''}">` +
+			i18n.flagSvg('') +
+			`<span class="picker-option-label">${escapeHtml(t('languageAll'))}</span>` +
+			`</li>`;
+		const languageOptions = (cfg.LANGUAGES || [])
 			.map((opt) => {
-				const selected = opt.code === i18n.locale;
+				const selected = !allSelected && opt.code === i18n.locale;
 				return (
 					`<li role="option" tabindex="-1" data-value="${escapeHtml(opt.code)}" ` +
 					`aria-selected="${selected}" class="${selected ? 'is-active' : ''}">` +
@@ -383,6 +396,25 @@
 				);
 			})
 			.join('');
+		langList.innerHTML = allOption + languageOptions;
+	}
+
+	function chooseLang(value) {
+		const code = String(value || '').trim();
+		if (!code) {
+			if (prefs.saveFeedLanguage) prefs.saveFeedLanguage('all');
+			if (prefs.revealLanguages) {
+				prefs.revealLanguages((cfg.LANGUAGES || []).map((lang) => lang.code));
+			}
+			renderLangPicker();
+			if (catalog.length) render(catalog);
+			document.dispatchEvent(new CustomEvent('ones-feed-language'));
+			return;
+		}
+		if (!(cfg.LANGUAGES || []).some((lang) => lang.code === code)) return;
+		if (prefs.saveFeedLanguage) prefs.saveFeedLanguage('');
+		i18n.setLocale(code);
+		prefs.revealLanguage(code);
 	}
 
 	function closeLangPicker() {
@@ -411,8 +443,7 @@
 			event.stopPropagation();
 			const option = event.target.closest('[role="option"]');
 			if (!option) return;
-			i18n.setLocale(option.getAttribute('data-value') || 'ru');
-			prefs.revealLanguage(i18n.locale);
+			chooseLang(option.getAttribute('data-value'));
 			closeLangPicker();
 		});
 		langBtn.addEventListener('keydown', (event) => {
@@ -444,10 +475,7 @@
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				const option = current && current.closest ? current.closest('[role="option"]') : null;
-				if (option) {
-					i18n.setLocale(option.getAttribute('data-value') || 'ru');
-					prefs.revealLanguage(i18n.locale);
-				}
+				if (option) chooseLang(option.getAttribute('data-value'));
 				closeLangPicker();
 				langBtn.focus();
 			}
@@ -465,6 +493,10 @@
 	if (showAllBtn) showAllBtn.addEventListener('click', showAll);
 	document.addEventListener('ones-locale', () => {
 		prefs.revealLanguage(currentLocale());
+		if (!onFeed) renderLangPicker();
+		if (catalog.length) render(catalog);
+	});
+	document.addEventListener('ones-feed-language', () => {
 		if (!onFeed) renderLangPicker();
 		if (catalog.length) render(catalog);
 	});

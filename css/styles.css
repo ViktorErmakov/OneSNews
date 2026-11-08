@@ -23,7 +23,10 @@
 	--font: 'Segoe UI', system-ui, sans-serif;
 	--tap: 2.75rem;
 	--max: 44rem;
-	--chrome-h: 10rem;
+	--page-max: 90rem;
+	--chrome-h: 4.25rem;
+	--tools-h: 4.5rem;
+	--scroll-pad: 10rem;
 	--logo: #c49212;
 	color-scheme: light;
 }
@@ -60,7 +63,7 @@
 html {
 	font-size: 100%;
 	-webkit-text-size-adjust: 100%;
-	scroll-padding-top: var(--chrome-h);
+	scroll-padding-top: var(--scroll-pad);
 	overflow-wrap: anywhere;
 }
 
@@ -144,7 +147,10 @@ a:hover {
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.75rem;
-	padding: 0.65rem 0;
+	width: auto;
+	max-width: none;
+	margin-inline: 0;
+	padding: 0.65rem 0.625rem;
 	min-width: 0;
 }
 
@@ -238,6 +244,53 @@ a:hover {
 .site-link:focus-visible {
 	outline: 0.125rem solid var(--accent);
 	outline-offset: 0.125rem;
+}
+
+.columns-toggle {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 1.7rem;
+	height: 1.7rem;
+	padding: 0;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface);
+	color: var(--ink);
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.columns-toggle:hover {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.columns-toggle:focus-visible {
+	outline: 0.125rem solid var(--accent);
+	outline-offset: 0.125rem;
+}
+
+.columns-icon {
+	width: 0.95rem;
+	height: 0.95rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.columns-toggle .columns-icon-multi {
+	display: none;
+}
+
+html[data-columns='single'] .columns-toggle .columns-icon-single {
+	display: none;
+}
+
+html[data-columns='single'] .columns-toggle .columns-icon-multi {
+	display: block;
 }
 
 .site-link-icon {
@@ -341,16 +394,29 @@ body.settings-open #settings-open .site-link-x {
 	stroke: var(--thumb-on-accent);
 }
 
+.page {
+	min-width: 0;
+}
+
 .filters-bar {
-	position: relative;
-	z-index: 1;
+	position: sticky;
+	top: var(--chrome-h);
+	z-index: 19;
 	border-bottom: 1px solid var(--line);
 	background: var(--filters-bg);
 	backdrop-filter: blur(0.625rem);
 }
 
 .filters-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
 	padding: 0.55rem 0 0.6rem;
+}
+
+.feed-tools {
+	display: contents;
 }
 
 .filters-row {
@@ -367,6 +433,7 @@ body.settings-open #settings-open .site-link-x {
 
 #date-picker {
 	flex: 0 0 auto;
+	order: 1;
 }
 
 #date-picker .picker-btn {
@@ -375,6 +442,7 @@ body.settings-open #settings-open .site-link-x {
 
 #source-picker {
 	flex: 1 1 0;
+	order: 2;
 	min-width: 0;
 }
 
@@ -477,7 +545,10 @@ body.settings-open #settings-open .site-link-x {
 
 .search-row {
 	position: relative;
-	margin-top: 0.5rem;
+	flex: 1 1 100%;
+	order: 3;
+	margin-top: 0;
+	min-width: 0;
 }
 
 @media (max-width: 44.99rem) {
@@ -1008,6 +1079,8 @@ body.settings-open #settings-open .site-link-x {
 
 .cards {
 	display: grid;
+	grid-auto-flow: row;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 0.75rem;
 	min-width: 0;
 }
@@ -1128,6 +1201,15 @@ body.settings-open #settings-open .site-link-x {
 	overflow-wrap: anywhere;
 	text-align: start;
 	cursor: pointer;
+}
+
+.chip-lang {
+	gap: 0.35rem;
+}
+
+.chip .flag-icon {
+	width: 0.95rem;
+	height: 0.66rem;
 }
 
 .chip:hover {
@@ -1614,6 +1696,10 @@ body.settings-open #settings-open .site-link-x {
 		width: min(100% - 2rem, var(--max));
 	}
 
+	.top-inner {
+		padding-inline: 1rem;
+	}
+
 	.filters-inner {
 		padding: 0.7rem 0 0.75rem;
 	}
@@ -1621,6 +1707,143 @@ body.settings-open #settings-open .site-link-x {
 	.card {
 		padding: 1.15rem 1.2rem;
 	}
+}
+
+@media (min-width: 48rem) {
+	:root {
+		--max: 56rem;
+	}
+
+	.columns-toggle {
+		display: inline-flex;
+	}
+
+	html[data-columns='multi'] .cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	html[data-columns='multi'] .card {
+		display: flex;
+		flex-direction: column;
+	}
+
+	html[data-columns='multi'] .card-meta {
+		margin-top: auto;
+	}
+
+	html[data-columns='multi'] .card-summary {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 5;
+		line-clamp: 5;
+		overflow: hidden;
+	}
+}
+
+@media (min-width: 75rem) {
+	.filters-bar,
+	.filters-inner {
+		display: contents;
+	}
+
+	html {
+		scroll-padding-top: calc(var(--chrome-h) + var(--tools-h));
+	}
+
+	.feed-tools {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		grid-column: 2;
+		grid-row: 1;
+		align-self: start;
+		min-width: 0;
+		position: sticky;
+		top: var(--chrome-h);
+		z-index: 4;
+		box-sizing: border-box;
+		padding: 0.55rem 0 0.7rem;
+		background: var(--bg-top);
+		border-bottom: 1px solid var(--line);
+	}
+
+	#search-box {
+		flex: 1 1 auto;
+		order: 1;
+	}
+
+	#source-picker {
+		flex: 0 1 18rem;
+		order: 2;
+		width: auto;
+		max-width: 18rem;
+	}
+
+	#date-picker {
+		grid-column: 1;
+		grid-row: 1 / -1;
+		align-self: start;
+		position: sticky;
+		top: calc(var(--chrome-h) + 0.75rem);
+		z-index: 2;
+		width: auto;
+		box-sizing: border-box;
+		padding: 0.75rem;
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		background: var(--filters-bg);
+	}
+
+	#date-picker .picker-btn {
+		width: 100%;
+	}
+
+	.calendar-panel {
+		position: static;
+		width: auto;
+		max-width: none;
+		margin-top: 0.5rem;
+		box-shadow: none;
+	}
+
+	.page > .shell {
+		width: auto;
+		max-width: none;
+		margin-inline: 0;
+	}
+
+	.footer .shell {
+		width: min(100% - 2rem, var(--page-max));
+	}
+
+	main.shell {
+		grid-column: 2;
+		grid-row: 1;
+		position: relative;
+		z-index: 1;
+		padding-top: var(--tools-h);
+	}
+
+	.page {
+		display: grid;
+		grid-template-columns: 20rem minmax(0, 1fr);
+		grid-template-rows: auto;
+		column-gap: 1.5rem;
+		row-gap: 0;
+		align-items: start;
+		width: min(100% - 2rem, var(--page-max));
+		margin-inline: auto;
+		padding-top: 1rem;
+	}
+
+	html[data-columns='multi'] .cards {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+html[data-columns='single'] .cards {
+	grid-template-columns: minmax(0, 1fr);
+	max-width: 44rem;
 }
 
 .another-day {
@@ -1721,6 +1944,10 @@ body.settings-open {
 
 body.settings-open .filters-bar {
 	display: none;
+}
+
+body.settings-open .page {
+	display: block;
 }
 
 body.settings-open .chrome {

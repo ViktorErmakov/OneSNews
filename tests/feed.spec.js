@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { openIndex, card, waitForDay } = require('./helpers');
+const { openIndex, card, waitForDay, defaultFixtures } = require('./helpers');
 
 test.describe('Лента', () => {
 	test('показывает разделы и карточки', async ({ page }) => {
@@ -123,6 +123,44 @@ test.describe('Лента', () => {
 		const habr = card(page, '2026-03-15-002');
 		await expect(habr.locator('.card-meta')).not.toContainText('Не указан');
 		await expect(habr.locator('.card-topics')).toHaveCount(0);
+	});
+
+	test('скрывает название канала, если в нём уже есть имя источника', async ({ page }) => {
+		const fixtures = defaultFixtures();
+		const day = structuredClone(fixtures.days['2026-03-15']);
+		day.items.push(
+			{
+				id: '2026-03-15-006',
+				title: 'Анонс курса бухгалтерии',
+				summary: 'Даты и содержание курса.',
+				url: 'https://www.youtube.com/watch?v=uc1-course',
+				author: 'Курсы 1С и экзамены (1С:Учебный центр №1)',
+				source_name: '1С:Учебный центр №1',
+				source_type: 'video',
+				topics: [],
+				language: 'ru',
+			},
+			{
+				id: '2026-03-15-007',
+				title: 'Разбор с гостем',
+				summary: 'Отдельный ведущий выпуска.',
+				url: 'https://www.youtube.com/watch?v=uc1-guest',
+				author: 'Гость эфира',
+				source_name: '1С:Учебный центр №1',
+				source_type: 'video',
+				topics: [],
+				language: 'ru',
+			},
+		);
+		await openIndex(page, { days: { '2026-03-15': day } });
+
+		const channel = card(page, '2026-03-15-006');
+		await expect(channel.getByRole('button', { name: /Фильтр по источнику: 1С:Учебный центр №1/ })).toBeVisible();
+		await expect(channel.locator('.card-meta')).not.toContainText('Курсы 1С и экзамены');
+		await expect(channel.locator('.card-meta > span')).toHaveCount(0);
+
+		const guest = card(page, '2026-03-15-007');
+		await expect(guest.locator('.card-meta > span')).toHaveText('Гость эфира');
 	});
 
 	test('скрывает навигацию секций и лишние чипы, если источник один', async ({ page }) => {
@@ -302,5 +340,78 @@ test.describe('Лента', () => {
 		await expect(page.locator('#another-day-next')).toHaveText('15 марта');
 		await expect(page).toHaveURL(/date=2026-02-10/);
 		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Дата: 10 февраля 2026');
+	});
+
+	test('на широком экране карточки переключаются в одну колонку', async ({ page }) => {
+		await openIndex(page);
+		const cards = page.locator('#section-site article.card');
+		const sideBySide = async () => {
+			const first = await cards.nth(0).boundingBox();
+			const second = await cards.nth(1).boundingBox();
+			return Math.abs(second.y - first.y) < 8;
+		};
+		const widthOf = async (selector) =>
+			Math.round((await page.locator(selector).first().boundingBox()).width);
+		const sameColumnWidth = async () => {
+			const site = await widthOf('#section-site article.card');
+			const telegram = await widthOf('#section-telegram article.card');
+			return Math.abs(telegram - site) < 8;
+		};
+		const toggle = page.getByRole('button', { name: 'Карточки в одну колонку' });
+		await expect(toggle).toBeVisible();
+		await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		expect(await sideBySide()).toBe(true);
+		expect(await sameColumnWidth()).toBe(true);
+
+		await toggle.click();
+		await expect(page.getByRole('button', { name: 'Карточки в несколько колонок' })).toHaveAttribute(
+			'aria-pressed',
+			'false',
+		);
+		expect(await page.evaluate(() => localStorage.getItem('ones-columns'))).toBe('single');
+		expect(await sideBySide()).toBe(false);
+		expect(await sameColumnWidth()).toBe(true);
+
+		await page.reload();
+		await waitForDay(page);
+		await expect(page.getByRole('button', { name: 'Карточки в несколько колонок' })).toBeVisible();
+		expect(await sideBySide()).toBe(false);
+		expect(await sameColumnWidth()).toBe(true);
+
+		await page.getByRole('button', { name: 'Карточки в несколько колонок' }).click();
+		expect(await page.evaluate(() => localStorage.getItem('ones-columns'))).toBe('multi');
+		expect(await sideBySide()).toBe(true);
+		expect(await sameColumnWidth()).toBe(true);
+	});
+
+	test('на широком экране поиск над статьями, источник справа от него', async ({ page }) => {
+		await openIndex(page);
+		const search = await page.locator('#search-box').boundingBox();
+		const source = await page.locator('#source-picker').boundingBox();
+		const calendar = await page.locator('#date-picker').boundingBox();
+		const card = await page.locator('#section-site article.card').first().boundingBox();
+		expect(search.x).toBeGreaterThan(calendar.x + calendar.width - 4);
+		expect(source.x).toBeGreaterThan(search.x + 40);
+		expect(Math.abs(source.y - search.y)).toBeLessThan(16);
+		expect(card.y).toBeGreaterThan(search.y + search.height - 4);
+		expect(calendar.y).toBeLessThan(search.y + 8);
+	});
+
+	test('на широком экране поиск и источник остаются на месте при прокрутке', async ({ page }) => {
+		await openIndex(page);
+		await page.evaluate(() => {
+			document.querySelector('main.shell').style.minHeight = '4000px';
+		});
+		const before = await page.locator('#search-box').boundingBox();
+		await page.evaluate(() => window.scrollTo(0, 700));
+		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+		const search = await page.locator('#search-box').boundingBox();
+		const source = await page.locator('#source-picker').boundingBox();
+		const calendar = await page.locator('#date-picker').boundingBox();
+		expect(search.y).toBeLessThan(before.y + 8);
+		expect(search.y).toBeLessThan(140);
+		expect(source.x).toBeGreaterThan(search.x + 40);
+		expect(Math.abs(source.y - search.y)).toBeLessThan(16);
+		expect(calendar.y).toBeLessThan(160);
 	});
 });

@@ -1,4 +1,4 @@
-/** UI locale for OneS News. Content language and chrome share one preference. */
+/** UI locale for OneS News. Chrome is ru/en; the feed can also show every language at once. */
 (function () {
 	'use strict';
 
@@ -21,6 +21,7 @@
 			settings: 'Настройки',
 			closeSettings: 'Закрыть настройки',
 			language: 'Язык',
+			languageAll: 'Все языки',
 			date: 'Дата',
 			calendar: 'Календарь',
 			source: 'Источник',
@@ -42,6 +43,7 @@
 			unmarkRead: 'Снять отметку «прочитано»',
 			opensNewTab: '{title} (откроется в новой вкладке)',
 			filterSource: 'Фильтр по источнику: {name}',
+			filterLanguage: 'Фильтр по языку: {name}',
 			calendarPrev: 'Предыдущий месяц',
 			calendarNext: 'Следующий месяц',
 			weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
@@ -62,6 +64,10 @@
 				dayFail: 'Не удалось загрузить день {date}',
 			},
 			theme: { light: 'Включить светлую тему', dark: 'Включить тёмную тему' },
+			columns: {
+				single: 'Карточки в одну колонку',
+				multi: 'Карточки в несколько колонок',
+			},
 			type: { site: 'Сайты', telegram: 'Telegram', video: 'Видеохостинги', other: 'Другое' },
 			consent: {
 				region: 'Согласие на аналитику',
@@ -99,12 +105,14 @@
 				privacy2: 'В браузере (<code>localStorage</code>) остаются только настройки ленты:',
 				privacyTheme:
 					'<strong>Тема</strong> (<code>ones-theme</code>) — светлая или тёмная, если вы нажали переключатель.',
+				privacyColumns:
+					'<strong>Колонки</strong> (<code>ones-columns</code>) — карточки ленты в одну колонку или в несколько, если вы переключили раскладку.',
 				privacyRead:
 					'<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек и время отметки, не больше 500 записей и 90 дней.',
 				privacySearch:
 					'<strong>Поиск</strong> (<code>ones-search-history</code>) — до восьми недавних запросов.',
 				privacyDate:
-					'<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты отдельно для каждого языка.',
+					'<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты отдельно для каждого языка и для режима «все языки».',
 				privacyHidden:
 					'<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не показывать на ленте.',
 				privacyTypes:
@@ -114,7 +122,7 @@
 				privacyHiddenLangs:
 					'<strong>Скрытые языки</strong> (<code>ones-hidden-languages</code>) — какие языковые группы не показывать на ленте.',
 				privacyLang:
-					'<strong>Язык</strong> (<code>ones-language</code>) — язык ленты, календаря и этой страницы.',
+					'<strong>Язык</strong> (<code>ones-language</code>) — язык интерфейса. <code>ones-feed-language</code> со значением <code>all</code> оставляет ленту без выбора языка: видны оба.',
 				privacyConsent:
 					'<strong>Выбор по аналитике</strong> (<code>ones-consent</code>) — чтобы не спрашивать снова.',
 				privacyLocal:
@@ -141,6 +149,7 @@
 			settings: 'Settings',
 			closeSettings: 'Close settings',
 			language: 'Language',
+			languageAll: 'All languages',
 			date: 'Date',
 			calendar: 'Calendar',
 			source: 'Source',
@@ -162,6 +171,7 @@
 			unmarkRead: 'Remove read mark',
 			opensNewTab: '{title} (opens in a new tab)',
 			filterSource: 'Filter by source: {name}',
+			filterLanguage: 'Filter by language: {name}',
 			calendarPrev: 'Previous month',
 			calendarNext: 'Next month',
 			weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
@@ -181,6 +191,10 @@
 				dayFail: 'Could not load day {date}',
 			},
 			theme: { light: 'Switch to light theme', dark: 'Switch to dark theme' },
+			columns: {
+				single: 'Site cards in one column',
+				multi: 'Site cards in several columns',
+			},
 			type: { site: 'Sites', telegram: 'Telegram', video: 'Video hosts', other: 'Other' },
 			consent: {
 				region: 'Analytics consent',
@@ -218,12 +232,14 @@
 				privacy2: 'The browser (<code>localStorage</code>) keeps only feed settings:',
 				privacyTheme:
 					'<strong>Theme</strong> (<code>ones-theme</code>) — light or dark, if you used the toggle.',
+				privacyColumns:
+					'<strong>Columns</strong> (<code>ones-columns</code>) — feed cards in one column or several, if you switched the layout.',
 				privacyRead:
 					'<strong>Read marks</strong> (<code>ones-read</code>) — ids of opened cards and the time of the mark, at most 500 entries and 90 days.',
 				privacySearch:
 					'<strong>Search</strong> (<code>ones-search-history</code>) — up to eight recent queries.',
 				privacyDate:
-					'<strong>Date</strong> (<code>ones-last-date</code>) — the last day you opened on the feed, stored separately for each language.',
+					'<strong>Date</strong> (<code>ones-last-date</code>) — the last day you opened on the feed, stored separately for each language and for the all-languages view.',
 				privacyHidden:
 					'<strong>Hidden sources</strong> (<code>ones-hidden-sources</code>) — which channels not to show on the feed.',
 				privacyTypes:
@@ -233,7 +249,7 @@
 				privacyHiddenLangs:
 					'<strong>Hidden languages</strong> (<code>ones-hidden-languages</code>) — which language groups not to show on the feed.',
 				privacyLang:
-					'<strong>Language</strong> (<code>ones-language</code>) — language of the feed, calendar and this page.',
+					'<strong>Language</strong> (<code>ones-language</code>) — interface language. <code>ones-feed-language</code> set to <code>all</code> leaves the feed without a chosen language, so both are visible.',
 				privacyConsent:
 					'<strong>Analytics choice</strong> (<code>ones-consent</code>) — so we do not ask again.',
 				privacyLocal:

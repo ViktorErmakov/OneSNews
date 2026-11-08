@@ -46,7 +46,7 @@
 		<a class="skip-link" href="#main" data-i18n="skip">К содержанию</a>
 
 		<header class="top">
-			<div class="shell top-inner">
+			<div class="top-inner">
 				<a class="brand" href="index.html">
 					<svg
 						class="brand-mark"
@@ -198,6 +198,10 @@
 						<strong>Тема</strong> (<code>ones-theme</code>) — светлая или тёмная, если вы нажали
 						переключатель.
 					</li>
+					<li data-i18n-html="page.privacyColumns">
+						<strong>Колонки</strong> (<code>ones-columns</code>) — карточки ленты в одну колонку или в
+						несколько, если вы переключили раскладку.
+					</li>
 					<li data-i18n-html="page.privacyRead">
 						<strong>Прочитанное</strong> (<code>ones-read</code>) — идентификаторы открытых карточек
 						и время отметки, не больше 500 записей и 90 дней.
@@ -207,7 +211,7 @@
 					</li>
 					<li data-i18n-html="page.privacyDate">
 						<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты
-						отдельно для каждого языка.
+						отдельно для каждого языка и для режима «все языки».
 					</li>
 					<li data-i18n-html="page.privacyHidden">
 						<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не
@@ -226,7 +230,9 @@
 						группы не показывать на ленте.
 					</li>
 					<li data-i18n-html="page.privacyLang">
-						<strong>Язык</strong> (<code>ones-language</code>) — язык ленты, календаря и этой страницы.
+						<strong>Язык</strong> (<code>ones-language</code>) — язык интерфейса.
+						<code>ones-feed-language</code> со значением <code>all</code> оставляет ленту без выбора
+						языка: видны оба.
 					</li>
 					<li data-i18n-html="page.privacyConsent">
 						<strong>Выбор по аналитике</strong> (<code>ones-consent</code>) — чтобы не спрашивать
