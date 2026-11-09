@@ -894,6 +894,7 @@
 			if (i18n) i18n.setLocale(next);
 		} else {
 			revealAllLanguages();
+			if (i18n) i18n.setLocale('ru');
 		}
 		persistFeedLanguage();
 		document.dispatchEvent(new CustomEvent('ones-feed-language'));
@@ -923,10 +924,6 @@
 	}
 
 	function toggleFilter(kind, code) {
-		if (kind === 'language') {
-			if (code) setLanguage(code);
-			return;
-		}
 		if (kind === 'source') {
 			const available = availableSources();
 			if (available.length === 1) {
@@ -952,13 +949,10 @@
 			: '';
 		const itemLanguage = String(item.language || '').trim();
 		const itemLanguageLabel = languageLabel(itemLanguage);
-		const languageChip =
+		const languageMark =
 			!state.language && itemLanguage
-				? `<button type="button" class="chip chip-lang" data-filter="language" ` +
-					`data-value="${escapeHtml(itemLanguage)}" aria-pressed="false" ` +
-					`title="${escapeHtml(t('filterLanguage', { name: itemLanguageLabel }))}" ` +
-					`aria-label="${escapeHtml(t('filterLanguage', { name: itemLanguageLabel }))}">` +
-					`${flagSvg(itemLanguage)}<span>${escapeHtml(itemLanguageLabel)}</span></button>`
+				? `<span class="card-lang">${flagSvg(itemLanguage)}` +
+					`<span class="card-lang-name">${escapeHtml(itemLanguageLabel)}</span></span>`
 				: '';
 		const author = String(item.author || '').trim();
 		const authorKey = author.toLocaleLowerCase(localeCode());
@@ -973,12 +967,12 @@
 			: '';
 		return (
 			`<article class="card${read ? ' is-read' : ''}" data-id="${escapeHtml(item.id)}">` +
+			languageMark +
 			`<h3 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" ` +
 			`aria-label="${escapeHtml(t('opensNewTab', { title: item.title }))}">${titleHtml}${EXTERNAL_SVG}</a></h3>` +
 			summaryBlock +
 			`<div class="card-meta">` +
 			sourceChip +
-			languageChip +
 			authorHtml +
 			`<button type="button" class="read-badge" ` +
 			`aria-label="${escapeHtml(t('unmarkRead'))}">` +
@@ -1842,6 +1836,7 @@
 			if (i18n) i18n.setLocale(state.language, { silent: true });
 		} else if (requestedLang === 'all' || savedAll) {
 			state.language = '';
+			if (i18n) i18n.setLocale('ru');
 		} else if (i18n) {
 			state.language = i18n.locale;
 		}

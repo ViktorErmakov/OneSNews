@@ -156,6 +156,21 @@ test.describe('Настройки', () => {
 		await expect(page.locator('.about-lang').nth(1).locator('input[data-type]').first()).toBeEnabled();
 	});
 
+	test('«все языки» в настройках возвращает русский интерфейс', async ({ page }) => {
+		await openSettings(page);
+		await page.locator('#lang-picker-btn').click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
+		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+		await page.locator('#lang-picker-btn').click();
+		await page.locator('#lang-picker-list [data-value=""]').click();
+		await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+		await expect(page.locator('h1')).toHaveText('Настройки');
+		await expect(page.getByRole('button', { name: 'Язык: Все языки' })).toBeVisible();
+		expect(await page.evaluate(() => localStorage.getItem('ones-language'))).toBe('ru');
+		expect(await page.evaluate(() => localStorage.getItem('ones-feed-language'))).toBe('all');
+	});
+
 	test('галочка языка выключает группу и скрывает карточки на ленте', async ({ page }) => {
 		await openSettings(page);
 		await page.getByRole('checkbox', { name: 'Русский' }).uncheck();

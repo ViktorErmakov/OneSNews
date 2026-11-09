@@ -406,6 +406,7 @@
 			if (prefs.revealLanguages) {
 				prefs.revealLanguages((cfg.LANGUAGES || []).map((lang) => lang.code));
 			}
+			if (i18n) i18n.setLocale('ru');
 			renderLangPicker();
 			if (catalog.length) render(catalog);
 			document.dispatchEvent(new CustomEvent('ones-feed-language'));

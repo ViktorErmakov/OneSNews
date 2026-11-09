@@ -90,8 +90,11 @@ test.describe('Фильтры', () => {
 		await expect(card(page, '2026-03-15-001')).toBeVisible();
 		await expect(card(page, '2026-03-15-004')).toBeVisible();
 		await expect(page.locator('#section-video')).toBeVisible();
-		await expect(card(page, '2026-03-15-001').getByRole('button', { name: 'Фильтр по языку: Русский' })).toBeVisible();
-		await expect(card(page, '2026-03-15-004').getByRole('button', { name: 'Фильтр по языку: English' })).toBeVisible();
+		await expect(card(page, '2026-03-15-001').locator('.card-lang .flag-icon')).toBeVisible();
+		await expect(card(page, '2026-03-15-001').locator('.card-lang-name')).toHaveText('Русский');
+		await expect(card(page, '2026-03-15-004').locator('.card-lang .flag-icon')).toBeVisible();
+		await expect(card(page, '2026-03-15-004').locator('.card-lang-name')).toHaveText('English');
+		await expect(card(page, '2026-03-15-001').getByRole('button', { name: /Фильтр по языку/ })).toHaveCount(0);
 		expect(await page.evaluate(() => localStorage.getItem('ones-feed-language'))).toBe('all');
 		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-hidden-languages') || '[]'))).toEqual(
 			[],
@@ -100,7 +103,6 @@ test.describe('Фильтры', () => {
 			all: '2026-03-15',
 		});
 
-		await page.getByRole('button', { name: /^Дата:/ }).click();
 		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
 		await expect(page.locator('.calendar-day.has-news[data-date="2026-02-10"]')).toBeVisible();
 		await page.keyboard.press('Escape');
@@ -110,20 +112,39 @@ test.describe('Фильтры', () => {
 		await expect(page.locator('article.card')).toHaveCount(5);
 		await expect(page).not.toHaveURL(/[?&]lang=/);
 		await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+	});
 
-		await card(page, '2026-03-15-004').getByRole('button', { name: 'Фильтр по языку: English' }).click();
+	test('«все языки» после английского возвращает русский интерфейс', async ({ page }) => {
+		await openIndex(page);
+		await page.getByRole('button', { name: /Язык:/ }).click();
+		await page.locator('#lang-picker-list [data-value="en"]').click();
 		await waitForDay(page);
-		await expect(page).toHaveURL(/lang=en/);
-		await expect(page.locator('article.card')).toHaveCount(2);
-		await expect(card(page, '2026-03-15-001')).toHaveCount(0);
-		expect(await page.evaluate(() => localStorage.getItem('ones-feed-language'))).toBeNull();
+		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+		await page.getByRole('button', { name: /Language:/ }).click();
+		await page.locator('#lang-picker-list [data-value=""]').click();
+		await waitForDay(page);
+
+		await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+		await expect(page.getByRole('button', { name: 'Язык: Все языки' })).toBeVisible();
+		await expect(page.locator('article.card')).toHaveCount(5);
+		expect(await page.evaluate(() => localStorage.getItem('ones-language'))).toBe('ru');
+		expect(await page.evaluate(() => localStorage.getItem('ones-feed-language'))).toBe('all');
+
+		await page.evaluate(() => localStorage.setItem('ones-language', 'en'));
+		await page.reload();
+		await waitForDay(page);
+		await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+		await expect(page.getByRole('button', { name: 'Язык: Все языки' })).toBeVisible();
+		expect(await page.evaluate(() => localStorage.getItem('ones-language'))).toBe('ru');
 	});
 
 	test('сохранённые «все языки» открываются без параметра, ?lang=en их сменяет', async ({ page }) => {
 		await openIndex(page, { feedLanguage: 'all', hiddenLanguages: [] });
 		await expect(page.locator('article.card')).toHaveCount(5);
 		await expect(page).not.toHaveURL(/[?&]lang=/);
-		await expect(card(page, '2026-03-15-001').getByRole('button', { name: 'Фильтр по языку: Русский' })).toBeVisible();
+		await expect(card(page, '2026-03-15-001').locator('.card-lang-name')).toHaveText('Русский');
+		await expect(card(page, '2026-03-15-001').locator('.card-lang button')).toHaveCount(0);
 
 		await page.goto('/?lang=en');
 		await waitForDay(page);

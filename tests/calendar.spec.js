@@ -7,7 +7,7 @@ test.describe('Календарь', () => {
 		await page.locator('#feed-search').fill('покупателю');
 		await expect(page.locator('article.card')).toHaveCount(1);
 
-		await page.getByRole('button', { name: /^Дата:/ }).click();
+		await expect(page.locator('#date-picker-btn')).toBeHidden();
 		await expect(page.locator('#date-picker-panel')).toBeVisible();
 		await expect(page.locator('.calendar-title')).toHaveText('Март 2026');
 		await expect(page.getByRole('button', { name: 'Следующий месяц' })).toBeDisabled();
@@ -33,7 +33,6 @@ test.describe('Календарь', () => {
 		});
 		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
 
-		await page.getByRole('button', { name: /^Дата:/ }).click();
 		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
 		await page.locator('.calendar-day[data-date="2026-02-10"]').click();
 		await waitForDay(page);
@@ -43,7 +42,6 @@ test.describe('Календарь', () => {
 
 	test('переключение месяцев не выходит за опубликованные даты языка', async ({ page }) => {
 		await openIndex(page);
-		await page.getByRole('button', { name: /^Дата:/ }).click();
 
 		await page.getByRole('button', { name: 'Предыдущий месяц' }).click();
 		await expect(page.locator('.calendar-title')).toHaveText('Февраль 2026');
@@ -60,7 +58,6 @@ test.describe('Календарь', () => {
 		await page.locator('#lang-picker-list [data-value="en"]').click();
 		await waitForDay(page);
 
-		await page.getByRole('button', { name: /Date:|^Дата:/ }).click();
 		await expect(page.locator('.calendar-title')).toHaveText('March 2026');
 		await expect(page.getByRole('button', { name: 'Previous month' })).toBeDisabled();
 		await expect(page.getByRole('button', { name: 'Next month' })).toBeDisabled();
@@ -70,9 +67,7 @@ test.describe('Календарь', () => {
 
 	test('Escape не закрывает календарь на широком экране', async ({ page }) => {
 		await openIndex(page);
-		const dateBtn = page.getByRole('button', { name: /^Дата:/ });
-		await expect(page.locator('#date-picker-panel')).toBeVisible();
-		await dateBtn.click();
+		await expect(page.locator('#date-picker-btn')).toBeHidden();
 		await expect(page.locator('#date-picker-panel')).toBeVisible();
 		await page.locator('#date-picker-panel').press('Escape');
 		await expect(page.locator('#date-picker-panel')).toBeVisible();
@@ -94,7 +89,6 @@ test.describe('Календарь', () => {
 		await openIndex(page, { path: '/?date=2026-02-10' });
 		await expect(page.getByRole('button', { name: /Источник: Infostart/ })).toBeVisible();
 
-		await page.getByRole('button', { name: /^Дата:/ }).click();
 		await page.getByRole('button', { name: 'Следующий месяц' }).click();
 		await page.locator('.calendar-day[data-date="2026-03-15"]').click();
 		await waitForDay(page);
