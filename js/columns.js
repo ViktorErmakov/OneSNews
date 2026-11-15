@@ -16,8 +16,10 @@
 		const btn = document.querySelector('#columns-toggle');
 		if (!btn) return;
 		const single = currentColumns() === 'single';
+		const label = t(single ? 'columns.multi' : 'columns.single');
 		btn.setAttribute('aria-pressed', single ? 'false' : 'true');
-		btn.setAttribute('aria-label', t(single ? 'columns.multi' : 'columns.single'));
+		btn.setAttribute('aria-label', label);
+		btn.setAttribute('data-tooltip', label);
 	}
 
 	function setColumns(mode) {

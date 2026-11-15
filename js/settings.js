@@ -1,4 +1,4 @@
-/** Source catalog with show/hide checkboxes. */
+/** Source catalog with show/hide checkboxes and card order. */
 (function () {
 	'use strict';
 
@@ -7,15 +7,26 @@
 	const i18n = window.ONES_I18N;
 	const root = document.querySelector('#sources');
 	const showAllBtn = document.querySelector('#sources-show-all');
+	const resetOrderBtn = document.querySelector('#sources-reset-order');
 	if (!root || !cfg || !prefs) return;
 
-	function t(key) {
-		return i18n ? i18n.t(key) : key;
+	function t(key, vars) {
+		return i18n ? i18n.t(key, vars) : key;
 	}
 
 	const EXTERNAL_SVG =
 		'<svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true">' +
 		'<path d="M14 5h5v5M19 5l-9 9M11 6H6.5A1.5 1.5 0 0 0 5 7.5v10A1.5 1.5 0 0 0 6.5 19h10a1.5 1.5 0 0 0 1.5-1.5V13"/>' +
+		'</svg>';
+
+	const MOVE_UP_SVG =
+		'<svg class="settings-move-icon" viewBox="0 0 12 12" aria-hidden="true">' +
+		'<path d="M2.5 7.5 L6 4 L9.5 7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+		'</svg>';
+
+	const MOVE_DOWN_SVG =
+		'<svg class="settings-move-icon" viewBox="0 0 12 12" aria-hidden="true">' +
+		'<path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
 		'</svg>';
 
 	function escapeHtml(value) {
@@ -30,6 +41,7 @@
 		root.innerHTML =
 			`<p class="about-sources-status${isError ? ' is-error' : ''}">${escapeHtml(text)}</p>`;
 		syncShowAll();
+		syncResetOrder();
 	}
 
 	function languageOrder(sources) {
@@ -114,6 +126,41 @@
 		showAllBtn.disabled = nothingHidden();
 	}
 
+	function sourceName(src) {
+		return String((src && (src.name || src.home)) || '').trim();
+	}
+
+	function catalogNameList() {
+		const seen = new Set();
+		const names = [];
+		for (const src of catalog) {
+			const name = sourceName(src);
+			if (!name || seen.has(name)) continue;
+			seen.add(name);
+			names.push(name);
+		}
+		return names;
+	}
+
+	function sortSources(items) {
+		const order = prefs.orderedNames(catalogNameList());
+		const rank = new Map(order.map((name, index) => [name, index]));
+		const last = rank.size;
+		return items.slice().sort((a, b) => {
+			const ia = rank.has(sourceName(a)) ? rank.get(sourceName(a)) : last;
+			const ib = rank.has(sourceName(b)) ? rank.get(sourceName(b)) : last;
+			return ia - ib;
+		});
+	}
+
+	function syncResetOrder() {
+		if (!resetOrderBtn) return;
+		const base = catalogNameList();
+		const custom = Boolean(base.length && prefs.orderIsCustom(base));
+		resetOrderBtn.disabled = !custom;
+		if (base.length && !custom && prefs.loadSourceOrder().length) prefs.saveSourceOrder([]);
+	}
+
 	function syncTypeUi(type, typeOn) {
 		root.querySelectorAll('input[data-type="' + type + '"]').forEach((input) => {
 			input.checked = typeOn;
@@ -168,8 +215,8 @@
 		const parts = [];
 		let index = 0;
 
-		function pushSource(src, type, langOn, typeOn) {
-			const name = String(src.name || src.home || '').trim();
+		function pushSource(src, type, langOn, typeOn, position, count) {
+			const name = sourceName(src);
 			const group = String(src.group || '').trim();
 			const id = `source-${index}`;
 			index += 1;
@@ -177,8 +224,16 @@
 			const groupOn = !group || !hiddenGroups.has(group);
 			const disabled = langOn && typeOn && groupOn ? '' : ' disabled';
 			const groupAttr = group ? ` data-source-group="${escapeHtml(group)}"` : '';
+			const upDisabled = position === 0 ? ' disabled' : '';
+			const downDisabled = position === count - 1 ? ' disabled' : '';
 			parts.push(
 				'<li class="settings-source">' +
+					'<span class="settings-source-move">' +
+					`<button type="button" class="settings-move" data-move="up" data-source-move="${escapeHtml(name)}" ` +
+					`aria-label="${escapeHtml(t('page.moveUp', { name: name }))}"${upDisabled}>${MOVE_UP_SVG}</button>` +
+					`<button type="button" class="settings-move" data-move="down" data-source-move="${escapeHtml(name)}" ` +
+					`aria-label="${escapeHtml(t('page.moveDown', { name: name }))}"${downDisabled}>${MOVE_DOWN_SVG}</button>` +
+					'</span>' +
 					`<input type="checkbox" id="${id}" data-source="${escapeHtml(name)}" ` +
 					`data-source-type="${escapeHtml(type)}"${groupAttr}${checked}${disabled} ` +
 					`aria-labelledby="${id}-name">` +
@@ -186,6 +241,13 @@
 					`${escapeHtml(name || src.home)}${EXTERNAL_SVG}</a>` +
 					'</li>',
 			);
+		}
+
+		function pushSources(items, type, langOn, typeOn) {
+			const ordered = sortSources(items);
+			ordered.forEach((src, position) => {
+				pushSource(src, type, langOn, typeOn, position, ordered.length);
+			});
 		}
 
 		for (const lang of languageOrder(sources)) {
@@ -233,19 +295,22 @@
 								`</h5>`,
 						);
 						parts.push('<ul class="settings-source-list settings-source-list-nested">');
-						for (const src of byType.filter((item) => String(item.group || '').trim() === group)) {
-							pushSource(src, type.code, langOn, typeOn);
-						}
+						pushSources(
+							byType.filter((item) => String(item.group || '').trim() === group),
+							type.code,
+							langOn,
+							typeOn,
+						);
 						parts.push('</ul>');
 					}
 					if (ungrouped.length) {
 						parts.push('<ul class="settings-source-list">');
-						for (const src of ungrouped) pushSource(src, type.code, langOn, typeOn);
+						pushSources(ungrouped, type.code, langOn, typeOn);
 						parts.push('</ul>');
 					}
 				} else {
 					parts.push('<ul class="settings-source-list">');
-					for (const src of byType) pushSource(src, type.code, langOn, typeOn);
+					pushSources(byType, type.code, langOn, typeOn);
 					parts.push('</ul>');
 				}
 				parts.push('</div>');
@@ -255,6 +320,7 @@
 		}
 		root.innerHTML = parts.join('');
 		syncShowAll();
+		syncResetOrder();
 	}
 
 	function emitPrefs() {
@@ -339,6 +405,71 @@
 			input.disabled = false;
 		});
 		syncShowAll();
+		emitPrefs();
+	}
+
+	function siblingNames(name) {
+		const input = root.querySelector('input[data-source="' + CSS.escape(name) + '"]');
+		const list = input && input.closest('.settings-source-list');
+		if (!list) return [];
+		return Array.from(list.querySelectorAll('input[data-source]'))
+			.map((item) => String(item.getAttribute('data-source') || '').trim())
+			.filter(Boolean);
+	}
+
+	function focusMoveButton(name, dir) {
+		const button = root.querySelector(
+			'button[data-move="' + dir + '"][data-source-move="' + CSS.escape(name) + '"]',
+		);
+		if (button && !button.disabled) {
+			button.focus();
+			return;
+		}
+		const other = dir === 'up' ? 'down' : 'up';
+		const fallback = root.querySelector(
+			'button[data-move="' + other + '"][data-source-move="' + CSS.escape(name) + '"]',
+		);
+		if (fallback && !fallback.disabled) fallback.focus();
+	}
+
+	function moveSource(name, dir) {
+		const siblings = siblingNames(name);
+		const index = siblings.indexOf(name);
+		const nextIndex = index + (dir === 'up' ? -1 : 1);
+		if (index < 0 || nextIndex < 0 || nextIndex >= siblings.length) return;
+		const nextSiblings = siblings.slice();
+		const swapped = nextSiblings[index];
+		nextSiblings[index] = nextSiblings[nextIndex];
+		nextSiblings[nextIndex] = swapped;
+		const siblingSet = new Set(siblings);
+		let cursor = 0;
+		const next = prefs.orderedNames(catalogNameList()).map((item) => {
+			if (!siblingSet.has(item)) return item;
+			const replacement = nextSiblings[cursor];
+			cursor += 1;
+			return replacement;
+		});
+		if (cursor < nextSiblings.length) next.push(...nextSiblings.slice(cursor));
+		const base = catalogNameList();
+		prefs.saveSourceOrder(next.length === base.length && next.every((item, i) => item === base[i]) ? [] : next);
+		if (catalog.length) render(catalog);
+		focusMoveButton(name, dir);
+		emitPrefs();
+	}
+
+	function onMove(event) {
+		const button = event.target.closest('button[data-move]');
+		if (!button || button.disabled || !root.contains(button)) return;
+		const dir = button.getAttribute('data-move');
+		const name = String(button.getAttribute('data-source-move') || '').trim();
+		if ((dir !== 'up' && dir !== 'down') || !name) return;
+		moveSource(name, dir);
+	}
+
+	function resetOrder() {
+		prefs.saveSourceOrder([]);
+		if (catalog.length) render(catalog);
+		else syncResetOrder();
 		emitPrefs();
 	}
 
@@ -491,7 +622,9 @@
 	const onFeed = Boolean(document.querySelector('#feed'));
 
 	root.addEventListener('change', onToggle);
+	root.addEventListener('click', onMove);
 	if (showAllBtn) showAllBtn.addEventListener('click', showAll);
+	if (resetOrderBtn) resetOrderBtn.addEventListener('click', resetOrder);
 	document.addEventListener('ones-locale', () => {
 		prefs.revealLanguage(currentLocale());
 		if (!onFeed) renderLangPicker();

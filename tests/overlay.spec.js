@@ -17,16 +17,34 @@ test.describe('Оверлей настроек', () => {
 
 		const gearBox = await page.locator('#settings-open').boundingBox();
 		expect(gearBox).toBeTruthy();
+		const headerX = await page.evaluate(() =>
+			['settings-open', 'lang-picker-btn', 'theme-toggle'].map((id) =>
+				Math.round(document.getElementById(id).getBoundingClientRect().x),
+			),
+		);
 		await page.mouse.click(gearBox.x + gearBox.width / 2, gearBox.y + gearBox.height / 2);
 		await expect(page.locator('#settings-overlay')).toBeVisible();
+		expect(
+			await page.evaluate(() =>
+				['settings-open', 'lang-picker-btn', 'theme-toggle'].map((id) =>
+					Math.round(document.getElementById(id).getBoundingClientRect().x),
+				),
+			),
+		).toEqual(headerX);
+		expect(await page.evaluate(() => getComputedStyle(document.body).overflowY)).not.toBe('hidden');
+		expect(await page.evaluate(() => getComputedStyle(document.querySelector('#settings-overlay')).overflowY)).toBe(
+			'visible',
+		);
 		await expect(page.locator('#settings-heading')).toHaveText('Настройки');
 		await expect(page.locator('#settings-open')).toHaveAttribute('aria-label', 'Закрыть настройки');
 		await expect(page.locator('#settings-open')).toHaveAttribute('aria-expanded', 'true');
+		await expect(page.locator('#columns-toggle')).toBeHidden();
 		await expect(page).toHaveURL(/date=2026-03-15/);
 		await expect(page).not.toHaveURL(/settings(?:\.html)/);
 
 		await page.keyboard.press('Escape');
 		await expect(page.locator('#settings-overlay')).toBeHidden();
+		await expect(page.locator('#columns-toggle')).toBeVisible();
 		await expect(page).toHaveURL(/date=2026-03-15/);
 		await expect(page.getByRole('button', { name: /Источник: Infostart/ })).toBeVisible();
 		await expect(page.locator('article.card')).toHaveCount(1);

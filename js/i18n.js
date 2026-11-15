@@ -98,7 +98,12 @@
 					'Свои тексты не пишем: с сайтов берём заголовок и краткое описание, из Telegram — начало поста. Ссылки ведут на сайты и каналы.',
 				sourcesHelp:
 					'Галочка у языка выключает всю его группу. По умолчанию включён только язык интерфейса, остальные можно отметить. Галочка у категории выключает все её источники, в том числе новые. Галочка у группы видеохостинга выключает все её каналы, в том числе новые. Галочка у канала — только его. Без галочки источник скрыт во все дни, выбор запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и сбрасывается при смене даты.',
+				sourcesOrder:
+					'Стрелки задают порядок карточек в разделе ленты: выше в списке — раньше на ленте.',
+				moveUp: 'Выше: {name}',
+				moveDown: 'Ниже: {name}',
 				showAll: 'Показать все',
+				resetOrder: 'Сбросить порядок',
 				privacy: 'Конфиденциальность',
 				privacy1: 'Учётной записи нет: мы не принимаем и не храним ваши данные на своей стороне.',
 				privacy2: 'В браузере (<code>localStorage</code>) остаются только настройки ленты:',
@@ -114,6 +119,8 @@
 					'<strong>Дата</strong> (<code>ones-last-date</code>) — последний открытый день ленты отдельно для каждого языка и для режима «все языки».',
 				privacyHidden:
 					'<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не показывать на ленте.',
+				privacyOrder:
+					'<strong>Порядок источников</strong> (<code>ones-source-order</code>) — в каком порядке показывать карточки внутри раздела ленты.',
 				privacyTypes:
 					'<strong>Скрытые категории</strong> (<code>ones-hidden-types</code>) — какие типы источников не показывать: сайты, Telegram, видеохостинги.',
 				privacyGroups:
@@ -224,7 +231,12 @@
 					'We do not write our own copy: from sites we take the title and a short description, from Telegram — the start of the post. Links go to the sites and channels.',
 				sourcesHelp:
 					'A language checkbox turns off that whole group. By default only the interface language is on; you can tick others to read them too. A category checkbox turns off all of its sources, including new ones. A video-host group checkbox turns off all of its channels, including new ones. A channel checkbox affects only that channel. Unchecked sources stay hidden on every day; the choice is remembered in this browser. The home-page filter only narrows the open day and resets when the date changes.',
+				sourcesOrder:
+					'The arrows set the card order inside a feed section: higher in the list means earlier on the feed.',
+				moveUp: 'Move up: {name}',
+				moveDown: 'Move down: {name}',
 				showAll: 'Show all',
+				resetOrder: 'Reset order',
 				privacy: 'Privacy',
 				privacy1: 'There is no account: we do not collect or store your data on our side.',
 				privacy2: 'The browser (<code>localStorage</code>) keeps only feed settings:',
@@ -240,6 +252,8 @@
 					'<strong>Date</strong> (<code>ones-last-date</code>) — the last day you opened on the feed, stored separately for each language and for the all-languages view.',
 				privacyHidden:
 					'<strong>Hidden sources</strong> (<code>ones-hidden-sources</code>) — which channels not to show on the feed.',
+				privacyOrder:
+					'<strong>Source order</strong> (<code>ones-source-order</code>) — the order of cards inside a feed section.',
 				privacyTypes:
 					'<strong>Hidden categories</strong> (<code>ones-hidden-types</code>) — which source types not to show: sites, Telegram, video hosts.',
 				privacyGroups:

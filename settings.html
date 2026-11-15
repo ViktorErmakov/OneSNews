@@ -175,11 +175,17 @@
 						запоминается в этом браузере. Фильтр на главной только сужает уже открытый день и
 						сбрасывается при смене даты.
 					</p>
-				<p class="settings-toolbar">
-					<button type="button" class="settings-show-all" id="sources-show-all" disabled data-i18n="page.showAll">
-						Показать все
-					</button>
-				</p>
+					<p data-i18n="page.sourcesOrder">
+						Стрелки задают порядок карточек в разделе ленты: выше в списке — раньше на ленте.
+					</p>
+					<p class="settings-toolbar">
+						<button type="button" class="settings-show-all" id="sources-show-all" disabled data-i18n="page.showAll">
+							Показать все
+						</button>
+						<button type="button" class="settings-show-all" id="sources-reset-order" disabled data-i18n="page.resetOrder">
+							Сбросить порядок
+						</button>
+					</p>
 				<div id="sources">
 					<p class="about-sources-status" data-i18n="loading">Загрузка…</p>
 				</div>
@@ -216,6 +222,10 @@
 					<li data-i18n-html="page.privacyHidden">
 						<strong>Скрытые источники</strong> (<code>ones-hidden-sources</code>) — какие каналы не
 						показывать на ленте.
+					</li>
+					<li data-i18n-html="page.privacyOrder">
+						<strong>Порядок источников</strong> (<code>ones-source-order</code>) — в каком порядке
+						показывать карточки внутри раздела ленты.
 					</li>
 					<li data-i18n-html="page.privacyTypes">
 						<strong>Скрытые категории</strong> (<code>ones-hidden-types</code>) — какие типы

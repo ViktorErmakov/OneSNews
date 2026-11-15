@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { openSettings, waitForDay, card } = require('./helpers');
+const { openSettings, openIndex, waitForDay, card } = require('./helpers');
 
 test.describe('Настройки', () => {
 	test('группирует источники по языку и типу и даёт ссылки', async ({ page }) => {
@@ -206,4 +206,77 @@ test.describe('Настройки', () => {
 		await expect(card(page, '2026-03-15-004')).toBeVisible();
 		await expect(card(page, '2026-03-15-005')).toBeVisible();
 	});
+
+	test('без сохранённого порядка карточки раздела не пересортированы', async ({ page }) => {
+		await openIndex(page);
+		await page.waitForFunction(
+			() => window.ONES_CATALOG && window.ONES_CATALOG.sources && window.ONES_CATALOG.sources.length,
+		);
+		expect(await page.evaluate(() => localStorage.getItem('ones-source-order'))).toBeNull();
+		expect(await siteCardIds(page)).toEqual(['2026-03-15-001', '2026-03-15-002']);
+
+		await page.goto('/settings.html');
+		await expect(page.locator('#sources')).not.toHaveText(/Загрузка…|Loading…/);
+		await expect(page.getByRole('button', { name: 'Сбросить порядок' })).toBeDisabled();
+		const ruSites = page.locator('.about-lang').first().locator('.settings-source-list').first().locator('a');
+		await expect(ruSites.nth(0)).toContainText('Habr 1C');
+		await expect(ruSites.nth(1)).toContainText('Infostart');
+	});
+
+	test('стрелки задают порядок карточек источника на ленте', async ({ page }) => {
+		await openSettings(page);
+		await expect(page.getByRole('button', { name: 'Выше: Habr 1C' })).toBeDisabled();
+		await page.getByRole('button', { name: 'Выше: Infostart' }).click();
+
+		const ruSites = page.locator('.about-lang').first().locator('.settings-source-list').first().locator('a');
+		await expect(ruSites.nth(0)).toContainText('Infostart');
+		await expect(ruSites.nth(1)).toContainText('Habr 1C');
+		await expect(page.getByRole('button', { name: 'Выше: Infostart' })).toBeDisabled();
+		await expect(page.getByRole('button', { name: 'Сбросить порядок' })).toBeEnabled();
+		expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ones-source-order')))).toEqual([
+			'Infostart',
+			'Habr 1C',
+			'Игорь Апресов | Radio Ingvar',
+			'English Hub',
+			'Example YouTube',
+		]);
+
+		await page.goto('/');
+		await waitForDay(page);
+		expect(await siteCardIds(page)).toEqual(['2026-03-15-001', '2026-03-15-002']);
+
+		await page.evaluate(() => {
+			localStorage.setItem(
+				'ones-source-order',
+				JSON.stringify([
+					'Habr 1C',
+					'Игорь Апресов | Radio Ingvar',
+					'Infostart',
+					'English Hub',
+					'Example YouTube',
+				]),
+			);
+		});
+		await page.reload();
+		await waitForDay(page);
+		expect(await siteCardIds(page)).toEqual(['2026-03-15-002', '2026-03-15-001']);
+
+		await page.goto('/settings.html');
+		await expect(page.locator('#sources')).not.toHaveText(/Загрузка…|Loading…/);
+		await page.getByRole('button', { name: 'Сбросить порядок' }).click();
+		expect(await page.evaluate(() => localStorage.getItem('ones-source-order'))).toBeNull();
+		await expect(ruSites.nth(0)).toContainText('Habr 1C');
+		await expect(ruSites.nth(1)).toContainText('Infostart');
+
+		await page.goto('/');
+		await waitForDay(page);
+		expect(await siteCardIds(page)).toEqual(['2026-03-15-001', '2026-03-15-002']);
+	});
 });
+
+async function siteCardIds(page) {
+	await page.waitForFunction(
+		() => window.ONES_CATALOG && window.ONES_CATALOG.sources && window.ONES_CATALOG.sources.length,
+	);
+	return page.locator('#section-site .card').evaluateAll((cards) => cards.map((item) => item.getAttribute('data-id')));
+}

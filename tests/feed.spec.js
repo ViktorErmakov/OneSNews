@@ -360,6 +360,16 @@ test.describe('Лента', () => {
 		const toggle = page.getByRole('button', { name: 'Карточки в одну колонку' });
 		await expect(toggle).toBeVisible();
 		await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		await expect(toggle).toHaveAttribute('data-tooltip', 'Карточки в одну колонку');
+		await expect(page.locator('.top-nav').locator('button:visible, a:visible').first()).toHaveAttribute(
+			'id',
+			'columns-toggle',
+		);
+		const headerOrder = await page.locator('.top-nav').locator('button:visible, a:visible').evaluateAll((nodes) =>
+			nodes.map((node) => node.id),
+		);
+		expect(headerOrder.indexOf('columns-toggle')).toBeLessThan(headerOrder.indexOf('settings-open'));
+		expect(headerOrder.indexOf('settings-open')).toBeLessThan(headerOrder.indexOf('lang-picker-btn'));
 		expect(await sideBySide()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
 
@@ -367,6 +377,10 @@ test.describe('Лента', () => {
 		await expect(page.getByRole('button', { name: 'Карточки в несколько колонок' })).toHaveAttribute(
 			'aria-pressed',
 			'false',
+		);
+		await expect(page.locator('#columns-toggle')).toHaveAttribute(
+			'data-tooltip',
+			'Карточки в несколько колонок',
 		);
 		expect(await page.evaluate(() => localStorage.getItem('ones-columns'))).toBe('single');
 		expect(await sideBySide()).toBe(false);
@@ -402,16 +416,16 @@ test.describe('Лента', () => {
 		await page.evaluate(() => {
 			document.querySelector('main.shell').style.minHeight = '4000px';
 		});
-		const before = await page.locator('#search-box').boundingBox();
+		const searchBefore = await page.locator('#search-box').boundingBox();
+		const calendarBefore = await page.locator('#date-picker .calendar-panel').boundingBox();
 		await page.evaluate(() => window.scrollTo(0, 700));
 		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
 		const search = await page.locator('#search-box').boundingBox();
 		const source = await page.locator('#source-picker').boundingBox();
-		const calendar = await page.locator('#date-picker').boundingBox();
-		expect(search.y).toBeLessThan(before.y + 8);
-		expect(search.y).toBeLessThan(140);
+		const calendar = await page.locator('#date-picker .calendar-panel').boundingBox();
+		expect(Math.abs(search.y - searchBefore.y)).toBeLessThan(1);
+		expect(Math.abs(calendar.y - calendarBefore.y)).toBeLessThan(1);
 		expect(source.x).toBeGreaterThan(search.x + 40);
 		expect(Math.abs(source.y - search.y)).toBeLessThan(16);
-		expect(calendar.y).toBeLessThan(160);
 	});
 });

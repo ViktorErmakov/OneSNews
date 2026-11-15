@@ -984,6 +984,31 @@
 		);
 	}
 
+	function orderedSectionItems(items) {
+		const prefs = window.ONES_PREFS;
+		if (!prefs || !prefs.orderIsCustom || !prefs.orderedNames) return items;
+		const catalog = (window.ONES_CATALOG && window.ONES_CATALOG.sources) || [];
+		const seen = new Set();
+		const names = [];
+		for (const src of catalog) {
+			const name = String((src && src.name) || '').trim();
+			if (!name || seen.has(name)) continue;
+			seen.add(name);
+			names.push(name);
+		}
+		if (!prefs.orderIsCustom(names)) return items;
+		const order = prefs.orderedNames(names);
+		const rank = new Map(order.map((name, index) => [name, index]));
+		const last = rank.size;
+		return items.slice().sort((a, b) => {
+			const aName = String(a.source_name || '').trim();
+			const bName = String(b.source_name || '').trim();
+			const ia = rank.has(aName) ? rank.get(aName) : last;
+			const ib = rank.has(bName) ? rank.get(bName) : last;
+			return ia - ib;
+		});
+	}
+
 	function renderFeed() {
 		if (!state.currentDay) {
 			els.feed.innerHTML = '';
@@ -1008,7 +1033,7 @@
 
 		const parts = [];
 		sourceTypes().forEach((section) => {
-			const sectionItems = items.filter((item) => item.source_type === section.code);
+			const sectionItems = orderedSectionItems(items.filter((item) => item.source_type === section.code));
 			if (!sectionItems.length) return;
 			const code = escapeHtml(section.code);
 			const collapsed = isSectionCollapsed(section.code);
@@ -1655,7 +1680,7 @@
 		if (target) {
 			target.scrollIntoView();
 		} else {
-			els.settingsOverlay.scrollTop = 0;
+			window.scrollTo(0, 0);
 		}
 		const focusEl = target || els.settingsHeading;
 		if (focusEl && focusEl.focus) focusEl.focus({ preventScroll: true });

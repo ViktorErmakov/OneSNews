@@ -1,4 +1,4 @@
-/** Hidden sources and types: opt-out lists in localStorage. */
+/** Hidden sources and the card order of sources, stored in localStorage. */
 (function (global) {
 	'use strict';
 
@@ -7,6 +7,7 @@
 	const GROUPS_KEY = 'ones-hidden-source-groups';
 	const LANGS_KEY = 'ones-hidden-languages';
 	const FEED_LANG_KEY = 'ones-feed-language';
+	const ORDER_KEY = 'ones-source-order';
 
 	function loadStringSet(key) {
 		try {
@@ -139,12 +140,77 @@
 		return hidden;
 	}
 
+	function uniqueNames(values) {
+		const seen = new Set();
+		const names = [];
+		for (const value of values || []) {
+			const name = String(value || '').trim();
+			if (!name || seen.has(name)) continue;
+			seen.add(name);
+			names.push(name);
+		}
+		return names;
+	}
+
+	function sameOrder(left, right) {
+		return left.length === right.length && left.every((name, index) => name === right[index]);
+	}
+
+	function loadSourceOrder() {
+		try {
+			const parsed = JSON.parse(localStorage.getItem(ORDER_KEY) || '[]');
+			if (!Array.isArray(parsed)) return [];
+			return uniqueNames(parsed);
+		} catch (err) {
+			return [];
+		}
+	}
+
+	function saveSourceOrder(names) {
+		const order = uniqueNames(names);
+		try {
+			if (!order.length) localStorage.removeItem(ORDER_KEY);
+			else localStorage.setItem(ORDER_KEY, JSON.stringify(order));
+		} catch (err) {
+			/* ignore quota / private mode */
+		}
+	}
+
+	function orderedNames(catalogNames) {
+		const catalog = uniqueNames(catalogNames);
+		const catalogSet = new Set(catalog);
+		const result = loadSourceOrder().filter((name) => catalogSet.has(name));
+		const placed = new Set(result);
+		for (let i = 0; i < catalog.length; i += 1) {
+			const name = catalog[i];
+			if (placed.has(name)) continue;
+			let insertAt = 0;
+			for (let j = i - 1; j >= 0; j -= 1) {
+				const index = result.indexOf(catalog[j]);
+				if (index !== -1) {
+					insertAt = index + 1;
+					break;
+				}
+			}
+			result.splice(insertAt, 0, name);
+			placed.add(name);
+		}
+		return result;
+	}
+
+	function orderIsCustom(catalogNames) {
+		const catalog = uniqueNames(catalogNames);
+		if (!catalog.length || !loadSourceOrder().length) return false;
+		return !sameOrder(orderedNames(catalog), catalog);
+	}
+
 	global.ONES_PREFS = {
 		HIDDEN_KEY: SOURCES_KEY,
 		HIDDEN_TYPES_KEY: TYPES_KEY,
 		HIDDEN_GROUPS_KEY: GROUPS_KEY,
 		HIDDEN_LANGS_KEY: LANGS_KEY,
 		FEED_LANG_KEY: FEED_LANG_KEY,
+		ORDER_KEY: ORDER_KEY,
 		loadHidden: loadHidden,
 		saveHidden: saveHidden,
 		isHidden: isHidden,
@@ -162,5 +228,9 @@
 		isLanguageHidden: isLanguageHidden,
 		loadFeedLanguage: loadFeedLanguage,
 		saveFeedLanguage: saveFeedLanguage,
+		loadSourceOrder: loadSourceOrder,
+		saveSourceOrder: saveSourceOrder,
+		orderedNames: orderedNames,
+		orderIsCustom: orderIsCustom,
 	};
 })(window);
