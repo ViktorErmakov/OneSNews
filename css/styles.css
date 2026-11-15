@@ -65,6 +65,7 @@ html {
 	-webkit-text-size-adjust: 100%;
 	scroll-padding-top: var(--scroll-pad);
 	overflow-wrap: anywhere;
+	scrollbar-gutter: stable;
 }
 
 body {
@@ -1120,7 +1121,13 @@ body.settings-open .columns-toggle {
 
 .cards {
 	display: grid;
-	grid-auto-flow: row;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 1.25rem;
+	min-width: 0;
+}
+
+.source-cards {
+	display: grid;
 	grid-template-columns: minmax(0, 1fr);
 	gap: 0.75rem;
 	min-width: 0;
@@ -1857,7 +1864,7 @@ body.settings-open .columns-toggle {
 		display: inline-flex;
 	}
 
-	html[data-columns='multi'] .cards {
+	html[data-columns='multi'] .source-cards {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
@@ -1899,12 +1906,14 @@ body.settings-open .columns-toggle {
 		align-self: start;
 		min-width: 0;
 		position: sticky;
-		top: var(--chrome-h);
+		top: calc(var(--chrome-h) + var(--rail-top));
 		z-index: 4;
 		box-sizing: border-box;
-		padding: calc(0.55rem + var(--rail-top)) 0.75rem 0.7rem;
-		background: var(--bg-top);
-		border-bottom: 1px solid var(--line);
+		margin-top: var(--rail-top);
+		padding: 0.75rem;
+		background: var(--filters-bg);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
 	}
 
 	#search-box {
@@ -1980,7 +1989,7 @@ body.settings-open .columns-toggle {
 		padding-top: 0;
 	}
 
-	html[data-columns='multi'] .cards {
+	html[data-columns='multi'] .source-cards {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
@@ -1992,7 +2001,7 @@ html[data-columns='single'] .cards {
 
 .another-day {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
 	margin: -0.5rem 0 1.75rem;
@@ -2003,13 +2012,30 @@ html[data-columns='single'] .cards {
 }
 
 .another-day-date {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
 	margin: 0;
-	padding: 0;
+	padding: 0.15rem 0;
 	font: inherit;
 	font-size: 0.92rem;
 	color: var(--accent);
+	text-decoration: none;
+}
+
+.another-day-date[hidden] {
+	display: none;
+}
+
+.another-day-label {
 	text-decoration: underline;
 	text-underline-offset: 0.15em;
+}
+
+.another-day-arrow {
+	width: 0.85rem;
+	height: 0.85rem;
+	flex-shrink: 0;
 }
 
 .another-day-next {
@@ -2023,6 +2049,20 @@ html[data-columns='single'] .cards {
 .another-day-date:focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	.another-day-arrow {
+		transition: transform 0.15s ease;
+	}
+
+	.another-day-date:hover .another-day-arrow {
+		transform: translateX(-2px);
+	}
+
+	.another-day-next:hover .another-day-arrow {
+		transform: translateX(2px);
+	}
 }
 
 .to-top {

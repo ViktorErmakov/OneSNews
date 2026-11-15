@@ -290,8 +290,32 @@
 				</header>
 				<div id="feed" class="feed"></div>
 				<nav class="another-day" id="another-day" hidden>
-					<a class="another-day-date" id="another-day-prev" hidden href="#"></a>
-					<a class="another-day-date another-day-next" id="another-day-next" hidden href="#"></a>
+					<a class="another-day-date" id="another-day-prev" hidden href="#">
+						<svg class="another-day-arrow" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+							<path
+								d="M7.75 2.25 L4.25 6 L7.75 9.75"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.6"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						<span class="another-day-label"></span>
+					</a>
+					<a class="another-day-date another-day-next" id="another-day-next" hidden href="#">
+						<span class="another-day-label"></span>
+						<svg class="another-day-arrow" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+							<path
+								d="M4.25 2.25 L7.75 6 L4.25 9.75"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.6"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+					</a>
 				</nav>
 			</main>
 		</div>

@@ -51,6 +51,48 @@ test.describe('Оверлей настроек', () => {
 		expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
 	});
 
+	test('кнопки шапки не сдвигаются, когда полоса есть только в настройках', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 1400 });
+		await openIndex(page);
+		const fits = await page.evaluate(
+			() => document.documentElement.scrollHeight <= document.documentElement.clientHeight,
+		);
+		expect(fits).toBe(true);
+
+		const headerX = await page.evaluate(() =>
+			['settings-open', 'lang-picker-btn', 'theme-toggle'].map((id) =>
+				Math.round(document.getElementById(id).getBoundingClientRect().x),
+			),
+		);
+
+		await page.locator('#settings-open').click();
+		await expect(page.locator('#settings-overlay')).toBeVisible();
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => document.documentElement.scrollHeight > document.documentElement.clientHeight,
+				),
+			)
+			.toBe(true);
+		expect(
+			await page.evaluate(() =>
+				['settings-open', 'lang-picker-btn', 'theme-toggle'].map((id) =>
+					Math.round(document.getElementById(id).getBoundingClientRect().x),
+				),
+			),
+		).toEqual(headerX);
+
+		await page.keyboard.press('Escape');
+		await expect(page.locator('#settings-overlay')).toBeHidden();
+		expect(
+			await page.evaluate(() =>
+				['settings-open', 'lang-picker-btn', 'theme-toggle'].map((id) =>
+					Math.round(document.getElementById(id).getBoundingClientRect().x),
+				),
+			),
+		).toEqual(headerX);
+	});
+
 	test('кнопка «Лента» закрывает панель', async ({ page }) => {
 		await openIndex(page);
 		await page.locator('#settings-open').click();

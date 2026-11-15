@@ -343,12 +343,30 @@ test.describe('Лента', () => {
 	});
 
 	test('на широком экране карточки переключаются в одну колонку', async ({ page }) => {
-		await openIndex(page);
-		const cards = page.locator('#section-site article.card');
+		const day = structuredClone(defaultFixtures().days['2026-03-15']);
+		day.items.splice(1, 0, {
+			id: '2026-03-15-001b',
+			title: 'Вторая новость Infostart',
+			summary: 'Ещё одна публикация того же источника.',
+			url: 'https://example.com/infostart-second',
+			author: 'AlexSvoykin',
+			source_name: 'Infostart',
+			source_type: 'site',
+			topics: [],
+			language: 'ru',
+		});
+		await openIndex(page, { days: { '2026-03-15': day } });
+		const sameSource = page.locator('#section-site .source-cards').nth(0).locator('article.card');
+		const nextSource = page.locator('#section-site .source-cards').nth(1).locator('article.card').first();
 		const sideBySide = async () => {
-			const first = await cards.nth(0).boundingBox();
-			const second = await cards.nth(1).boundingBox();
+			const first = await sameSource.nth(0).boundingBox();
+			const second = await sameSource.nth(1).boundingBox();
 			return Math.abs(second.y - first.y) < 8;
+		};
+		const nextSourceBelow = async () => {
+			const first = await sameSource.nth(0).boundingBox();
+			const next = await nextSource.boundingBox();
+			return next.y > first.y + 8;
 		};
 		const widthOf = async (selector) =>
 			Math.round((await page.locator(selector).first().boundingBox()).width);
@@ -371,6 +389,7 @@ test.describe('Лента', () => {
 		expect(headerOrder.indexOf('columns-toggle')).toBeLessThan(headerOrder.indexOf('settings-open'));
 		expect(headerOrder.indexOf('settings-open')).toBeLessThan(headerOrder.indexOf('lang-picker-btn'));
 		expect(await sideBySide()).toBe(true);
+		expect(await nextSourceBelow()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
 
 		await toggle.click();
@@ -384,6 +403,7 @@ test.describe('Лента', () => {
 		);
 		expect(await page.evaluate(() => localStorage.getItem('ones-columns'))).toBe('single');
 		expect(await sideBySide()).toBe(false);
+		expect(await nextSourceBelow()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
 
 		await page.reload();
@@ -395,6 +415,7 @@ test.describe('Лента', () => {
 		await page.getByRole('button', { name: 'Карточки в несколько колонок' }).click();
 		expect(await page.evaluate(() => localStorage.getItem('ones-columns'))).toBe('multi');
 		expect(await sideBySide()).toBe(true);
+		expect(await nextSourceBelow()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
 	});
 

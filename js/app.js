@@ -346,7 +346,9 @@
 	function applyChromeHeight() {
 		const headerH = els.chrome ? els.chrome.offsetHeight : 0;
 		document.documentElement.style.setProperty('--chrome-h', `${headerH}px`);
-		const toolsH = calendarPinned() && els.feedTools ? els.feedTools.offsetHeight : 0;
+		const toolsStyle = els.feedTools ? getComputedStyle(els.feedTools) : null;
+		const toolsMargin = toolsStyle ? parseFloat(toolsStyle.marginTop) || 0 : 0;
+		const toolsH = calendarPinned() && els.feedTools ? els.feedTools.offsetHeight + toolsMargin : 0;
 		if (toolsH) document.documentElement.style.setProperty('--tools-h', `${toolsH}px`);
 		const filtersH = calendarPinned() ? 0 : els.filtersBar ? els.filtersBar.offsetHeight : 0;
 		document.documentElement.style.setProperty('--scroll-pad', `${headerH + filtersH}px`);
@@ -1009,6 +1011,28 @@
 		});
 	}
 
+	function groupItemsBySource(items) {
+		const groups = [];
+		const indexByName = new Map();
+		items.forEach((item) => {
+			const name = String(item.source_name || '').trim();
+			let index = indexByName.get(name);
+			if (index === undefined) {
+				index = groups.length;
+				indexByName.set(name, index);
+				groups.push([]);
+			}
+			groups[index].push(item);
+		});
+		return groups;
+	}
+
+	function renderSourceGroups(items) {
+		return groupItemsBySource(items)
+			.map((group) => `<div class="source-cards">${group.map(renderCard).join('')}</div>`)
+			.join('');
+	}
+
 	function renderFeed() {
 		if (!state.currentDay) {
 			els.feed.innerHTML = '';
@@ -1046,7 +1070,7 @@
 					`<span class="section-toggle-label">${escapeHtml(section.label)}</span>` +
 					`</button></h2>`,
 			);
-			parts.push(`<div class="cards" id="section-${code}-cards">${sectionItems.map(renderCard).join('')}</div>`);
+			parts.push(`<div class="cards" id="section-${code}-cards">${renderSourceGroups(sectionItems)}</div>`);
 			parts.push(`</section>`);
 		});
 
@@ -1071,15 +1095,19 @@
 
 	function fillDayLink(el, iso) {
 		if (!el) return;
+		const label = el.querySelector('.another-day-label');
 		if (!iso) {
 			el.hidden = true;
-			el.textContent = '';
+			if (label) label.textContent = '';
+			else el.textContent = '';
 			el.removeAttribute('href');
 			el.removeAttribute('data-date');
 			return;
 		}
 		el.hidden = false;
-		el.textContent = formatShortDate(iso);
+		const text = formatShortDate(iso);
+		if (label) label.textContent = text;
+		else el.textContent = text;
 		el.setAttribute('href', dateHref(iso));
 		el.setAttribute('data-date', iso);
 	}
