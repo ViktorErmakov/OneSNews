@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-import tempfile
 import unittest
-from pathlib import Path
 
 from telegram_post import (
 	build_messages,
 	html_escape,
-	load_posted,
 	pack_tagged,
 	ru_materials,
-	save_posted,
 )
 
 
@@ -133,13 +129,6 @@ class TelegramFormatTests(unittest.TestCase):
 		chunks = pack_tagged(lines, limit=30)
 		self.assertTrue(all(not chunk.endswith("HEAD") for chunk in chunks))
 		self.assertIn("HEAD\n" + ("y" * 20), "\n".join(chunks))
-
-	def test_posted_dates_roundtrip(self) -> None:
-		with tempfile.TemporaryDirectory() as tmp:
-			path = Path(tmp) / "telegram_posted.json"
-			self.assertEqual(load_posted(path), set())
-			save_posted({"2026-11-15", "2026-11-11"}, path)
-			self.assertEqual(load_posted(path), {"2026-11-11", "2026-11-15"})
 
 
 if __name__ == "__main__":

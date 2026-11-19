@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -66,6 +67,22 @@ def process_day(day: date, items: list[dict], args: argparse.Namespace, *, merge
 	return 0
 
 
+def note_ci_dates(days: list[date]) -> None:
+	output = os.environ.get("GITHUB_OUTPUT", "").strip()
+	if not output:
+		return
+	seen: set[str] = set()
+	unique: list[str] = []
+	for day in days:
+		iso = day.isoformat()
+		if iso in seen:
+			continue
+		seen.add(iso)
+		unique.append(iso)
+	with open(output, "a", encoding="utf-8") as handle:
+		handle.write("dates=" + ",".join(unique) + "\n")
+
+
 def each_date(start: date, end: date):
 	cursor = start
 	while cursor <= end:
@@ -92,13 +109,16 @@ def main() -> int:
 			total = sum(len(v) for v in by_day.values())
 			logging.info("Collect-only range %s..%s: %s items, %s days", start, end, total, len(by_day))
 			return 0
+		days = list(each_date(start, end))
+		note_ci_dates(days)
 		code = 0
-		for day in each_date(start, end):
+		for day in days:
 			items = by_day.get(day, [])
 			code = process_day(day, items, args, merge=True) or code
 		return code
 
 	day, items = collect(cli_date=args.date)
+	note_ci_dates([day])
 	return process_day(day, items, args, merge=False)
 
 

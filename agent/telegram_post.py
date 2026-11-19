@@ -17,7 +17,6 @@ from common import DAYS, SOURCES_JSON, russian_day_title
 
 SITE_ORIGIN = "https://enterprisehub.dev"
 MESSAGE_LIMIT = 3500
-STATE_PATH = Path(__file__).resolve().parent / "state" / "telegram_posted.json"
 SECTION_ORDER = ("site", "telegram", "video", "other")
 SECTION_LABELS = {
 	"site": "Сайты",
@@ -80,19 +79,6 @@ def load_homes(path: Path = SOURCES_JSON) -> dict[str, str]:
 		if name and home:
 			homes[name] = home
 	return homes
-
-
-def load_posted(path: Path = STATE_PATH) -> set[str]:
-	if not path.exists():
-		return set()
-	data = json.loads(path.read_text(encoding="utf-8"))
-	return {str(item) for item in (data.get("dates") or [])}
-
-
-def save_posted(dates: set[str], path: Path = STATE_PATH) -> None:
-	path.parent.mkdir(parents=True, exist_ok=True)
-	payload = {"dates": sorted(dates)}
-	path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _section(item: dict) -> str:
@@ -323,12 +309,8 @@ def post_dates(dates: list[date], *, dry_run: bool) -> int:
 		)
 		return 0
 	homes = load_homes()
-	posted = load_posted()
 	for day in dates:
 		iso = day.isoformat()
-		if iso in posted:
-			logging.info("Already posted %s", iso)
-			continue
 		path = DAYS / f"{iso}.json"
 		if not path.exists():
 			logging.error("No day file for %s", iso)
@@ -346,8 +328,6 @@ def post_dates(dates: list[date], *, dry_run: bool) -> int:
 		for message in messages:
 			send_message(token, chat_id, message["text"], message.get("preview_url"))
 			time.sleep(0.4)
-		posted.add(iso)
-		save_posted(posted)
 		logging.info("Posted %s (%s messages)", iso, len(messages))
 	return 0
 
