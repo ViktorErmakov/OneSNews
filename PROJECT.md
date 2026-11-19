@@ -79,7 +79,7 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `agent/common.py` | Пути, конфиг, дата, сниппеты |
 | `agent/write_day.py` | day JSON, `index.json`, `sources.json` |
 | `agent/requirements.txt` | Зависимости Python 3.12 |
-| `agent/telegram_post.py` | Пост дня в Telegram-канал: сводка по источникам и список заголовков |
+| `agent/telegram_post.py` | Пост дня в Telegram-канал: сводка, затем отдельное сообщение на каждый источник |
 | `agent/test_telegram_post.py` | Формат сообщений без сети |
 | `agent/state/telegram_posted.json` | Даты, которые уже ушли в канал (появляется после первой отправки) |
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
@@ -329,7 +329,7 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 
 ### Telegram-канал
 
-После успешного деплоя нового дня бот публикует в `https://t.me/Ones_News` сводку (число материалов по каждому источнику, имя — ссылка на `home`) и список заголовков со ссылками на материалы. Внизу сводки — ссылка на день: `https://enterprisehub.dev/?date=YYYY-MM-DD`. Повтор той же даты не уходит: список лежит в `agent/state/telegram_posted.json`.
+После успешного деплоя нового дня бот публикует в `https://t.me/Ones_News` сводку (число материалов по каждому источнику, имя — ссылка на `home`), затем отдельное сообщение на каждый источник: заголовки со ссылками и пустая строка между ними. Внизу сводки ссылка на день в цитате: `https://enterprisehub.dev/?date=YYYY-MM-DD`. Повтор той же даты не уходит: список лежит в `agent/state/telegram_posted.json`.
 
 Секреты Actions, не в git: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (`@Ones_News`). Если их нет, шаг пишет это в лог и не роняет сбор. Ручной прогон: Actions → Collect daily digest → поле `post_date`. Локально без отправки: `python agent/telegram_post.py --date YYYY-MM-DD --dry-run`. На сайте ссылка на канал берётся из `TELEGRAM_CHANNEL` в `js/config.js`.
 

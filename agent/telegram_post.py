@@ -25,6 +25,12 @@ SECTION_LABELS = {
 	"video": "Видеохостинги",
 	"other": "Другое",
 }
+SECTION_EMOJI = {
+	"site": "🌐",
+	"telegram": "💬",
+	"video": "▶️",
+	"other": "📌",
+}
 
 
 def ru_materials(count: int) -> str:
@@ -123,43 +129,70 @@ def summary_lines(day: dict, homes: dict[str, str]) -> list[str]:
 	title = str(day.get("title") or "").strip()
 	if not title:
 		title = russian_day_title(date.fromisoformat(str(day["date"])))
-	lines = [f"<b>{html_escape(title)}</b>", ru_materials(len(items)), ""]
+	lines = [
+		f"📰 <b>{html_escape(title)}</b>",
+		f"<i>{ru_materials(len(items))}</i>",
+		"",
+	]
 	for section, rows in grouped_sources(items, homes):
-		lines.append(f"<b>{SECTION_LABELS[section]}</b>")
+		emoji = SECTION_EMOJI[section]
+		lines.append(f"{emoji} <b>{SECTION_LABELS[section]}</b>")
 		for name, count, home in rows:
 			label = html_escape(name)
 			if home:
-				lines.append(f'<a href="{href_attr(home)}">{label}</a> — {count}')
+				lines.append(f'<a href="{href_attr(home)}">{label}</a> · {count}')
 			else:
-				lines.append(f"{label} — {count}")
+				lines.append(f"{label} · {count}")
 		lines.append("")
 	day_url = f"{SITE_ORIGIN}/?date={day['date']}"
-	lines.append("Читать день на сайте")
-	lines.append(day_url)
+	lines.append(f"<blockquote>Читать день на сайте\n{day_url}</blockquote>")
 	return lines
 
 
-def list_lines(day: dict, homes: dict[str, str]) -> list[tuple[str, str]]:
-	items = list(day.get("items") or [])
-	buckets: dict[tuple[str, str], list[dict]] = {}
-	for item in items:
-		buckets.setdefault((_section(item), _source_name(item)), []).append(item)
+def source_header(section: str, name: str, home: str | None, count: int, *, continuation: bool) -> str:
+	emoji = SECTION_EMOJI[section]
+	label = html_escape(name)
+	if home:
+		title = f'{emoji} <b><a href="{href_attr(home)}">{label}</a></b>'
+	else:
+		title = f"{emoji} <b>{label}</b>"
+	subtitle = "<i>продолжение</i>" if continuation else f"<i>{ru_materials(count)}</i>"
+	return f"{title}\n{subtitle}"
+
+
+def item_line(item: dict) -> str:
+	title = html_escape(
+		str(item.get("title") or "Без названия").replace("\n", " ").strip() or "Без названия"
+	)
+	href = safe_href(str(item.get("url") or ""))
+	if href:
+		body = f'<a href="{href_attr(href)}">{title}</a>'
+	else:
+		body = title
+	return f"• {body}"
+
+
+def source_item_lines(items: list[dict]) -> list[tuple[str, str]]:
 	lines: list[tuple[str, str]] = []
-	for index, (section, rows) in enumerate(grouped_sources(items, homes)):
+	for index, item in enumerate(items):
+		text = item_line(item)
 		if index:
-			lines.append(("text", ""))
-		lines.append(("header", f"<b>{SECTION_LABELS[section]}</b>"))
-		for name, _count, _home in rows:
-			for item in buckets.get((section, name), []):
-				title = html_escape(str(item.get("title") or "Без названия").replace("\n", " ").strip() or "Без названия")
-				href = safe_href(str(item.get("url") or ""))
-				source = html_escape(name)
-				if href:
-					body = f'<a href="{href_attr(href)}">{title}</a>'
-				else:
-					body = title
-				lines.append(("item", f"• {body} — {source}"))
+			text = "\n" + text
+		lines.append(("item", text))
 	return lines
+
+
+def pack_source(section: str, name: str, home: str | None, count: int, items: list[dict], limit: int) -> list[str]:
+	header = source_header(section, name, home, count, continuation=False)
+	continued = source_header(section, name, home, count, continuation=True)
+	reserve = max(len(header), len(continued)) + 2
+	body_limit = max(1, limit - reserve)
+	bodies = pack_tagged(source_item_lines(items), body_limit)
+	messages: list[str] = []
+	for index, body in enumerate(bodies):
+		head = header if index == 0 else continued
+		messages.append(f"{head}\n\n{body}" if body else head)
+	return messages
 
 
 def pack_tagged(lines: list[tuple[str, str]], limit: int = MESSAGE_LIMIT) -> list[str]:
@@ -214,8 +247,13 @@ def build_messages(day: dict, homes: dict[str, str], limit: int = MESSAGE_LIMIT)
 		{"text": text, "preview_url": day_url if day_url in text else None}
 		for text in summary
 	]
-	for text in pack_tagged(list_lines(day, homes), limit):
-		messages.append({"text": text, "preview_url": None})
+	buckets: dict[tuple[str, str], list[dict]] = {}
+	for item in items:
+		buckets.setdefault((_section(item), _source_name(item)), []).append(item)
+	for section, rows in grouped_sources(items, homes):
+		for name, count, home in rows:
+			for text in pack_source(section, name, home, count, buckets.get((section, name), []), limit):
+				messages.append({"text": text, "preview_url": None})
 	return messages
 
 
