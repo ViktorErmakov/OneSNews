@@ -10,4 +10,5 @@ window.ONES_CONFIG = {
 		{ code: 'ru', label: 'Русский' },
 		{ code: 'en', label: 'English' },
 	],
+	TELEGRAM_CHANNEL: 'https://t.me/Ones_News',
 };

@@ -1810,11 +1810,26 @@
 		document.addEventListener('ones-prefs', refreshFeedFromPrefs);
 		document.addEventListener('ones-catalog', refreshFeedFromPrefs);
 		document.addEventListener('ones-locale', () => {
+			syncChannelLink();
 			if (isSettingsOpen()) syncSettingsTrigger();
 		});
 	}
 
+	function syncChannelLink() {
+		const link = document.getElementById('channel-link');
+		if (!link) return;
+		const url = (cfg && cfg.TELEGRAM_CHANNEL) || '';
+		if (!url) {
+			link.hidden = true;
+			return;
+		}
+		link.hidden = false;
+		link.href = url;
+		if (i18n) link.setAttribute('data-tooltip', i18n.t('channel'));
+	}
+
 	async function init() {
+		syncChannelLink();
 		loadReadMap();
 		loadSearchHistory();
 		bindChromeHeight();
@@ -1893,6 +1908,7 @@
 		} else if (i18n) {
 			state.language = i18n.locale;
 		}
+		syncChannelLink();
 		if (window.ONES_PREFS) {
 			const codes = (cfg.LANGUAGES || []).map((lang) => lang.code);
 			const uiLocale = state.language || (i18n && i18n.locale) || 'ru';

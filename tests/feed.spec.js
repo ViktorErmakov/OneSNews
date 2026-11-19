@@ -232,6 +232,10 @@ test.describe('Лента', () => {
 
 		const header = page.locator('.top-nav');
 		await expect(header.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
+		const channel = header.locator('#channel-link');
+		await expect(channel).toHaveAttribute('href', 'https://t.me/Ones_News');
+		await expect(channel).toHaveAttribute('target', '_blank');
+		await expect(channel).toHaveAttribute('aria-label', 'Telegram-канал');
 
 		const footer = page.locator('#feed-footer');
 		await expect(footer.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
@@ -244,6 +248,7 @@ test.describe('Лента', () => {
 	test('язык браузера en открывает английскую ленту', async ({ page }) => {
 		await openIndex(page, { locale: 'browser-en' });
 		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+		await expect(page.locator('#channel-link')).toHaveAttribute('aria-label', 'Telegram channel');
 		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Date: March 15, 2026');
 		await expect(page.locator('article.card')).toHaveCount(2);
 		await expect(card(page, '2026-03-15-004')).toBeVisible();

@@ -29,12 +29,16 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
               │
               ▼
         GitHub Pages
+              │
+              ▼
+     agent/telegram_post.py  (после деплоя дня → канал)
 ```
 
 - Вёрстка почти не меняется после запуска.
 - Сборщик пишет **только** JSON в `data/` (и при необходимости `sources.yaml` / `agent/config.yaml`).
 - Браузер сначала выбирает язык (`?lang=` / `ones-feed-language` / `ones-language` / язык браузера). Пустой выбор показывает оба языка, календарь — объединение `dates_by_language`; смена даты загружает один day-файл.
 - Cursor не гоняется по расписанию: ежедневный прогон — GitHub Actions или скрипт на ПК.
+- В канал `https://t.me/Ones_News` пишет только job `telegram` в `collect.yml`, после успешного деплоя. `python agent/run.py` канал не трогает.
 - `agent/` на сайт не попадает: публичный набор файлов задаёт `.github/workflows/pages.yml`.
 
 ---
@@ -75,10 +79,13 @@ agent/run.py  (каталог источников → collect.py → raw JSON �
 | `agent/common.py` | Пути, конфиг, дата, сниппеты |
 | `agent/write_day.py` | day JSON, `index.json`, `sources.json` |
 | `agent/requirements.txt` | Зависимости Python 3.12 |
+| `agent/telegram_post.py` | Пост дня в Telegram-канал: сводка по источникам и список заголовков |
+| `agent/test_telegram_post.py` | Формат сообщений без сети |
+| `agent/state/telegram_posted.json` | Даты, которые уже ушли в канал (появляется после первой отправки) |
 | `agent/cron/run.ps1` | Локальный запуск по расписанию Windows |
 | `CNAME` | `enterprisehub.dev` для GitHub Pages |
 | `.github/workflows/pages.yml` | Тесты Playwright, затем деплой статики (белый список файлов) |
-| `.github/workflows/collect.yml` | Ежедневный сбор, тесты и деплой (00:01 МСК) |
+| `.github/workflows/collect.yml` | Ежедневный сбор, тесты, деплой и пост в Telegram (00:01 МСК) |
 | `LICENSE` | Условия использования |
 | `PROJECT.md` | Этот документ (для человека и ИИ) |
 | `README.md` | Короткий старт |
@@ -318,7 +325,13 @@ write_day.py  →  data/days/YYYY-MM-DD.json + data/index.json
 - Хостинг: GitHub Pages. В `_site` попадают только публичные файлы (HTML, CSS, JS, `data/`, иконки, README/PROJECT, `CNAME`). `agent/`, `tests/` и `sources.yaml` на сайт не попадают. Падение тестов блокирует деплой; HTML-отчёт — артефакт job `test`.
 - Домен: `enterprisehub.dev` (`CNAME` + DNS у регистратора на IP GitHub Pages).
 - Обычный push в `main` и PR: `.github/workflows/pages.yml` (тесты, затем деплой).
-- Расписание и ручной сбор: `.github/workflows/collect.yml` — collect → test → deploy в одном прогоне (push бота сам по себе деплой не запускает).
+- Расписание и ручной сбор: `.github/workflows/collect.yml` — collect → test → deploy → telegram в одном прогоне (push бота сам по себе деплой не запускает).
+
+### Telegram-канал
+
+После успешного деплоя нового дня бот публикует в `https://t.me/Ones_News` сводку (число материалов по каждому источнику, имя — ссылка на `home`) и список заголовков со ссылками на материалы. Внизу сводки — ссылка на день: `https://enterprisehub.dev/?date=YYYY-MM-DD`. Повтор той же даты не уходит: список лежит в `agent/state/telegram_posted.json`.
+
+Секреты Actions, не в git: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (`@Ones_News`). Если их нет, шаг пишет это в лог и не роняет сбор. Ручной прогон: Actions → Collect daily digest → поле `post_date`. Локально без отправки: `python agent/telegram_post.py --date YYYY-MM-DD --dry-run`. На сайте ссылка на канал берётся из `TELEGRAM_CHANNEL` в `js/config.js`.
 
 Локальный просмотр: любой статический сервер из корня, например `npx --yes serve .`  
 (нужен HTTP: `fetch` JSON не работает с `file://`).
