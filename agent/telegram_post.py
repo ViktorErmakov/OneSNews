@@ -92,6 +92,14 @@ def _source_name(item: dict) -> str:
 	return str(item.get("source_name") or "").strip() or "Источник"
 
 
+def digest_items(day: dict) -> list[dict]:
+	return [
+		item
+		for item in (day.get("items") or [])
+		if _section(item) != "telegram"
+	]
+
+
 def grouped_sources(items: list[dict], homes: dict[str, str]) -> list[tuple[str, list[tuple[str, int, str | None]]]]:
 	counts: dict[tuple[str, str], int] = {}
 	for item in items:
@@ -224,11 +232,14 @@ def pack_tagged(lines: list[tuple[str, str]], limit: int = MESSAGE_LIMIT) -> lis
 
 
 def build_messages(day: dict, homes: dict[str, str], limit: int = MESSAGE_LIMIT) -> list[dict]:
-	items = list(day.get("items") or [])
+	items = digest_items(day)
 	if not items:
 		return []
 	day_url = f"{SITE_ORIGIN}/?date={day['date']}"
-	summary = pack_tagged([("text", line) for line in summary_lines(day, homes)], limit)
+	summary = pack_tagged(
+		[("text", line) for line in summary_lines({**day, "items": items}, homes)],
+		limit,
+	)
 	messages = [
 		{"text": text, "preview_url": day_url if day_url in text else None}
 		for text in summary

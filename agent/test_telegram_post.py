@@ -59,11 +59,11 @@ class TelegramFormatTests(unittest.TestCase):
 		messages = build_messages(sample_day(), HOMES)
 		summary = messages[0]["text"]
 		self.assertIn("📰 <b>Дайджест за 15 ноября 2026</b>", summary)
-		self.assertIn("<i>4 материала</i>", summary)
+		self.assertIn("<i>3 материала</i>", summary)
 		self.assertIn("🌐 <b>Сайты</b>", summary)
-		self.assertIn("💬 <b>Telegram</b>", summary)
+		self.assertNotIn("Telegram", summary)
+		self.assertNotIn("Хатка Бобра", summary)
 		self.assertIn('<a href="https://infostart.ru/">Infostart</a> · 2', summary)
-		self.assertIn('<a href="https://t.me/evilbeaverHouse">Хатка Бобра</a> · 1', summary)
 		self.assertIn("Черновик · 1", summary)
 		self.assertNotIn('href="https://example.com/plain"', summary)
 		self.assertIn(
@@ -71,13 +71,12 @@ class TelegramFormatTests(unittest.TestCase):
 			summary,
 		)
 		self.assertEqual(messages[0]["preview_url"], "https://enterprisehub.dev/?date=2026-11-15")
-		self.assertLess(summary.index("Сайты"), summary.index("Telegram"))
 		self.assertLess(summary.index("Infostart"), summary.index("Черновик"))
 
 	def test_list_groups_titles_and_escapes(self) -> None:
 		messages = build_messages(sample_day(), HOMES)
-		self.assertEqual(len(messages), 4)
-		infostart, draft, beaver = (message["text"] for message in messages[1:])
+		self.assertEqual(len(messages), 3)
+		infostart, draft = (message["text"] for message in messages[1:])
 		self.assertIn('🌐 <b><a href="https://infostart.ru/">Infostart</a></b>', infostart)
 		self.assertIn("<i>2 материала</i>", infostart)
 		self.assertIn('<a href="https://infostart.ru/a">A &lt; B &amp; C</a>', infostart)
@@ -88,8 +87,9 @@ class TelegramFormatTests(unittest.TestCase):
 		self.assertNotIn("A < B", infostart)
 		self.assertIn("🌐 <b>Черновик</b>", draft)
 		self.assertNotIn("<a href=", draft.split("\n", 1)[0])
-		self.assertIn('💬 <b><a href="https://t.me/evilbeaverHouse">Хатка Бобра</a></b>', beaver)
-		self.assertIn("Заметка", beaver)
+		joined = "\n".join(message["text"] for message in messages)
+		self.assertNotIn("Хатка Бобра", joined)
+		self.assertNotIn("Заметка", joined)
 		self.assertTrue(all(message["preview_url"] is None for message in messages[1:]))
 		self.assertEqual(html_escape("A < B & C"), "A &lt; B &amp; C")
 

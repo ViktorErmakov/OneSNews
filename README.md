@@ -62,7 +62,7 @@ python agent/run.py --collect-only
 
 Сырые дампы сборщика пишутся в `agent/tmp/` и в git не попадают.
 
-Cron на GitHub: workflow `.github/workflows/collect.yml` (00:01 МСК) — сбор, тесты, деплой, затем пост в Telegram-канал [Ones_News](https://t.me/Ones_News): сводка и отдельное сообщение на каждый источник. Повторная сборка того же дня отправляет сообщения снова. `python agent/run.py` канал не трогает. Секреты Actions: `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`. Ручная проверка без отправки: `python agent/telegram_post.py --date YYYY-MM-DD --dry-run`. В Actions поле `post_date` публикует указанный день.
+Cron на GitHub: workflow `.github/workflows/collect.yml` (00:01 МСК) — сбор, тесты, деплой, затем пост в Telegram-канал [Ones_News](https://t.me/Ones_News): сводка и отдельное сообщение на каждый источник, без материалов Telegram-каналов. Повторная сборка того же дня отправляет сообщения снова. `python agent/run.py` канал не трогает. Секреты Actions: `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`. Ручная проверка без отправки: `python agent/telegram_post.py --date YYYY-MM-DD --dry-run`. В Actions поле `post_date` публикует указанный день.
 
 ## Дисклеймер
 
