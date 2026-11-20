@@ -247,29 +247,6 @@ a:hover {
 	outline-offset: 0.125rem;
 }
 
-#channel-link {
-	position: relative;
-}
-
-#channel-link[data-tooltip]:hover::after,
-#channel-link[data-tooltip]:focus-visible::after {
-	content: attr(data-tooltip);
-	position: absolute;
-	top: calc(100% + 0.35rem);
-	right: 0;
-	z-index: 30;
-	padding: 0.28rem 0.5rem;
-	border-radius: 0.4rem;
-	background: var(--ink);
-	color: var(--surface);
-	font-size: 0.75rem;
-	font-weight: 500;
-	line-height: 1.3;
-	white-space: nowrap;
-	pointer-events: none;
-	box-shadow: var(--shadow);
-}
-
 .columns-toggle {
 	position: relative;
 	display: none;
@@ -1154,6 +1131,41 @@ body.settings-open .columns-toggle {
 	grid-template-columns: minmax(0, 1fr);
 	gap: 0.75rem;
 	min-width: 0;
+}
+
+.source-break {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	grid-column: 1 / -1;
+	margin: 0;
+	min-width: 0;
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 650;
+	line-height: 1.3;
+}
+
+.source-break-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.source-break::before {
+	content: '';
+	width: 0.42rem;
+	height: 0.42rem;
+	border-radius: 999px;
+	background: var(--accent);
+	box-shadow: 0 0 0 0.18rem var(--accent-soft);
+	flex-shrink: 0;
+}
+
+.source-break::after {
+	content: '';
+	flex: 1 1 auto;
+	height: 1px;
+	background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 55%, var(--line)), transparent);
 }
 
 .card {

@@ -232,10 +232,7 @@ test.describe('Лента', () => {
 
 		const header = page.locator('.top-nav');
 		await expect(header.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
-		const channel = header.locator('#channel-link');
-		await expect(channel).toHaveAttribute('href', 'https://t.me/Ones_News');
-		await expect(channel).toHaveAttribute('target', '_blank');
-		await expect(channel).toHaveAttribute('aria-label', 'Telegram-канал');
+		await expect(header.locator('#channel-link')).toHaveCount(0);
 
 		const footer = page.locator('#feed-footer');
 		await expect(footer.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', 'settings.html');
@@ -243,12 +240,25 @@ test.describe('Лента', () => {
 			'href',
 			/mailto:mopdeus@gmail.com/,
 		);
+		const channel = footer.getByRole('link', { name: 'Telegram-канал' });
+		await expect(channel).toHaveAttribute('href', 'https://t.me/Ones_News');
+		await expect(channel).toHaveAttribute('target', '_blank');
+		const aboutChannel = page.locator('#about a.js-channel');
+		await expect(aboutChannel).toHaveText('Telegram-канале');
+		await expect(aboutChannel).toHaveAttribute('href', 'https://t.me/Ones_News');
+		await expect(aboutChannel).toHaveAttribute('target', '_blank');
 	});
 
 	test('язык браузера en открывает английскую ленту', async ({ page }) => {
 		await openIndex(page, { locale: 'browser-en' });
 		await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-		await expect(page.locator('#channel-link')).toHaveAttribute('aria-label', 'Telegram channel');
+		await expect(page.locator('#channel-link')).toHaveCount(0);
+		await expect(page.locator('#feed-footer').getByRole('link', { name: 'Telegram channel' })).toHaveAttribute(
+			'href',
+			'https://t.me/Ones_News',
+		);
+		await expect(page.locator('#about a.js-channel')).toHaveText('Telegram channel');
+		await expect(page.locator('#about a.js-channel')).toHaveAttribute('href', 'https://t.me/Ones_News');
 		await expect(page.locator('#date-picker-btn')).toHaveAttribute('aria-label', 'Date: March 15, 2026');
 		await expect(page.locator('article.card')).toHaveCount(2);
 		await expect(card(page, '2026-03-15-004')).toBeVisible();
@@ -393,9 +403,18 @@ test.describe('Лента', () => {
 		);
 		expect(headerOrder.indexOf('columns-toggle')).toBeLessThan(headerOrder.indexOf('settings-open'));
 		expect(headerOrder.indexOf('settings-open')).toBeLessThan(headerOrder.indexOf('lang-picker-btn'));
+		const siteBreak = page.locator('#section-site .source-cards').nth(1).locator('.source-break');
+		await expect(siteBreak).toHaveText('Habr 1C');
+		await expect(page.locator('#section-telegram .source-break')).toHaveCount(0);
+		const breakWiderThanCard = async () => {
+			const rule = await siteBreak.boundingBox();
+			const cardBox = await nextSource.boundingBox();
+			return rule.width > cardBox.width + 8;
+		};
 		expect(await sideBySide()).toBe(true);
 		expect(await nextSourceBelow()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
+		expect(await breakWiderThanCard()).toBe(true);
 
 		await toggle.click();
 		await expect(page.getByRole('button', { name: 'Карточки в несколько колонок' })).toHaveAttribute(
@@ -410,6 +429,7 @@ test.describe('Лента', () => {
 		expect(await sideBySide()).toBe(false);
 		expect(await nextSourceBelow()).toBe(true);
 		expect(await sameColumnWidth()).toBe(true);
+		await expect(siteBreak).toHaveText('Habr 1C');
 
 		await page.reload();
 		await waitForDay(page);

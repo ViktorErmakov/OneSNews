@@ -1028,8 +1028,16 @@
 	}
 
 	function renderSourceGroups(items) {
-		return groupItemsBySource(items)
-			.map((group) => `<div class="source-cards">${group.map(renderCard).join('')}</div>`)
+		const groups = groupItemsBySource(items);
+		const showBreak = groups.length > 1;
+		return groups
+			.map((group) => {
+				const name = String((group[0] && group[0].source_name) || '').trim() || t('source');
+				const breakHtml = showBreak
+					? `<p class="source-break"><span class="source-break-name">${escapeHtml(name)}</span></p>`
+					: '';
+				return `<div class="source-cards">${breakHtml}${group.map(renderCard).join('')}</div>`;
+			})
 			.join('');
 	}
 
@@ -1816,16 +1824,15 @@
 	}
 
 	function syncChannelLink() {
-		const link = document.getElementById('channel-link');
-		if (!link) return;
 		const url = (cfg && cfg.TELEGRAM_CHANNEL) || '';
-		if (!url) {
-			link.hidden = true;
-			return;
-		}
-		link.hidden = false;
-		link.href = url;
-		if (i18n) link.setAttribute('data-tooltip', i18n.t('channel'));
+		document.querySelectorAll('a.js-channel').forEach((link) => {
+			if (!url) {
+				link.hidden = true;
+				return;
+			}
+			link.hidden = false;
+			link.href = url;
+		});
 	}
 
 	async function init() {

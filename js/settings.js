@@ -8,6 +8,19 @@
 	const root = document.querySelector('#sources');
 	const showAllBtn = document.querySelector('#sources-show-all');
 	const resetOrderBtn = document.querySelector('#sources-reset-order');
+
+	(function syncChannelLinks() {
+		const url = (cfg && cfg.TELEGRAM_CHANNEL) || '';
+		document.querySelectorAll('a.js-channel').forEach((link) => {
+			if (!url) {
+				link.hidden = true;
+				return;
+			}
+			link.hidden = false;
+			link.href = url;
+		});
+	})();
+
 	if (!root || !cfg || !prefs) return;
 
 	function t(key, vars) {

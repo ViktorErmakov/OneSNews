@@ -94,6 +94,9 @@
 				about4Prefix: 'Пожелания, идеи по источникам и замечания к дайджесту можно ',
 				writeUs: 'написать нам',
 				about4Suffix: '.',
+				channelPrefix: 'Тот же дайджест выходит в ',
+				channelIn: 'Telegram-канале',
+				channelSuffix: '.',
 				sources: 'Источники',
 				sourcesHow:
 					'Свои тексты не пишем: с сайтов берём заголовок и краткое описание, из Telegram — начало поста. Ссылки ведут на сайты и каналы.',
@@ -228,6 +231,9 @@
 				about4Prefix: 'Suggestions, source ideas and notes about the digest can be sent by ',
 				writeUs: 'writing to us',
 				about4Suffix: '.',
+				channelPrefix: 'The same digest is published in the ',
+				channelIn: 'Telegram channel',
+				channelSuffix: '.',
 				sources: 'Sources',
 				sourcesHow:
 					'We do not write our own copy: from sites we take the title and a short description, from Telegram — the start of the post. Links go to the sites and channels.',
