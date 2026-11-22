@@ -17,7 +17,13 @@
 					'Настройки OneS News: какие источники показывать на ленте и что хранится в браузере.',
 			},
 			skip: 'К содержанию',
-			nav: { appearance: 'Оформление', about: 'О сайте' },
+			nav: { appearance: 'Оформление', about: 'О сайте', tools: 'Инструменты' },
+			tools: {
+				label: 'Инструменты',
+				sniffer: 'OneSniffer',
+				kanban: 'OneKanban',
+				conversion: 'Conversion 3 Plus',
+			},
 			settings: 'Настройки',
 			channel: 'Telegram-канал',
 			closeSettings: 'Закрыть настройки',
@@ -89,6 +95,12 @@
 					'OneS News собирает новости вокруг мира 1С из открытых источников и публикует ежедневный дайджест со ссылками на первоисточники.',
 				about2:
 					'Сайт <strong>не принадлежит</strong> фирме «1С», не является её официальным ресурсом и не использует товарные знаки или эмблемы компании. Мы не представляем фирму «1С».',
+				toolSniffer:
+					'<img class="tool-mark" src="logos/onesniffer.png" alt="" width="18" height="18"><a href="https://github.com/ViktorErmakov/OneSniffer" target="_blank" rel="noopener noreferrer">OneSniffer</a> — HTTP внутри 1С: запрос, ответ, повтор и curl.',
+				toolKanban:
+					'<img class="tool-mark" src="logos/onekanban.png" alt="" width="18" height="18"><a href="https://viktorermakov.github.io/OneKanban/" target="_blank" rel="noopener noreferrer">OneKanban</a> — канбан-доска в поле HTML.',
+				toolConversion:
+					'<img class="tool-mark" src="logos/conversion.png" alt="" width="18" height="18"><a href="https://github.com/ViktorErmakov/Conversion-3-Plus" target="_blank" rel="noopener noreferrer">Conversion 3 Plus</a> — консоль кода в Конвертации данных 3.1.',
 				about3:
 					'На первом этапе материалы ориентированы в первую очередь на <strong>разработчиков</strong>. На ленте можно фильтровать по источнику и языку; новости сгруппированы по типу источника: сайты, Telegram, видеохостинги.',
 				about4Prefix: 'Пожелания, идеи по источникам и замечания к дайджесту можно ',
@@ -155,7 +167,13 @@
 					'OneS News settings: which sources to show on the feed and what is stored in the browser.',
 			},
 			skip: 'Skip to content',
-			nav: { appearance: 'Appearance', about: 'About' },
+			nav: { appearance: 'Appearance', about: 'About', tools: 'Tools' },
+			tools: {
+				label: 'Tools',
+				sniffer: 'OneSniffer',
+				kanban: 'OneKanban',
+				conversion: 'Conversion 3 Plus',
+			},
 			settings: 'Settings',
 			channel: 'Telegram channel',
 			closeSettings: 'Close settings',
@@ -226,6 +244,12 @@
 					'OneS News collects 1C-world news from public sources and publishes a daily digest with links to the originals.',
 				about2:
 					'The site is <strong>not affiliated</strong> with the 1C company, is not its official resource, and does not use the company’s trademarks or emblems. We do not represent 1C.',
+				toolSniffer:
+					'<img class="tool-mark" src="logos/onesniffer.png" alt="" width="18" height="18"><a href="https://github.com/ViktorErmakov/OneSniffer" target="_blank" rel="noopener noreferrer">OneSniffer</a> — HTTP inside 1C: request, response, replay, and curl.',
+				toolKanban:
+					'<img class="tool-mark" src="logos/onekanban.png" alt="" width="18" height="18"><a href="https://viktorermakov.github.io/OneKanban/" target="_blank" rel="noopener noreferrer">OneKanban</a> — a kanban board in an HTML field.',
+				toolConversion:
+					'<img class="tool-mark" src="logos/conversion.png" alt="" width="18" height="18"><a href="https://github.com/ViktorErmakov/Conversion-3-Plus" target="_blank" rel="noopener noreferrer">Conversion 3 Plus</a> — a code console for Data Conversion 3.1.',
 				about3:
 					'At this stage the materials are aimed primarily at <strong>developers</strong>. The feed can be filtered by source and language; news is grouped by source type: sites, Telegram, video hosts.',
 				about4Prefix: 'Suggestions, source ideas and notes about the digest can be sent by ',

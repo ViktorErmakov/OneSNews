@@ -1480,6 +1480,25 @@ body.settings-open .columns-toggle {
 	gap: 0.35rem 1rem;
 }
 
+.tool-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.tool-link img,
+.tool-mark {
+	width: 1.15rem;
+	height: 1.15rem;
+	border-radius: 0.28rem;
+	object-fit: contain;
+}
+
+.tool-mark {
+	vertical-align: -0.22rem;
+	margin-right: 0.28rem;
+}
+
 .footer-inner a,
 .footer-nav .settings-close,
 .about a {

@@ -243,6 +243,18 @@ test.describe('Лента', () => {
 		const channel = footer.getByRole('link', { name: 'Telegram-канал' });
 		await expect(channel).toHaveAttribute('href', 'https://t.me/Ones_News');
 		await expect(channel).toHaveAttribute('target', '_blank');
+		await expect(footer.getByRole('link', { name: 'OneSniffer' })).toHaveAttribute(
+			'href',
+			'https://github.com/ViktorErmakov/OneSniffer',
+		);
+		await expect(footer.getByRole('link', { name: 'OneKanban' })).toHaveAttribute(
+			'href',
+			'https://viktorermakov.github.io/OneKanban/',
+		);
+		await expect(footer.getByRole('link', { name: 'Conversion 3 Plus' })).toHaveAttribute(
+			'href',
+			'https://github.com/ViktorErmakov/Conversion-3-Plus',
+		);
 		const aboutChannel = page.locator('#about a.js-channel');
 		await expect(aboutChannel).toHaveText('Telegram-канале');
 		await expect(aboutChannel).toHaveAttribute('href', 'https://t.me/Ones_News');
@@ -256,6 +268,19 @@ test.describe('Лента', () => {
 		await expect(page.locator('#feed-footer').getByRole('link', { name: 'Telegram channel' })).toHaveAttribute(
 			'href',
 			'https://t.me/Ones_News',
+		);
+		const tools = page.locator('#feed-footer');
+		await expect(tools.getByRole('link', { name: 'OneSniffer' })).toHaveAttribute(
+			'href',
+			'https://github.com/ViktorErmakov/OneSniffer',
+		);
+		await expect(tools.getByRole('link', { name: 'OneKanban' })).toHaveAttribute(
+			'href',
+			'https://viktorermakov.github.io/OneKanban/',
+		);
+		await expect(tools.getByRole('link', { name: 'Conversion 3 Plus' })).toHaveAttribute(
+			'href',
+			'https://github.com/ViktorErmakov/Conversion-3-Plus',
 		);
 		await expect(page.locator('#about a.js-channel')).toHaveText('Telegram channel');
 		await expect(page.locator('#about a.js-channel')).toHaveAttribute('href', 'https://t.me/Ones_News');
