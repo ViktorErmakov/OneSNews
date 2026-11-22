@@ -170,6 +170,13 @@
       "source_type": "video",
       "language": "ru",
       "group": "YouTube"
+    },
+    {
+      "name": "1C AI Club",
+      "home": "https://www.youtube.com/@1CAIClub",
+      "source_type": "video",
+      "language": "ru",
+      "group": "YouTube"
     }
   ]
 }

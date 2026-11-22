@@ -174,3 +174,9 @@ video:
       fetch: youtube_rss
       language: ru
       enabled: true
+    - name: "1C AI Club"
+      url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCixNIKfE1d3A93yUe1L6wTw"
+      home: "https://www.youtube.com/@1CAIClub"
+      fetch: youtube_rss
+      language: ru
+      enabled: true
