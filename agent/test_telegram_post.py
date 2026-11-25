@@ -7,6 +7,7 @@ from telegram_post import (
 	html_escape,
 	pack_tagged,
 	ru_materials,
+	source_bar,
 )
 
 
@@ -55,6 +56,12 @@ class TelegramFormatTests(unittest.TestCase):
 		self.assertEqual(ru_materials(21), "21 материал")
 		self.assertEqual(ru_materials(22), "22 материала")
 
+	def test_bar_keeps_small_source_visible(self) -> None:
+		self.assertEqual(len(source_bar(40, 40)), 8)
+		self.assertEqual(source_bar(0, 40), "")
+		self.assertGreater(len(source_bar(3, 40)), 1)
+		self.assertLess(len(source_bar(3, 40)), len(source_bar(40, 40)))
+
 	def test_summary_counts_homes_and_day_link(self) -> None:
 		messages = build_messages(sample_day(), HOMES)
 		summary = messages[0]["text"]
@@ -63,8 +70,9 @@ class TelegramFormatTests(unittest.TestCase):
 		self.assertIn("🌐 <b>Сайты</b>", summary)
 		self.assertNotIn("Telegram", summary)
 		self.assertNotIn("Хатка Бобра", summary)
-		self.assertIn('<a href="https://infostart.ru/">Infostart</a> · 2', summary)
-		self.assertIn("Черновик · 1", summary)
+		self.assertIn(f'{source_bar(2, 2)} <a href="https://infostart.ru/">Infostart</a> · 2', summary)
+		self.assertIn(f"{source_bar(1, 2)} Черновик · 1", summary)
+		self.assertLess(len(source_bar(1, 2)), len(source_bar(2, 2)))
 		self.assertNotIn('href="https://example.com/plain"', summary)
 		self.assertIn(
 			"<blockquote>Читать день на сайте\nhttps://enterprisehub.dev/?date=2026-11-15</blockquote>",

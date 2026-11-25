@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import os
 import time
 import urllib.error
@@ -30,6 +31,8 @@ SECTION_EMOJI = {
 	"video": "▶️",
 	"other": "📌",
 }
+BAR = "█"
+BAR_MAX = 8
 
 
 def ru_materials(count: int) -> str:
@@ -100,6 +103,15 @@ def digest_items(day: dict) -> list[dict]:
 	]
 
 
+def source_bar(count: int, top: int, width: int = BAR_MAX) -> str:
+	"""Bar length follows sqrt(count), so a small source stays visible next to a large one."""
+	if count <= 0 or top <= 0 or width <= 0:
+		return ""
+	ratio = math.sqrt(count) / math.sqrt(top)
+	cells = max(1, round(ratio * width))
+	return BAR * min(width, cells)
+
+
 def grouped_sources(items: list[dict], homes: dict[str, str]) -> list[tuple[str, list[tuple[str, int, str | None]]]]:
 	counts: dict[tuple[str, str], int] = {}
 	for item in items:
@@ -123,20 +135,24 @@ def summary_lines(day: dict, homes: dict[str, str]) -> list[str]:
 	title = str(day.get("title") or "").strip()
 	if not title:
 		title = russian_day_title(date.fromisoformat(str(day["date"])))
+	groups = grouped_sources(items, homes)
+	top = max((count for _, rows in groups for _, count, _ in rows), default=0)
 	lines = [
 		f"📰 <b>{html_escape(title)}</b>",
 		f"<i>{ru_materials(len(items))}</i>",
 		"",
 	]
-	for section, rows in grouped_sources(items, homes):
+	for section, rows in groups:
 		emoji = SECTION_EMOJI[section]
 		lines.append(f"{emoji} <b>{SECTION_LABELS[section]}</b>")
 		for name, count, home in rows:
 			label = html_escape(name)
+			bar = source_bar(count, top)
+			prefix = f"{bar} " if bar else ""
 			if home:
-				lines.append(f'<a href="{href_attr(home)}">{label}</a> · {count}')
+				lines.append(f'{prefix}<a href="{href_attr(home)}">{label}</a> · {count}')
 			else:
-				lines.append(f"{label} · {count}")
+				lines.append(f"{prefix}{label} · {count}")
 		lines.append("")
 	day_url = f"{SITE_ORIGIN}/?date={day['date']}"
 	lines.append(f"<blockquote>Читать день на сайте\n{day_url}</blockquote>")
