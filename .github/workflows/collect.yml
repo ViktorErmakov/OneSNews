@@ -11,6 +11,7 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
@@ -98,13 +99,10 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  deploy:
+  upload:
     needs: [collect, test]
     if: needs.collect.outputs.changed == 'true'
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -125,19 +123,28 @@ jobs:
         with:
           path: _site
 
+  # Отдельный джоб: deploy-pages читает артефакт github-pages через API,
+  # и в том же джобе сразу после upload его ещё нет.
+  deploy:
+    needs: upload
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
   telegram:
-    needs: [collect, test, deploy]
+    needs: [collect, test, upload, deploy]
     if: >-
       always() &&
       needs.collect.result == 'success' &&
       needs.test.result == 'success' &&
       (
         needs.deploy.result == 'success' ||
-        needs.deploy.result == 'skipped' ||
+        (needs.upload.result == 'skipped' && needs.deploy.result == 'skipped') ||
         (github.event_name == 'workflow_dispatch' && github.event.inputs.post_date != '')
       )
     runs-on: ubuntu-latest
